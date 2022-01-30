@@ -19,3 +19,7 @@ for i in range(10000):
     x.extend([x[i] + dt*dx(sigma, x[i], y[i])])
     y.extend([y[i] + dt*dy(rho, x[i], y[i], z[i])])
     z.extend([z[i] + dt*dz(beta, x[i], y[i], z[i])])
+	
+	print(x[-1])
+	print(y[-1])
+	print(z[-1])
