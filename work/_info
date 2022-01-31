@@ -9,13 +9,13 @@ z2
 cModel Technology
 dC:/altera/15.0
 vfull_integrator
-Z0 !s110 1643576159
+Z0 !s110 1643661022
 !i10b 1
-!s100 JihbGCK^cAgz9_KbKz_d_2
-IO@JGzf4^]F>8k<Nz3:``30
+!s100 Sj5==^hhNBCS`>fc;KT470
+IA?JUD^]4VhggSUHekOQhC1
 Z1 V`JN@9S9cnhjKRR_L]QIcM3
 Z2 dC:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66
-Z3 w1643576156
+Z3 w1643660042
 Z4 8C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1_testbench.v
 Z5 FC:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1_testbench.v
 L0 76
@@ -23,116 +23,116 @@ Z6 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z7 !s108 1643576159.899000
+Z7 !s108 1643661022.267000
 Z8 !s107 lab1/lab1_integrator.v|C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1_testbench.v|
 Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1_testbench.v|
 !i113 1
 Z10 o-work work
 vfunctx
-Z11 !s110 1643576160
+R0
 !i10b 1
-!s100 UNKAk<_M1]RIn?37j3KIR1
-IafoA<A?0Q46X5a2IY3iO@1
+!s100 W6TzbBBl6`?>AFTN;_?k60
+IZzf9iNmJcbaTYKNB;O`BH1
 R1
 R2
-Z12 w1643576079
-Z13 8C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v
-Z14 FC:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v
-L0 40
+Z11 w1643661012
+Z12 8C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v
+Z13 FC:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v
+L0 50
 R6
 r1
 !s85 0
 31
-Z15 !s108 1643576160.085000
-Z16 !s107 C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v|
-Z17 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v|
+Z14 !s108 1643661022.443000
+Z15 !s107 C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v|
+Z16 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/ECE 5760 sgp62_rbm244_hlg66/lab1/lab1_integrator.v|
 !i113 1
 R10
 vfuncty
-R11
+R0
 !i10b 1
-!s100 nUo0KTbanoh[I[QcDYm792
-InXADo6<_mKk`WVV>cZC441
+!s100 `MzH2e57RPMoRe_kaiE_:0
+I2dS_AeIeL02h_]H0Y;:1k3
 R1
 R2
+R11
 R12
 R13
-R14
-L0 57
+L0 70
 R6
 r1
 !s85 0
 31
+R14
 R15
 R16
-R17
 !i113 1
 R10
 vfunctz
-R11
+R0
 !i10b 1
-!s100 <oSR_32BQgWb?>YWUID=c1
-Ikj9caR=<RD:nKTd15>D?50
+!s100 a5f3[P3bWD<]_1AU[_aek2
+I_>G`h7UcRb>7<5CII5d1F3
 R1
 R2
+R11
 R12
 R13
-R14
-L0 75
+L0 93
 R6
 r1
 !s85 0
 31
+R14
 R15
 R16
-R17
 !i113 1
 R10
 vintegrator
-R11
+R0
 !i10b 1
-!s100 0WkbOGe=c[lP^BjfD@d0G0
-I9nPMQ3UU;UjaiDiC98h2>0
+!s100 Rl9T]J?GohB@=N8?BE;BP3
+I;gaA[kb^MOQzcjCY<o4Q>1
 R1
 R2
+R11
 R12
 R13
-R14
-L0 17
+L0 27
 R6
 r1
 !s85 0
 31
+R14
 R15
 R16
-R17
 !i113 1
 R10
 vsigned_mult
-R11
+R0
 !i10b 1
-!s100 GcDTHSENePHiC7QY>hPcZ3
-IzfPUc7WB3^VfU0VdelzV93
+!s100 <YIR2mE573>igX7bcKz953
+IoFcdJi@N<D:GN=5]6A8B90
 R1
 R2
+R11
 R12
 R13
-R14
-L0 95
+L0 118
 R6
 r1
 !s85 0
 31
+R14
 R15
 R16
-R17
 !i113 1
 R10
 vtestbench
 R0
 !i10b 1
-!s100 G^AjN[`lRMD>Sd0ee`R_P3
-I05DBCjiRje>Ee44LjIDQ_3
+!s100 S8RbVWLCC7>6?UHKb>leM3
+ICSICM_4P[k[2:Gm>9R:k70
 R1
 R2
 R3

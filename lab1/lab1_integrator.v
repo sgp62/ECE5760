@@ -35,7 +35,7 @@ module integrator(out,funct,InitialOut,clk,reset);
   
   always @ (posedge clk) 
   begin
-    if (reset==0) //reset 
+    if (reset==1) //reset 
       v1 <= InitialOut ; // 
     else 
       v1 <= v1new ; 
@@ -54,10 +54,13 @@ module functx(xk_new, sigma, xk, yk, dt);
   input signed [26:0] xk;
   input signed [26:0] yk;
   input signed [26:0] dt;
-  wire  signed [26:0] xk_temp;
+  wire  signed [26:0] temp;
 
-  signed_mult mult (.out(xk_temp), .a(sigma), .b(yk-xk));
-  signed_mult mult2 (.out(xk_new), .a(dt), .b(xk_temp)); //Will this be zero?
+  //signed_mult mult (.out(xk_temp), .a(sigma), .b(yk-xk));
+  //signed_mult mult2 (.out(xk_new), .a(dt), .b(xk_temp));
+  signed_mult mult (.out(temp), .a(sigma), .b(dt));
+  signed_mult mult2 (.out(xk_new), .a(yk-xk), .b(temp));
+  
 endmodule
 
 //////////////////////////////////////////////////
@@ -72,10 +75,15 @@ module functy(yk_new, rho, xk, yk, zk, dt);
   input signed [26:0] yk;
   input signed [26:0] zk;
   input signed [26:0] dt;
-  wire  signed [26:0] yk_temp;
+  wire  signed [26:0] temp;
+  wire  signed [26:0] temp2;
+  wire  signed [26:0] temp3;
 
-  signed_mult mult (.out(yk_temp), .a(xk), .b(rho-zk));
-  signed_mult mult2 (.out(yk_new), .a(dt), .b(yk_temp-yk)); //Will this be zero?
+  signed_mult mult (.out(temp), .a(xk), .b(dt));
+  signed_mult mult2 (.out(temp2), .a(yk), .b(dt));
+  signed_mult mult3 (.out(temp3), .a(rho-zk), .b(temp));
+  assign yk_new = temp3 - temp2;
+  
 endmodule
 
 //////////////////////////////////////////////////
@@ -90,12 +98,17 @@ module functz(zk_new, beta, xk, yk, zk, dt);
   input signed [26:0] zk;
   input signed [26:0] dt;
   input signed [26:0] beta;
-  wire  signed [26:0] x_y;
-  wire  signed [26:0] beta_z;
+  wire  signed [26:0] x_dt;
+  wire  signed [26:0] z_dt;
+  wire  signed [26:0] temp;
+  wire  signed [26:0] temp2;
   
-  signed_mult mult (.out(x_y), .a(xk), .b(yk));
-  signed_mult mult2 (.out(beta_z), .a(beta), .b(zk));
-  signed_mult mult3 (.out(zk_new), .a(x_y - beta_z), .b(dt));
+  signed_mult mult (.out(x_dt), .a(xk), .b(dt));
+  signed_mult mult2 (.out(temp), .a(yk), .b(x_dt));
+  signed_mult mult3 (.out(z_dt), .a(zk), .b(dt));
+  signed_mult mult4 (.out(temp2), .a(beta), .b(z_dt));
+  assign zk_new = temp-temp2;
+
 endmodule
 
 //////////////////////////////////////////////////

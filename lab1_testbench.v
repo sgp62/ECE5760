@@ -27,7 +27,7 @@ module testbench();
 		beta  = 27'h2_aaaaa;
 		rho   = 27'h1c_00000;
 		dt    = 27'h0_01000;
-		xi    = -27'h1_00000;
+		xi    = -27'sh1_00000;
 		yi    = 27'h0_19999;
 		zi    = 27'h19_00000;
 	end
@@ -90,20 +90,19 @@ module full_integrator(clk, reset, sigma, beta, rho, dt, xi, yi, zi, xout, yout,
 	output signed [26:0]  yout;
 	output signed [26:0]  zout;
 
-	wire   signed [26:0]  xk;
-	wire   signed [26:0]  yk;
-	wire   signed [26:0]  zk;
-
 	wire   signed [26:0]  xk_new;
 	wire   signed [26:0]  yk_new;
 	wire   signed [26:0]  zk_new;
 
-	functx fx (xk_new, sigma, xk, yk, dt);
-	functy fy (yk_new, rho, xk, yk, zk ,dt);
-	functz fz (zk_new, beta, xk, yk, zk, dt);
+	
+
+	functx fx (xk_new, sigma, xout, yout, dt);
+	functy fy (yk_new, rho, xout, yout, zout ,dt);
+	functz fz (zk_new, beta, xout, yout, zout, dt);
 
 	integrator x_int (xout, xk_new, xi, clk, reset);
 	integrator y_int (yout, yk_new, yi, clk, reset);
 	integrator z_int (zout, zk_new, zi, clk, reset);
+	//Undefined output could be because one of the inputs is not defined from the module
 
 endmodule
