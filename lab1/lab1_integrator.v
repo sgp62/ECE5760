@@ -9,6 +9,16 @@
 //        count <= count + 1; 
 //end 
 //assign AnalogClock = (count==0);    
+
+/*
+  Helpful Notes from Lecture 1/31
+  - Do we need to store the current time t anywhere?
+  - Consider doing a shift with dt rather than a multiply (it is 1/256 so it would be >> 8)
+  - Look into issues with the clk selection in the modelsim - generate a clock in C code(???)
+  - Check in on the low reset condition in the integrator
+  - Possibly make the integrator into a single integrator that takes in all 3 x,y,z and calculates new value
+  - Look for overflow issues - symptom is the system looking like a damped oscillator
+*/
     
 /////////////////////////////////////////////////
 //// integrator /////////////////////////////////
@@ -44,10 +54,10 @@ module functx(xk_new, sigma, xk, yk, dt);
   input signed [26:0] xk;
   input signed [26:0] yk;
   input signed [26:0] dt;
-    wire  signed [26:0] xk_temp;
+  wire  signed [26:0] xk_temp;
 
-    signed_mult mult (.out(xk_temp), .a(sigma), .b(yk-xk));
-    signed_mult mult2 (.out(xk_new), .a(dt), .b(xk_temp)); //Will this be zero?
+  signed_mult mult (.out(xk_temp), .a(sigma), .b(yk-xk));
+  signed_mult mult2 (.out(xk_new), .a(dt), .b(xk_temp)); //Will this be zero?
 endmodule
 
 //////////////////////////////////////////////////
@@ -64,7 +74,7 @@ module functy(yk_new, rho, xk, yk, zk, dt);
   input signed [26:0] dt;
   wire  signed [26:0] yk_temp;
 
-    signed_mult mult (.out(yk_temp), .a(xk), .b(rho-zk));
+  signed_mult mult (.out(yk_temp), .a(xk), .b(rho-zk));
   signed_mult mult2 (.out(yk_new), .a(dt), .b(yk_temp-yk)); //Will this be zero?
 endmodule
 
