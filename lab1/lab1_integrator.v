@@ -111,6 +111,43 @@ module functz(zk_new, beta, xk, yk, zk, dt);
 
 endmodule
 
+module full_integrator(clk, reset, sigma, beta, rho, dt, xi, yi, zi, xout, yout, zout);
+
+	input clk, reset;
+	input  signed [26:0]  sigma;
+	input  signed [26:0]  beta;
+	input  signed [26:0]  rho;
+
+	input  signed [26:0]  xi;
+	input  signed [26:0]  yi;
+	input  signed [26:0]  zi;
+
+	input  signed [26:0]  dt;
+
+	output signed [26:0]  xout;
+	output signed [26:0]  yout;
+	output signed [26:0]  zout;
+
+	wire   signed [26:0]  xk_new;
+	wire   signed [26:0]  yk_new;
+	wire   signed [26:0]  zk_new;
+
+	
+
+	functx fx (xk_new, sigma, xout, yout, dt);
+	functy fy (yk_new, rho, xout, yout, zout ,dt);
+	functz fz (zk_new, beta, xout, yout, zout, dt);
+
+	integrator x_int (xout, xk_new, xi, clk, reset);
+	integrator y_int (yout, yk_new, yi, clk, reset);
+	integrator z_int (zout, zk_new, zi, clk, reset);
+	//Undefined output could be because one of the inputs is not defined from the module
+
+endmodule
+
+//full_integrator lab1_dda (clk_50, reset, sigma, beta, rho, dt, xi, yi, zi, xout, yout, zout);
+
+
 //////////////////////////////////////////////////
 //// signed mult of 7.20 format 2'comp////////////
 //////////////////////////////////////////////////
