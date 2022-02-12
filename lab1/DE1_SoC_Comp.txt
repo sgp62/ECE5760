@@ -368,16 +368,50 @@ wire signed [26:0]  xout;
 wire signed [26:0]  yout;
 wire signed [26:0]  zout;
 
+wire signed [31:0]  sigma_wire;
+wire signed [31:0]  beta_wire;
+wire signed [31:0]  rho_wire;
+
+wire signed [31:0]  xi_wire;
+wire signed [31:0]  yi_wire;
+wire signed [31:0]  zi_wire;
+
+reg signed [26:0]  xi_prev;
+reg signed [26:0]  yi_prev;
+reg signed [26:0]  zi_prev;
+
+wire [7:0]  arm_clk_reset_in;
+wire clk;
+wire reset;
+
+assign clk = arm_clk_reset_in[0];
+assign reset = arm_clk_reset_in[1];
+
 //Initialize constants
-always @ (*) 
-  begin
-	sigma <= 27'ha_00000;
-	beta  <= 27'h2_aaaaa;
-	rho   <= 27'h1c_00000;
-	dt    <= 27'h0_01000;
-	xi    <= -27'sh1_00000;
-	yi    <= 27'h0_19999;
-	zi    <= 27'h19_00000;
+always @ (posedge clk) begin
+  dt    <= 27'h0_01000;
+//		sigma <= 27'ha_00000;
+//		beta  <= 27'h2_aaaaa;
+//		rho   <= 27'h1c_00000;
+//		xi    <= -27'sh1_00000;
+//		yi    <= 27'h0_19999;
+//		zi    <= 27'h19_00000;
+	sigma <= sigma_wire[26:0];
+	beta  <= beta_wire[26:0];
+	rho   <= rho_wire[26:0];
+  if (reset == 1) begin
+		xi_prev <= xi_wire[26:0];
+		yi_prev <= yi_wire[26:0];
+		zi_prev <= zi_wire[26:0];
+		xi    <= xi_prev;
+		yi    <= yi_prev;
+		zi    <= zi_prev;
+	end
+	else begin
+		xi    <= xi_prev;
+		yi    <= yi_prev;
+		zi    <= zi_prev;
+	end
 end
 
 //=======================================================
@@ -408,14 +442,13 @@ HexDigit Digit3(HEX3, hex3_hex0[15:12]);
 wire [31:0] fpga_xout;
 wire [31:0] fpga_yout;
 wire [31:0] fpga_zout;
-wire [7:0]  arm_clk_reset_in;
 
 assign fpga_xout = { {5{xout[26]}}, {xout[26:0]} };
 assign fpga_yout = { {5{yout[26]}}, {yout[26:0]} };
 assign fpga_zout = { {5{zout[26]}}, {zout[26:0]} };
 
 //Lorenz System Integrator
-full_integrator lab1_dda (arm_clk_reset_in[0], arm_clk_reset_in[1], sigma, beta, rho, dt, xi, yi, zi, xout, yout, zout);
+full_integrator lab1_dda (clk, reset, sigma, beta, rho, dt, xi, yi, zi, xout, yout, zout);
 
 //=======================================================
 //  Structural coding
@@ -435,6 +468,12 @@ Computer_System The_System (
 	.pio_fpga_yout_external_connection_export 	(fpga_yout),
 	.pio_fpga_zout_external_connection_export 	(fpga_zout),
 	.arm_clk_reset_external_connection_export    (arm_clk_reset_in),
+	.pio_sigma_external_connection_export        (sigma_wire),
+	.pio_beta_external_connection_export         (beta_wire),
+	.pio_rho_external_connection_export          (rho_wire),
+	.pio_xi_external_connection_export           (xi_wire),
+	.pio_yi_external_connection_export           (yi_wire),
+	.pio_zi_external_connection_export           (zi_wire),
 	
 	
 	// AV Config

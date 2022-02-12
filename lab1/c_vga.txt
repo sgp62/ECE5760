@@ -7,6 +7,7 @@
 ///
 ///////////////////////////////////////
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -28,13 +29,30 @@
 #define XOUT_READ             0x5000000
 #define YOUT_READ             0x5000010
 #define ZOUT_READ             0x5000020
+
 #define CLK_RESET_WRITE       0x5000030
+
+#define SIGMA_WRITE           0x5000040
+#define BETA_WRITE            0x5000050
+#define RHO_WRITE             0x5000060
+
+#define XI_WRITE              0x5000070
+#define YI_WRITE              0x5000080
+#define ZI_WRITE              0x5000090
 
 
 volatile int * pio_fpga_xout_ptr = NULL;
 volatile int * pio_fpga_yout_ptr = NULL;
 volatile int * pio_fpga_zout_ptr = NULL;
 volatile unsigned int * pio_clk_reset_ptr = NULL;
+
+volatile int * pio_sigma_ptr = NULL;
+volatile int * pio_beta_ptr = NULL;
+volatile int * pio_rho_ptr = NULL;
+
+volatile int * pio_xi_ptr = NULL;
+volatile int * pio_yi_ptr = NULL;
+volatile int * pio_zi_ptr = NULL;
 
 float fix_to_float(int);
 
@@ -99,30 +117,89 @@ struct timeval t1, t2;
 double elapsedTime;
 
 //clock period in microseconds
-unsigned long clock_period = 1000000;
+unsigned long clock_period = 10000;
 
-#define SCALE (4)
+//token for string parsing
+char *token;
+
+unsigned int updated_params=0;
+
+#define SCALE (4.6)
 
 //Mutexes
 
 pthread_mutex_t clk_mtx = PTHREAD_MUTEX_INITIALIZER;
 char input_buffer[64];
 
-void * scanner()
-{
-  while(1)
-  {
-    printf("Press any key to reset");
-    scanf("%s", input_buffer);
-  	// clear the screen
+void reset(void){
   	VGA_box (0, 0, 639, 479, 0x0000);
-    
     pthread_mutex_lock(&clk_mtx);
     *pio_clk_reset_ptr = 2; //10
     *pio_clk_reset_ptr = 3; //11
     *pio_clk_reset_ptr = 0; //00
     pthread_mutex_unlock(&clk_mtx);
+}
+
+void reset_and_init(void){
+    printf("Enter values for initial conditions in the form: xi,yi,zi:\n");
+    scanf("%s", input_buffer);
+    //parse string for initial conditions
+    token = strtok(input_buffer,",");
+    *pio_xi_ptr = float_to_fix(atof(token));
+    
+    token = strtok(NULL,",");
+    *pio_yi_ptr = float_to_fix(atof(token));
+    
+    token = strtok(NULL,",");
+    *pio_zi_ptr = float_to_fix(atof(token));
+    reset();+
+}
+
+void * scanner()
+{
+  while(1)
+  {
+    printf("Enter R:reset, A:start, O:stop, SP:<1-10>:speed, SIG:<#>:sigma, BETA:<#>:beta, RHO:<#>:rho\n");
+    scanf("%s", input_buffer);
+    
+    token = strtok(input_buffer,":");
+    printf("token: %s\n", token);
+    if(strcmp(token,"R")==0){
+        //reset and set initial conditions
+        //CLEAR SCREEN
+        reset_and_init();
+    }
+    else if(strcmp(token,"A")==0){
+    }
+    else if(strcmp(token,"O")==0){
+    }
+    else if(strcmp(token,"SP")==0){
+      token = strtok(NULL,":");
+      clock_period = (unsigned long) (10000/(atof(token)));
+    }
+    else if(strcmp(token,"SIG")==0){
+      token = strtok(NULL,":");
+      *pio_sigma_ptr = float_to_fix(atof(token));
+      updated_params = 1;
+      reset();
+    }
+    else if(strcmp(token,"BETA")==0){
+      token = strtok(NULL,":");
+      *pio_beta_ptr = float_to_fix(atof(token));
+      updated_params = 1;
+      reset();
+    }
+    else if(strcmp(token,"RHO")==0){
+      token = strtok(NULL,":");
+      *pio_rho_ptr = float_to_fix(atof(token));
+      updated_params = 1;
+      reset();
+    }
+    else {
+    printf("Unrecognized format...please try again.\n");
+    }
   }
+
 }
 
 void * draw_and_clock()
@@ -143,8 +220,7 @@ void * draw_and_clock()
     z = SCALE*fix_to_float(*pio_fpga_zout_ptr);
     gettimeofday(&t1, NULL);
     if(((unsigned long)t1.tv_usec - last_time) > clock_period ){
-      printf("tick ");
-      last_time = (unsigned long)time(NULL);
+      last_time = (unsigned long)t1.tv_usec;
       pthread_mutex_lock(&clk_mtx);
       *pio_clk_reset_ptr = *pio_clk_reset_ptr ^ 0x1;
       pthread_mutex_unlock(&clk_mtx);
@@ -155,13 +231,30 @@ void * draw_and_clock()
       
       //x-z view
       //note: DOES NOT HAVE BOUNDARY CHECK - beware of segfault
-      VGA_PIXEL((unsigned int)(150+x),(unsigned int)(220+z),yellow);
+      VGA_PIXEL((unsigned int)(150+x),(unsigned int)(210+z),yellow);
       
       //y-z view
       //note: DOES NOT HAVE BOUNDARY CHECK - beware of segfault
-      VGA_PIXEL((unsigned int)(520+y),(unsigned int)(220+z),cyan);
+      VGA_PIXEL((unsigned int)(520+y),(unsigned int)(210+z),cyan);
       
       //VGA_circle(x_vga, y_vga, 2, white);
+      
+      if(updated_params){
+      	// clear the text
+      	VGA_text_clear();
+      	// display parameters
+       	char sigma_text[40]; 
+       	char beta_text[40]; 
+       	char rho_text[40]; 
+        sprintf(sigma_text, "sigma: %f", fix_to_float(*pio_sigma_ptr));
+        sprintf(beta_text, "beta: %f", fix_to_float(*pio_beta_ptr));
+        sprintf(rho_text, "rho: %f", fix_to_float(*pio_rho_ptr));
+      	VGA_text (10, 1, sigma_text);
+      	VGA_text (10, 2, beta_text);
+      	VGA_text (10, 3, rho_text);
+        updated_params = 0;
+      }
+      
     } 
   }
 }
@@ -170,6 +263,14 @@ float fix_to_float(int fix)
 {
   //fix: {31:20} int bits {19:0} decimal bits
   return ((float)fix / (float)(1 << 20));
+  
+}
+	
+
+int float_to_fix(double f)
+{
+  //fix: {31:20} int bits {19:0} decimal bits
+  return (int)((float)f * (float)(1<<20));
   
 }
 	
@@ -226,7 +327,16 @@ int main(void)
   pio_fpga_xout_ptr = (unsigned int *)(vga_pixel_virtual_base + XOUT_READ);
   pio_fpga_yout_ptr = (unsigned int *)(vga_pixel_virtual_base + YOUT_READ);
   pio_fpga_zout_ptr = (unsigned int *)(vga_pixel_virtual_base + ZOUT_READ);
+  
   pio_clk_reset_ptr = (unsigned int *)(vga_pixel_virtual_base + CLK_RESET_WRITE);
+  
+  pio_sigma_ptr = (unsigned int *)(vga_pixel_virtual_base + SIGMA_WRITE);
+  pio_beta_ptr = (unsigned int *)(vga_pixel_virtual_base + BETA_WRITE);
+  pio_rho_ptr = (unsigned int *)(vga_pixel_virtual_base + RHO_WRITE);
+  
+  pio_xi_ptr = (unsigned int *)(vga_pixel_virtual_base + XI_WRITE);
+  pio_yi_ptr = (unsigned int *)(vga_pixel_virtual_base + YI_WRITE);
+  pio_zi_ptr = (unsigned int *)(vga_pixel_virtual_base + ZI_WRITE);
   
   
 
@@ -234,17 +344,51 @@ int main(void)
 
 	/* create a message to be displayed on the VGA 
           and LCD displays */
-	char text_top_row[40] = "DE1-SoC ARM/FPGA\0";
-	char text_bottom_row[40] = "Cornell ece5760\0";
-	char text_next[40] = "Graphics primitives\0";
-	char num_string[20], time_string[20] ;
-	char color_index = 0 ;
-	int color_counter = 0 ;
+//	char text_top_row[40] = "DE1-SoC ARM/FPGA\0";
+//	char text_bottom_row[40] = "Cornell ece5760\0";
+//	char text_next[40] = "Graphics primitives\0";
+//	char num_string[20], time_string[20] ;
+//	char color_index = 0 ;
+//	int color_counter = 0 ;
  
  
   VGA_text_clear();
 	// clear the screen
 	VGA_box (0, 0, 639, 479, 0x0000);
+ 
+  printf("Enter values for sigma, beta, and rho in the form: sigma,beta,rho:\n");
+  scanf("%s", input_buffer);
+	//Read and parse string for sigma,beta,rho
+  token = strtok(input_buffer,",");
+  *pio_sigma_ptr = float_to_fix(atof(token));
+  token = strtok(NULL,",");
+  *pio_beta_ptr = float_to_fix(atof(token));
+  token = strtok(NULL,",");
+  *pio_rho_ptr = float_to_fix(atof(token));
+  reset_and_init();
+  
+  updated_params = 1;
+  
+//  printf("Enter values for initial conditions in the form: xi,yi,zi:\n");
+//  scanf("%s", input_buffer);
+//  //parse string for initial conditions
+//  token = strtok(input_buffer,",");
+//  *pio_xi_ptr = float_to_fix(atof(token));
+//  
+//  token = strtok(NULL,",");
+//  *pio_yi_ptr = float_to_fix(atof(token));
+//  
+//  token = strtok(NULL,",");
+//  *pio_zi_ptr = float_to_fix(atof(token));
+//  
+//  //INITAL RESET TO START
+//  pthread_mutex_lock(&clk_mtx);
+//  *pio_clk_reset_ptr = 2; //10
+//  *pio_clk_reset_ptr = 3; //11
+//  *pio_clk_reset_ptr = 0; //00
+//  pthread_mutex_unlock(&clk_mtx);
+  
+  
 	
 //	// position of disk primitive
 //	int disc_x = 0;
@@ -273,12 +417,6 @@ int main(void)
 	// B bits 0-4   mask 0x001f
 	// so color = B+(G<<5)+(R<<11);
  
- 
-  pthread_mutex_lock(&clk_mtx);
-  *pio_clk_reset_ptr = 2; //10
-  *pio_clk_reset_ptr = 3; //11
-  *pio_clk_reset_ptr = 0; //00
-  pthread_mutex_unlock(&clk_mtx);
  
   pthread_t thread_scan, thread_draw;
   
