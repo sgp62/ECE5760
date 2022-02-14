@@ -3,3 +3,12 @@ Computer Station 7
 IP  10.253.17.17
 MAC 12:34:56:78:90:02
 passwd: shrlamp732
+
+Tips to Set up Lab 1 Enviro:
+
+Go to sgp62_... directory, open the computer_640 dir, then open the verilog dir, then DE1_SoC_Computer_640_480.qar file (will open Quartus)
+In the popup, click on destination directory, go BACK one level to verilog/, click OK
+
+To run VGA, need to plug in VGA cable to FPGA, go to programmer in Quartus and run the .sof file 
+
+MobaXTerm SSH: ssh into root@10.253.17.17 with username "root"

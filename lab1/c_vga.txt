@@ -124,6 +124,8 @@ char *token;
 
 unsigned int updated_params=0;
 
+unsigned int paused = 0;
+
 #define SCALE (4.6)
 
 //Mutexes
@@ -132,15 +134,28 @@ pthread_mutex_t clk_mtx = PTHREAD_MUTEX_INITIALIZER;
 char input_buffer[64];
 
 void reset(void){
-  	VGA_box (0, 0, 639, 479, 0x0000);
     pthread_mutex_lock(&clk_mtx);
     *pio_clk_reset_ptr = 2; //10
     *pio_clk_reset_ptr = 3; //11
     *pio_clk_reset_ptr = 0; //00
     pthread_mutex_unlock(&clk_mtx);
+    //clears the screen
+  	VGA_box (0, 0, 639, 479, 0x0000);
 }
 
 void reset_and_init(void){
+    paused = 1;
+    reset();
+    printf("Enter values for sigma, beta, and rho in the form: sigma,beta,rho:\n");
+    scanf("%s", input_buffer);
+  	//Read and parse string for sigma,beta,rho
+    token = strtok(input_buffer,",");
+    *pio_sigma_ptr = float_to_fix(atof(token));
+    token = strtok(NULL,",");
+    *pio_beta_ptr = float_to_fix(atof(token));
+    token = strtok(NULL,",");
+    *pio_rho_ptr = float_to_fix(atof(token));
+    
     printf("Enter values for initial conditions in the form: xi,yi,zi:\n");
     scanf("%s", input_buffer);
     //parse string for initial conditions
@@ -152,26 +167,29 @@ void reset_and_init(void){
     
     token = strtok(NULL,",");
     *pio_zi_ptr = float_to_fix(atof(token));
-    reset();+
+    paused = 0;
 }
 
 void * scanner()
 {
   while(1)
   {
-    printf("Enter R:reset, A:start, O:stop, SP:<1-10>:speed, SIG:<#>:sigma, BETA:<#>:beta, RHO:<#>:rho\n");
+    printf("Enter R:reset, P:pause/play, SP:<#>:speed, SIG:<#>:sigma, BETA:<#>:beta, RHO:<#>:rho, C:clear\n");
     scanf("%s", input_buffer);
     
     token = strtok(input_buffer,":");
-    printf("token: %s\n", token);
+    //printf("token: %s\n", token);
     if(strcmp(token,"R")==0){
         //reset and set initial conditions
         //CLEAR SCREEN
         reset_and_init();
     }
-    else if(strcmp(token,"A")==0){
-    }
-    else if(strcmp(token,"O")==0){
+    else if(strcmp(token,"P")==0){
+      paused = paused ^ 1;
+      pthread_mutex_lock(&clk_mtx);
+      *pio_clk_reset_ptr = 0;
+      pthread_mutex_unlock(&clk_mtx);
+      
     }
     else if(strcmp(token,"SP")==0){
       token = strtok(NULL,":");
@@ -193,6 +211,9 @@ void * scanner()
       token = strtok(NULL,":");
       *pio_rho_ptr = float_to_fix(atof(token));
       updated_params = 1;
+      reset();
+    }
+    else if(strcmp(token,"C")==0){
       reset();
     }
     else {
@@ -219,7 +240,7 @@ void * draw_and_clock()
     y = SCALE*fix_to_float(*pio_fpga_yout_ptr);
     z = SCALE*fix_to_float(*pio_fpga_zout_ptr);
     gettimeofday(&t1, NULL);
-    if(((unsigned long)t1.tv_usec - last_time) > clock_period ){
+    if((((unsigned long)t1.tv_usec - last_time) > clock_period) && !paused){
       last_time = (unsigned long)t1.tv_usec;
       pthread_mutex_lock(&clk_mtx);
       *pio_clk_reset_ptr = *pio_clk_reset_ptr ^ 0x1;
@@ -249,9 +270,20 @@ void * draw_and_clock()
         sprintf(sigma_text, "sigma: %f", fix_to_float(*pio_sigma_ptr));
         sprintf(beta_text, "beta: %f", fix_to_float(*pio_beta_ptr));
         sprintf(rho_text, "rho: %f", fix_to_float(*pio_rho_ptr));
-      	VGA_text (10, 1, sigma_text);
-      	VGA_text (10, 2, beta_text);
-      	VGA_text (10, 3, rho_text);
+      	VGA_text (5, 1, sigma_text);
+      	VGA_text (5, 2, beta_text);
+      	VGA_text (5, 3, rho_text);
+       
+        // label dimensions
+       	char xy_text[]="XY View"; 
+       	char xz_text[]="XZ View"; 
+       	char yz_text[]="YZ View"; 
+//        sprintf(xy_text, "XY View");
+//        sprintf(xz_text, "XZ View");
+//        sprintf(yz_text, "YZ View");
+      	VGA_text (295,5, xy_text);
+      	VGA_text (10, 22, xz_text);
+      	VGA_text (190,21, yz_text);
         updated_params = 0;
       }
       
@@ -355,16 +387,6 @@ int main(void)
   VGA_text_clear();
 	// clear the screen
 	VGA_box (0, 0, 639, 479, 0x0000);
- 
-  printf("Enter values for sigma, beta, and rho in the form: sigma,beta,rho:\n");
-  scanf("%s", input_buffer);
-	//Read and parse string for sigma,beta,rho
-  token = strtok(input_buffer,",");
-  *pio_sigma_ptr = float_to_fix(atof(token));
-  token = strtok(NULL,",");
-  *pio_beta_ptr = float_to_fix(atof(token));
-  token = strtok(NULL,",");
-  *pio_rho_ptr = float_to_fix(atof(token));
   reset_and_init();
   
   updated_params = 1;
