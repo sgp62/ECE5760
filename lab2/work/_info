@@ -1,0 +1,70 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/altera/15.0
+vsigned_mult
+Z0 !s110 1645031670
+!i10b 1
+!s100 nznfROD<F>`=Zk41nc2]n2
+I];^1QJ`;Wa<[lb?z<TkkW2
+Z1 V`JN@9S9cnhjKRR_L]QIcM3
+Z2 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
+Z3 w1645031391
+Z4 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_node.v
+Z5 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_node.v
+L0 52
+Z6 OV;L;10.3d;59
+r1
+!s85 0
+31
+Z7 !s108 1645031670.328000
+Z8 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_node.v|
+Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_node.v|
+!i113 1
+Z10 o-work work
+vsingle_node
+R0
+!i10b 1
+!s100 T9RkY]oTnoGP?KHQ_:gRo1
+I0USK2MX2GNQa;M]]d<e5Y1
+R1
+R2
+R3
+R4
+R5
+L0 4
+R6
+r1
+!s85 0
+31
+R7
+R8
+R9
+!i113 1
+R10
+vtestbench
+R0
+!i10b 1
+!s100 72lk4XNNCg<Y]`i8UBV;>1
+IKGSbQGDcHo0Rk7zRBFN@e3
+R1
+R2
+w1645031665
+8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_testbench.v
+FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_testbench.v
+L0 4
+R6
+r1
+!s85 0
+31
+!s108 1645031670.169000
+!s107 C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_single_node.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_testbench.v|
+!s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_single_testbench.v|
+!i113 1
+R10
