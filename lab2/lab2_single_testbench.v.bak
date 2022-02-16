@@ -13,13 +13,11 @@ module testbench();
 	reg  signed [17:0]  g_tension;
 	reg  signed [17:0]  eta_term;
 
-	wire  signed [17:0] out2;
-    wire  signed [17:0] temp1_trace;
-    wire  signed [17:0] temp2_trace;
+	wire  signed [17:0] out;
 
 
 	//Initialize constants
-	always @ (*) begin
+	initial begin
 		initial_u_n      = 18'h04000;
 		initial_u_n_prev = 18'h04000;
 		rho              = 18'h02000;
@@ -65,8 +63,17 @@ module testbench();
 
 	//Instantiation of Device Under Test
 single_node lab2_single (
-	.clk (clk50),
-	.* 
+	.clk (clk_25),
+	.reset (reset),
+	.out (out),
+	.initial_u_n (initial_u_n),
+	.initial_u_n_prev (initial_u_n_prev),
+	.rho (rho),
+	.g_tension (g_tension),
+	.eta_term (eta_term)
 );
+
+
+//single_node lab2_single (clk_50, reset, out, initial_u_n, initial_u_n_prev, rho, g_tension, eta_term, temp1_trace, temp2_trace);
 	
 endmodule
