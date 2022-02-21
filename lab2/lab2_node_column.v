@@ -6,11 +6,12 @@ module M10K_512_18(
 	output reg signed [17:0] q,
 	input signed [17:0] data,
 	input [8:0] wraddress, rdaddress,
-	input wren, clock
+	input wren, rden, clock
 );
 	
 	reg [8:0] read_address_reg;
 	reg signed [17:0] mem [511:0];
+	reg rden_reg;
 	
 	always @ (posedge clock)
 	begin
@@ -18,8 +19,11 @@ module M10K_512_18(
 			mem[wraddress] <= data;
 	end
 	always @ (posedge clock) begin
+		if (rden_reg)
+			q <= mem[read_address_reg];
 		read_address_reg <= rdaddress;
-		q <= mem[read_address_reg]; // Remember to change because not synthesizable
+		rden_reg <= rden;
+		 // Remember to change because not synthesizable
 	end
 endmodule 
 
@@ -49,13 +53,17 @@ module column_node(
   
 
   //assign rho_eff = (0.49 < (rho + u_cent_g_tension)) ? 0.49:(rho + u_cent_g_tension);
-  assign u_cent = u_n;
-  assign out = u_n;
+  //assign u_cent = u_n;
+  assign out = u_n_next;
   //signed_mult mult4 (.out(u_cent_g_tension), .a(u_cent), .b(g_tension));
   
   //u_n_next = (1-eta_term) * [rho *(-4*u_n) + 2*u_n - (1-eta_term)*u_n_prev
-  signed_mult mult1 (.out(temp1), .a(rho), .b(u_n_up + u_n_down - u_n << 2));
+  signed_mult mult1 (.out(temp1), .a(rho), .b(u_n_up + u_n_down - (u_n << 2)));
+  
+  
   signed_mult mult2 (.out(temp2), .a(18'h1ffff-eta_term), .b(u_n_prev));
+  
+  
   signed_mult mult3 (.out(u_n_next), .a((u_n << 1) + temp1 - temp2), .b(18'h1ffff-eta_term));
   
 endmodule

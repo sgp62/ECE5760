@@ -19,7 +19,7 @@ Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
 -- Compiling module testbench
 
 Top level modules:
-	column_node
+	single_node
 	testbench
 
 } {} {}}
