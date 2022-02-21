@@ -23,13 +23,13 @@ module testbench();
 
 	//Initialize constants
 	initial begin
-		sigma = 27'ha_00000;
-		beta  = 27'h2_aaaaa;
-		rho   = 27'h1c_00000;
-		dt    = 27'h0_01000;
-		xi    = -27'sh1_00000;
-		yi    = 27'h0_19999;
-		zi    = 27'h19_00000;
+		sigma = 27'ha_00000; // 10
+		beta  = 27'h2_aaaaa; // 8/3
+		rho   = 27'h1c_00000; // 28
+		dt    = 27'h0_01000; // 1/256
+		xi    = -27'sh1_00000; // -1
+		yi    = 27'h0_19999; // 0.1
+		zi    = 27'h19_00000; // 25
 	end
 
 	
