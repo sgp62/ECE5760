@@ -48,18 +48,16 @@ endmodule
 //// derivative calculator module //////////
 //////////////////////////////////////////////////
 module functx(xk_new, sigma, xk, yk, dt);
-  output signed [26:0] xk_new;
+   	output signed [26:0] xk_new;
 
-  input signed [26:0] sigma;
-  input signed [26:0] xk;
-  input signed [26:0] yk;
-  input signed [26:0] dt;
-  wire  signed [26:0] temp;
+	input signed [26:0] sigma; //constant
+	input signed [26:0] xk; //The x output value at time t
+	input signed [26:0] yk; //The y output value at timet 
+	input signed [26:0] dt; //Constant
+	wire  signed [26:0] temp; //Used for multiple sequential multipliers
 
-  //signed_mult mult (.out(xk_temp), .a(sigma), .b(yk-xk));
-  //signed_mult mult2 (.out(xk_new), .a(dt), .b(xk_temp));
-  signed_mult mult (.out(temp), .a(sigma), .b(dt));
-  signed_mult mult2 (.out(xk_new), .a(yk-xk), .b(temp));
+	signed_mult mult (.out(temp), .a(sigma), .b(dt)); //7.20 multiplier
+	signed_mult mult2 (.out(xk_new), .a(yk-xk), .b(temp)); // 7.20 multiplier creating derivative euler step increase for x
   
 endmodule
 
@@ -70,19 +68,20 @@ endmodule
 module functy(yk_new, rho, xk, yk, zk, dt);
   output signed [26:0] yk_new;
 
-  input signed [26:0] xk;
-  input signed [26:0] rho;
-  input signed [26:0] yk;
-  input signed [26:0] zk;
-  input signed [26:0] dt;
-  wire  signed [26:0] temp;
-  wire  signed [26:0] temp2;
-  wire  signed [26:0] temp3;
+	input signed [26:0] xk; //The x output value at time t
+	input signed [26:0] rho; //constant
+	input signed [26:0] yk; //The y output value at time t
+	input signed [26:0] zk; //The z output value at time t
+	input signed [26:0] dt; //Constant timestep
+	wire  signed [26:0] temp; //Temporary variable outputs for multipliers
+	wire  signed [26:0] temp2; 
+	wire  signed [26:0] temp3; 
 
-  signed_mult mult (.out(temp), .a(xk), .b(dt));
-  signed_mult mult2 (.out(temp2), .a(yk), .b(dt));
-  signed_mult mult3 (.out(temp3), .a(rho-zk), .b(temp));
-  assign yk_new = temp3 - temp2;
+	//Signed 7.20 multipliers used to create derivative euler approx step increase for y
+  	signed_mult mult (.out(temp), .a(xk), .b(dt));
+  	signed_mult mult2 (.out(temp2), .a(yk), .b(dt));
+  	signed_mult mult3 (.out(temp3), .a(rho-zk), .b(temp));
+  	assign yk_new = temp3 - temp2;
   
 endmodule
 
@@ -93,21 +92,24 @@ endmodule
 module functz(zk_new, beta, xk, yk, zk, dt);
   output signed [26:0] zk_new;
 
-  input signed [26:0] xk;
-  input signed [26:0] yk;
-  input signed [26:0] zk;
-  input signed [26:0] dt;
-  input signed [26:0] beta;
-  wire  signed [26:0] x_dt;
-  wire  signed [26:0] z_dt;
-  wire  signed [26:0] temp;
-  wire  signed [26:0] temp2;
-  
-  signed_mult mult (.out(x_dt), .a(xk), .b(dt));
-  signed_mult mult2 (.out(temp), .a(yk), .b(x_dt));
-  signed_mult mult3 (.out(z_dt), .a(zk), .b(dt));
-  signed_mult mult4 (.out(temp2), .a(beta), .b(z_dt));
-  assign zk_new = temp-temp2;
+	input signed [26:0] xk; //The x output value at time t
+	input signed [26:0] yk; //The y output value at time t
+	input signed [26:0] zk; //The z output value at time t
+	input signed [26:0] dt; //Constant timestep
+	input signed [26:0] beta; //Constant
+	
+	//Temporary variables used for signed multipliers
+	wire  signed [26:0] x_dt; 
+	wire  signed [26:0] z_dt; 
+	wire  signed [26:0] temp; 
+	wire  signed [26:0] temp2; 
+  	
+	//7.20 multipliers used to create derivative euler step for z output
+	signed_mult mult (.out(x_dt), .a(xk), .b(dt)); 
+	signed_mult mult2 (.out(temp), .a(yk), .b(x_dt)); 
+	signed_mult mult3 (.out(z_dt), .a(zk), .b(dt)); 
+	signed_mult mult4 (.out(temp2), .a(beta), .b(z_dt)); 
+  	assign zk_new = temp-temp2;
 
 endmodule
 
@@ -134,13 +136,13 @@ module full_integrator(clk, reset, sigma, beta, rho, dt, xi, yi, zi, xout, yout,
 
 	
 
-	functx fx (xk_new, sigma, xout, yout, dt);
+	functx fx (xk_new, sigma, xout, yout, dt); //Creates dx/dt
 	functy fy (yk_new, rho, xout, yout, zout ,dt);
 	functz fz (zk_new, beta, xout, yout, zout, dt);
 
-	integrator x_int (xout, xk_new, xi, clk, reset);
-	integrator y_int (yout, yk_new, yi, clk, reset);
-	integrator z_int (zout, zk_new, zi, clk, reset);
+	integrator x_int (xout, xk_new, xi, clk, reset); //clocked register module for updating x output
+	integrator y_int (yout, yk_new, yi, clk, reset);//clocked register module for updating y output
+	integrator z_int (zout, zk_new, zi, clk, reset);//clocked register module for updating z output
 	//Undefined output could be because one of the inputs is not defined from the module
 
 endmodule
