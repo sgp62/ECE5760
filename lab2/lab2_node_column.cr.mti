@@ -3,11 +3,23 @@ Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
 -- Compiling module single_node
 -- Compiling module signed_mult
 -- Compiling module M10K_512_18
--- Compiling module node_column
+-- Compiling module column_node
 
 Top level modules:
 	single_node
 	M10K_512_18
-	node_column
+	column_node
+
+} {} {}} C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_column_testbench.v {1 {vlog -work work_column -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_column_testbench.v
+Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
+-- Compiling module single_node
+-- Compiling module signed_mult
+-- Compiling module M10K_512_18
+-- Compiling module column_node
+-- Compiling module testbench
+
+Top level modules:
+	column_node
+	testbench
 
 } {} {}}
