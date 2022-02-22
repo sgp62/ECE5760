@@ -20,7 +20,7 @@ module M10K_512_18(
 	end
 	always @ (posedge clock) begin
 		if (rden_reg)
-			q <= mem[read_address_reg];
+		q <= mem[read_address_reg];
 		read_address_reg <= rdaddress;
 		rden_reg <= rden;
 		 // Remember to change because not synthesizable

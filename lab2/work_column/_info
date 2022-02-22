@@ -9,13 +9,13 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
 vcolumn_node
-Z1 !s110 1645483085
+Z1 !s110 1645573097
 !i10b 1
 !s100 15IEe=1ObA>ghB2j=J3?[0
 I:?j=:_nKEc2P0a^]2m<o70
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1645483082
+Z3 w1645573084
 Z4 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_column.v
 Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_column_testbench.v
 Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_column_testbench.v
@@ -24,7 +24,7 @@ Z7 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z8 !s108 1645483084.984000
+Z8 !s108 1645573097.173000
 Z9 !s107 C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\\lab2_single_node.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_column.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_column_testbench.v|
 Z10 !s90 -reportprogress|300|-work|work_column|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_column_testbench.v|
 !i113 1
@@ -119,8 +119,8 @@ R11
 vtestbench
 R1
 !i10b 1
-!s100 U`;kba:=O[@i3<Qj6BGRE3
-IT;=NYkcGO_AM6ejz6`bzn1
+!s100 bi^OGF^5nMi]00hQ=UBHQ0
+IjPZ6QZ[1:0e1MlB?;WXae3
 R2
 R0
 R3

@@ -19,8 +19,8 @@ module M10K_512_18(
 			mem[wraddress] <= data;
 	end
 	always @ (posedge clock) begin
-		if (rden_reg)
-			q <= mem[read_address_reg];
+		//if (rden_reg)
+		q <= mem[read_address_reg];
 		read_address_reg <= rdaddress;
 		rden_reg <= rden;
 		 // Remember to change because not synthesizable
@@ -59,7 +59,11 @@ module column_node(
   
   //u_n_next = (1-eta_term) * [rho *(-4*u_n) + 2*u_n - (1-eta_term)*u_n_prev
   signed_mult mult1 (.out(temp1), .a(rho), .b(u_n_up + u_n_down - (u_n << 2)));
+  
+  
   signed_mult mult2 (.out(temp2), .a(18'h1ffff-eta_term), .b(u_n_prev));
+  
+  
   signed_mult mult3 (.out(u_n_next), .a((u_n << 1) + temp1 - temp2), .b(18'h1ffff-eta_term));
   
 endmodule
