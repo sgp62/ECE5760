@@ -2,7 +2,6 @@
 `timescale 1ns/1ns
 `include "/lab2_node_column.v"
 
-//Move data from  three registesr to each other 
 
 module testbench();
 	
@@ -14,10 +13,10 @@ module testbench();
 	reg  signed  [17:0]  g_tension;
 	reg  signed  [17:0]  eta_term;
 
-	wire signed  [17:0] out;
+	wire signed  [17:0] out, middle_out;
 	
 
-	reg			 [31:0]   column_size;
+	reg			 [8:0]   column_size;
 	
 
 	
@@ -27,7 +26,7 @@ module testbench();
 		rho              = 18'h01000;
 		eta_term         = 18'h000ff;
 		g_tension        = 18'h02000;
-		column_size        = 9'd80;
+		column_size        = 9'd30;
 
 	end
 
@@ -73,7 +72,10 @@ column my_col(
 	.eta_term     (eta_term),
 	.g_tension    (g_tension),
 	.column_size  (column_size),
-	.out          (out)
+	.out          (out),
+	.u_left       (18'h0),
+	.u_right      (18'h0),
+	.middle_out   (middle_out)
 
 );
 	

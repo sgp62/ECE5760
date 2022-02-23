@@ -28,7 +28,7 @@ module M10K_512_18(
 endmodule 
 
 module compute_module( 
-  input  signed   [17:0] rho, g_tension, eta_term, u_n, u_n_prev, u_n_up, u_n_down, u_center,
+  input  signed   [17:0] rho, g_tension, eta_term, u_n, u_n_prev, u_n_up, u_n_down, u_center, u_left, u_right,
   output signed  [17:0] out
 );
   
@@ -46,7 +46,7 @@ module compute_module(
   assign rho_eff = (0.49 < (rho + u_cent_g_tension_2)) ? 0.49 : (rho + u_cent_g_tension_2);
   
   //u_n_next = (1-eta_term) * [rho *(-4*u_n) + 2*u_n - (1-eta_term)*u_n_prev
-  signed_mult mult1 (.out(temp1), .a(rho), .b(u_n_up + u_n_down - (u_n << 2)));
+  signed_mult mult1 (.out(temp1), .a(rho), .b(u_left + u_right + u_n_up + u_n_down - (u_n << 2)));
   
   
   signed_mult mult2 (.out(temp2), .a(18'h1ffff-eta_term), .b(u_n_prev));
@@ -59,8 +59,8 @@ endmodule
 module column(
 	input clk, reset,
 	input [8:0] column_size,
-	input signed [17:0] rho, g_tension, eta_term,
-	output signed [17:0] out
+	input signed [17:0] rho, g_tension, eta_term, u_left, u_right,
+	output signed [17:0] out, middle_out
 );
 
 	wire signed	 [17:0] m10k_read_data;
@@ -79,7 +79,7 @@ module column(
 	reg          [8:0]    init_addr ;
 	reg 		          memory_init_en;
 	reg			 [8:0]    column_idx;
-	reg  signed  [17:0]   u_n_down_reg, u_n_reg, u_n_up_reg, u_n_prev_reg, u_n_bottom_reg;
+	reg  signed  [17:0]   u_n_down_reg, u_n_reg, u_n_up_reg, u_n_prev_reg, u_n_bottom_reg, u_left_reg, u_right_reg;
 	
 	wire  signed  [17:0]   up_compute_input, cent_compute_input, center_prev_compute_input, down_compute_input;
 	
@@ -160,10 +160,12 @@ module column(
 		end
 	end
 	
+	assign middle_out = u_center;
 	
 	always @ (*) begin
 		m10k_read_reg = m10k_read_data;
 		m10k_prev_read_reg = m10k_prev_read_data;
+		
 	end
 	
 	always @ (posedge clk) begin
@@ -196,6 +198,9 @@ module column(
 				
 				m10k_write_addr <= column_idx;
 				m10k_prev_write_addr <= column_idx;
+				
+				u_left_reg <= u_left;
+				u_right_reg <= u_right;
 
 				if (column_idx > 9'd0) m10k_write_data <= out;
 				else m10k_write_data <= out;// m10k_write_data;
@@ -276,8 +281,8 @@ module column(
 		.u_n       (cent_compute_input),
 		.u_n_prev  (center_prev_compute_input),
 		.u_n_up    (up_compute_input),
-		.u_n_down  (down_compute_input)
+		.u_n_down  (down_compute_input),
+		.u_left    (u_left_reg),
+		.u_right   (u_right_reg)
 	);
-
-	
 endmodule

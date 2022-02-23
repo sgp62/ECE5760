@@ -1,6 +1,6 @@
-//Testbench for lab 2 node column
+//Testbench for lab 2 node grid
 `timescale 1ns/1ns
-`include "/lab2_node_column.v"
+`include "/lab2_node_grid.v"
 
 
 module testbench();
@@ -13,10 +13,12 @@ module testbench();
 	reg  signed  [17:0]  g_tension;
 	reg  signed  [17:0]  eta_term;
 
-	wire signed  [17:0] out, middle_out;
+	wire signed  [17:0] out;
 	
 
 	reg			 [8:0]   column_size;
+	reg          [8:0]   row_size;
+	
 	
 
 	
@@ -26,8 +28,8 @@ module testbench();
 		rho              = 18'h01000;
 		eta_term         = 18'h000ff;
 		g_tension        = 18'h02000;
-		column_size        = 9'd30;
-
+		column_size      = 9'd30;
+		row_size         = 9'd30;  
 	end
 
 	
@@ -65,17 +67,18 @@ module testbench();
 		index  <= index + 32'd1;
 	end
 	
-column my_col(
-	.clk          (clk_50),
-	.reset        (reset),
-	.rho          (rho),
-	.eta_term     (eta_term),
-	.g_tension    (g_tension),
-	.column_size  (column_size),
-	.out          (out),
-	.u_left       (18'h0),
-	.u_right      (18'h0)
-
-);
+	
+	
+	node_grid  #(.row_size(30)) my_grid (
+		.clk             (clk_50),
+		.reset           (reset),
+		.column_size     (column_size),
+		.rho             (rho),
+		.g_tension       (g_tension),
+		.eta_term        (eta_term),
+		.center_node_amp (out)
+	);
+	
+	
 	
 endmodule
