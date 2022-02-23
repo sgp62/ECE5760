@@ -127,8 +127,8 @@ module testbench();
 					m10k_write_en <= 1'b0; */
 				end
 				else begin
-					m10k_prev_write_data <= (init_addr < (column_size >> 1)) ? ({ {9{init_addr[8]}},  (init_addr[8:0]) }* 18'h1111) : (((column_size-9'b1) - init_addr - 9'b1) * 18'h1111);
-					m10k_write_data <= (init_addr < (column_size >> 1)) ? ({ {9{init_addr[8]}},  (init_addr[8:0]) } * 18'h1111) : (((column_size-9'b1) - init_addr - 9'b1) *  18'h1111); //TODO: Resolve hard coding for variable column lengths
+					m10k_prev_write_data <= (init_addr < (column_size >> 1)) ? (init_addr* 18'h1111) : (((column_size) - init_addr) * 18'h1111);
+					m10k_write_data <= (init_addr < (column_size >> 1)) ? (init_addr * 18'h1111) : (((column_size) - init_addr) *  18'h1111); //TODO: Resolve hard coding for variable column lengths
 				
 				end
 				init_state <= 1;
@@ -193,32 +193,16 @@ module testbench();
 				m10k_read_addr <= column_idx + 9'd1;
 				m10k_prev_read_addr <= column_idx;
 			
-				u_n_prev_reg <= u_n_prev_reg;
-				u_n_up_reg <= u_n_up_reg;
-				u_n_down_reg <= u_n_down_reg;
-				u_n_reg <= u_n_reg;
-				u_n_bottom_reg <= u_n_bottom_reg;
 				
 				state <= 5'd1;
 			end
 			
 			if(state == 5'd1)begin
 				state <= 5'd2;
-				u_n_prev_reg <= u_n_prev_reg;
-				u_n_up_reg <= u_n_up_reg;
-				u_n_down_reg <= u_n_down_reg;
-				u_n_reg <= u_n_reg;
-				u_n_bottom_reg <= u_n_bottom_reg;
-				
 			end
 			
 			if(state == 5'd2)begin
 				state <= 5'd3;
-				u_n_prev_reg <= u_n_prev_reg;
-				u_n_up_reg <= u_n_up_reg;
-				u_n_down_reg <= u_n_down_reg;
-				u_n_reg <= u_n_reg;
-				u_n_bottom_reg <= u_n_bottom_reg;
 				
 			end
 			
@@ -241,10 +225,13 @@ module testbench();
 
 				u_n_prev_reg <= m10k_prev_read_reg;
 				u_n_up_reg <= (column_idx == (column_size - 9'd3)) ? 18'b0 : m10k_read_reg;
-				u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
-				u_n_reg <= u_n_up_reg;
-
-				if (column_idx == (column_size-9'd3)) begin
+				
+				if (column_idx != (column_size-9'd2)) begin
+					u_n_reg <= u_n_up_reg;
+					u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
+				end
+				
+				if (column_idx == (column_size-9'd2)) begin
 					column_idx <= 9'd0;
 					//column_idx <= (column_idx == (column_size-9'd2)) ? 9'b1 : (column_idx + 9'b1);
 					//u_n_reg <= u_n_bottom_reg;
