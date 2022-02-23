@@ -19,7 +19,7 @@ module M10K_512_18(
 			mem[wraddress] <= data;
 	end
 	always @ (posedge clock) begin
-		//if (rden_reg)
+		if (rden_reg)
 		q <= mem[read_address_reg];
 		read_address_reg <= rdaddress;
 		rden_reg <= rden;
@@ -28,7 +28,7 @@ module M10K_512_18(
 endmodule 
 
 module column_node( 
-  input  signed   [17:0] rho, g_tension, eta_term, u_n, u_n_prev, u_n_up, u_n_down,
+  input  signed   [17:0] rho, g_tension, eta_term, u_n, u_n_prev, u_n_up, u_n_down, u_center
   output signed  [17:0] out
 );
   
@@ -37,6 +37,7 @@ module column_node(
   wire  signed   [17:0] temp1;
   wire  signed   [17:0] temp2;
   wire  signed   [17:0] u_cent_g_tension;
+  wire  signed   [17:0] u_cent_g_tension_2;
   
 /*   always @ (posedge clk) 
   begin
@@ -52,13 +53,15 @@ module column_node(
   end */
   
 
-  //assign rho_eff = (0.49 < (rho + u_cent_g_tension)) ? 0.49:(rho + u_cent_g_tension);
-  //assign u_cent = u_n;
+  
   assign out = u_n_next;
-  //signed_mult mult4 (.out(u_cent_g_tension), .a(u_cent), .b(g_tension));
+  signed_mult mult4 (.out(u_cent_g_tension), .a(u_center), .b(g_tension));
+  signed_mult mult5 (.out(u_cent_g_tension_2), .a(u_cent_g_tension), .b(u_cent_g_tension));
+  
+  assign rho_eff = (0.49 < (rho + u_cent_g_tension_2)) ? 0.49 : (rho + u_cent_g_tension_2);
   
   //u_n_next = (1-eta_term) * [rho *(-4*u_n) + 2*u_n - (1-eta_term)*u_n_prev
-  signed_mult mult1 (.out(temp1), .a(rho), .b(u_n_up + u_n_down - (u_n << 2)));
+  signed_mult mult1 (.out(temp1), .a(rho_eff), .b(u_n_up + u_n_down - (u_n << 2)));
   
   
   signed_mult mult2 (.out(temp2), .a(18'h1ffff-eta_term), .b(u_n_prev));

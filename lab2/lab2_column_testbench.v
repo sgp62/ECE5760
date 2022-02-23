@@ -40,6 +40,8 @@ module testbench();
 	wire  signed  [17:0]   up_compute_input, cent_compute_input, center_prev_compute_input, down_compute_input;
 	
 	reg  signed  [17:0]   m10k_read_reg, m10k_prev_read_reg;
+	
+	reg signed  [17:0]   u_center;
 
 	
 	//Initialize constants
@@ -52,7 +54,7 @@ module testbench();
 		
 		state 			   = 5'd0;
 		init_state 		= 5'd0;
-		column_size        = 9'd30;
+		column_size        = 9'd31;
 		memory_init_en 	   = 1'b1;
 		init_addr 	 	   = 9'd0;
 		m10k_write_en 	   = 1'b1;
@@ -60,9 +62,9 @@ module testbench();
 		column_idx 		   = 9'd0;
 		u_n_down_reg	   = 18'h0;
 		u_n_reg 		   = 18'h0; //TODO: Resolve hard coding (Maybe take parameter inputs)
-		u_n_up_reg		   = 18'h1111; //TODO: Resolve hard coding (Maybe take parameter inputs)
-		u_n_prev_reg 	   = 18'h0; //TODO: Resolve hard coding (Maybe take parameter inputs)
-		u_n_bottom_reg     = 18'h0; //TODO: Resolve hard coding (Maybe take parameter inputs)
+		u_n_up_reg		   = 18'h1110; //TODO: Resolve hard coding (Maybe take parameter inputs)
+		u_n_prev_reg 	   = 18'h888; //TODO: Resolve hard coding (Maybe take parameter inputs)
+		u_n_bottom_reg     = 18'h888; //TODO: Resolve hard coding (Maybe take parameter inputs)
 		
 		m10k_read_reg      = 18'h0;
 		m10k_prev_read_reg = 18'h0;
@@ -118,7 +120,7 @@ module testbench();
 				
 				m10k_prev_write_addr <= init_addr;
 				
-				if(init_addr == (column_size-9'b1)) begin
+				if(init_addr == (column_size)) begin
 					m10k_prev_write_data <= 18'b0;
 					m10k_write_data <= 18'b0; //TODO: Resolve hard coding for variable column lengths
 				
@@ -127,8 +129,8 @@ module testbench();
 					m10k_write_en <= 1'b0; */
 				end
 				else begin
-					m10k_prev_write_data <= (init_addr < (column_size >> 1)) ? (init_addr* 18'h1111) : (((column_size - 9'd1) - init_addr- 9'd1) * 18'h1111);
-					m10k_write_data <= (init_addr < (column_size >> 1)) ? (init_addr * 18'h1111) : (((column_size - 9'd1) - init_addr- 9'd1) *  18'h1111); //TODO: Resolve hard coding for variable column lengths
+					m10k_prev_write_data <= (init_addr < (column_size >> 1)) ? ((init_addr + 9'd1) * 18'h888) : (((column_size) - init_addr) * 18'h888);
+					m10k_write_data <= (init_addr < (column_size >> 1)) ? ((init_addr + 9'd1) * 18'h888) : (((column_size) - init_addr) *  18'h888); //TODO: Resolve hard coding for variable column lengths
 				
 				end
 				init_state <= 1;
@@ -143,37 +145,8 @@ module testbench();
 				init_state <= 0;
 			end
 			
-			
-			
-			
 		end
 	end
-	
-	/* always @ (posedge clk_50) begin
-		if(~memory_init_en) begin
-			if(state == 5'd0)begin
-				m10k_read_en <= 1'b1;
-				m10k_read_addr <= column_idx+9'b1;
-				state <= 5'd1;
-			end
-			
-			if(state == 5'd1)begin
-				state <= 5'd2;
-			end
-			
-			if(state == 5'd2)begin
-				
-				state <= 5'd3;
-				column_idx <= (column_idx == (column_size-9'd2)) ? 9'b1 : (column_idx + 9'b1);
-			end
-			
-			if(state == 5'd3)begin
-				m10k_read_en <= 1'b0;
-				state <= 5'd0;
-			end
-			
-		end
-	end */
 	
 	
 	always @ (*) begin
@@ -184,16 +157,14 @@ module testbench();
 	always @ (posedge clk_50) begin
 		if(~memory_init_en) begin
 			if(state == 5'd0)begin
-			
 				m10k_prev_write_en <= 1'b0;
 				m10k_write_en <= 1'b0;
 				m10k_read_en <= 1'b1;
 				m10k_prev_read_en <= 1'b1;
 			
-				m10k_read_addr <= column_idx + 9'd1;
-				m10k_prev_read_addr <= column_idx;
+				m10k_read_addr <= (column_idx == (column_size - 9'd1)) ? 9'd0 : column_idx + 9'd2;
+				m10k_prev_read_addr <= (column_idx == (column_size - 9'd1)) ? 9'd0 : column_idx+9'd1;
 			
-				
 				state <= 5'd1;
 			end
 			
@@ -201,10 +172,9 @@ module testbench();
 				state <= 5'd2;
 			end
 			
-			if(state == 5'd2)begin
+ 			if(state == 5'd2)begin
 				state <= 5'd3;
-				
-			end
+			end 
 			
 			if(state == 5'd3)begin
 				m10k_write_en <= (column_idx == 9'd0) ? 1'b0 : 1'b1;
@@ -218,20 +188,22 @@ module testbench();
 				if (column_idx > 9'd0) m10k_write_data <= out;
 				else m10k_write_data <= out;// m10k_write_data;
 				
-				if (column_idx == 9'd1) u_n_bottom_reg <= out;
+				if (column_idx == 9'd0) u_n_bottom_reg <= out;
 				else u_n_bottom_reg <= u_n_bottom_reg;
 				
 				m10k_prev_write_data <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
 
 				u_n_prev_reg <= m10k_prev_read_reg;
-				u_n_up_reg <= (column_idx == (column_size - 9'd3)) ? 18'b0 : m10k_read_reg;
+				u_n_up_reg <= (column_idx == (column_size - 9'd2)) ? 18'b0 : m10k_read_reg;
 				
-				if (column_idx != (column_size-9'd2)) begin
+				if (column_idx != (column_size-9'd1)) begin
 					u_n_reg <= u_n_up_reg;
 					u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
 				end
 				
-				if (column_idx == (column_size-9'd2)) begin
+				if(column_idx == (column_size >> 2)) u_center <= out; //TODO RESOLVE
+				
+				if (column_idx == (column_size-9'd1)) begin
 					column_idx <= 9'd0;
 					//column_idx <= (column_idx == (column_size-9'd2)) ? 9'b1 : (column_idx + 9'b1);
 					//u_n_reg <= u_n_bottom_reg;
@@ -242,10 +214,11 @@ module testbench();
 				state <= 5'd0;
 			end
 			
-			/* if(state == 5'd3)begin
+			/*if(state == 5'd3)begin
 
-				m10k_prev_write_en <= 1'b0;
-				m10k_write_en <= 1'b0;
+
+				//m10k_prev_write_en <= 1'b0;
+				//m10k_write_en <= 1'b0;
 				
 				state <= 5'd0;
 			end */
@@ -278,14 +251,15 @@ M10K_512_18 u_n_prev_m10k (
 
 
 assign up_compute_input = u_n_up_reg;
-assign cent_compute_input = (column_idx == 9'b1) ? u_n_bottom_reg : u_n_reg;
+assign cent_compute_input = (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg;
 assign center_prev_compute_input = u_n_prev_reg;
-assign down_compute_input = (column_idx == 9'b1) ? 18'b0 : u_n_down_reg;
+assign down_compute_input = (column_idx == 9'b0) ? 18'b0 : u_n_down_reg;
 
 column_node calc_module (
 	.out       (out),
 	.rho       (rho),
 	.g_tension (g_tension),
+	.u_center  (u_center),
 	.eta_term  (eta_term),
 	.u_n       (cent_compute_input),
 	.u_n_prev  (center_prev_compute_input),
