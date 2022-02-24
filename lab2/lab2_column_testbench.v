@@ -76,6 +76,7 @@ column my_col(
 	.u_left       (18'h0),
 	.u_right      (18'h0),
 	.middle_out   (middle_out)
+	.u_n_out      (18'h0)
 
 );
 	

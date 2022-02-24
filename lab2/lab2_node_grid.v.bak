@@ -12,8 +12,7 @@ module node_grid #(parameter row_size = 30) (
 
 
 	wire signed [17:0] middle_nodes [row_size-1:0];
-	wire signed [17:0] left_nodes [row_size-1:0];
-	wire signed [17:0] right_nodes [row_size-1:0];
+	wire signed [17:0] col_out [row_size-1:0];
 	
 	wire signed [17:0] compute_outputs [row_size-1:0];
 	
@@ -28,6 +27,7 @@ module node_grid #(parameter row_size = 30) (
 		end
 		else begin
 			center_node_reg <= middle_nodes[row_size / 2];
+		end
 	end
 
 	generate
@@ -35,16 +35,17 @@ module node_grid #(parameter row_size = 30) (
 		for (i = 0; i < row_size; i=i+1) begin: col_gen
 
 			column my_col(
-				.clk          (clk_50),
+				.clk          (clk),
 				.reset        (reset),
 				.rho          (rho),
 				.eta_term     (eta_term),
 				.g_tension    (g_tension),
 				.column_size  (column_size),
 				.out          (compute_outputs[i]),
-				.u_left       ((i == 0) ? 18'h0 : left_nodes[i]),
-				.u_right      ((i == row_size-1) ? 18'h0 : right_nodes[i]),
-				.middle_out   (middle_nodes[i])
+				.u_left       ((i == 0) ? 18'h0 : col_out[i-1]),
+				.u_right      ((i == row_size-1) ? 18'h0 : col_out[i+1]),
+				.middle_out   (middle_nodes[i]),
+				.u_n_out      (col_out[i])
 
 			);
 		end

@@ -60,7 +60,7 @@ module column(
 	input clk, reset,
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right,
-	output signed [17:0] out, middle_out
+	output signed [17:0] out, middle_out, u_n_out
 );
 
 	wire signed	 [17:0] m10k_read_data;
@@ -89,27 +89,30 @@ module column(
 	
 	reg signed [17:0]   pyramid_step;
 	
-	always @(*) begin
+	always @(posedge clk) begin
 		if (reset) begin
 		
-			state 			   = 5'd0;
-			init_state 		   = 5'd0;
-			memory_init_en 	   = 1'b1;
-			init_addr 	 	   = 9'd0;
-			m10k_write_en 	   = 1'b1;
-			m10k_prev_write_en = 1'b1;
-			column_idx 		   = 9'd0;
+			state 			   <= 5'd0;
+			init_state 		   <= 5'd0;
+			memory_init_en 	   <= 1'b1;
+			init_addr 	 	   <= 9'd0;
+			m10k_write_en 	   <= 1'b1;
+			m10k_prev_write_en  <= 1'b1;
+			column_idx 		    <= 9'd0;
 			
-			pyramid_step       = 18'hfff0 / column_size;
+			pyramid_step       <= 18'hfff0 / column_size;
 			
-			u_n_down_reg	   = 18'h0;
-			u_n_reg 		   = 18'h0; //TODO: Resolve hard coding (Maybe take parameter inputs)
-			u_n_up_reg		   = 18'h2 * pyramid_step; //TODO: Resolve hard coding (Maybe take parameter inputs)
-			u_n_prev_reg 	   = pyramid_step; //TODO: Resolve hard coding (Maybe take parameter inputs)
-			u_n_bottom_reg     = pyramid_step; //TODO: Resolve hard coding (Maybe take parameter inputs)
+			u_center           <= 18'h0;
+			u_left_reg         <= 18'h0;
+			u_right_reg        <= 18'h0;
+			u_n_down_reg	   <= 18'h0;
+			u_n_reg 		   <= 18'h0;
+			u_n_up_reg		   <= 18'h2 * pyramid_step;
+			u_n_prev_reg 	   <= pyramid_step;
+			u_n_bottom_reg     <= pyramid_step;
 			
-			m10k_read_reg      = 18'h0;
-			m10k_prev_read_reg = 18'h0;
+			m10k_read_reg       <= 18'h0;
+			m10k_prev_read_reg  <= 18'h0;
 		end
 	end
 	
@@ -161,6 +164,7 @@ module column(
 	end
 	
 	assign middle_out = u_center;
+	assign u_n_out = (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
 	
 	always @ (*) begin
 		m10k_read_reg = m10k_read_data;
@@ -218,7 +222,7 @@ module column(
 					u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
 				end
 				
-				if(column_idx == (column_size >> 2)) u_center <= out; //TODO RESOLVE
+				if(column_idx == (column_size >> 2)) u_center <= out;
 				
 				if (column_idx == (column_size-9'd1)) begin
 					column_idx <= 9'd0;
