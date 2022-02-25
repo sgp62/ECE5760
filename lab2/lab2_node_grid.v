@@ -35,17 +35,19 @@ module node_grid #(parameter row_size = 30) (
 		for (i = 0; i < row_size; i=i+1) begin: col_gen
 
 			column my_col(
-				.clk          (clk),
-				.reset        (reset),
-				.rho          (rho),
-				.eta_term     (eta_term),
-				.g_tension    (g_tension),
-				.column_size  (column_size),
-				.out          (compute_outputs[i]), //What we want to see for the checkoff
-				.u_left       ((i == 0) ? 18'h0 : col_out[i-1]), //Maybe use compute_outputs (waveforms look wack rn)
-				.u_right      ((i == row_size-1) ? 18'h0 : col_out[i+1]),
-				.middle_out   (middle_nodes[i]),
-				.u_n_out      (col_out[i]) //Maybe unnecessary
+				.clk          		(clk),
+				.reset        		(reset),
+				.rho          		(rho),
+				.eta_term     		(eta_term),
+				.g_tension    		(g_tension),
+				.column_size  		(column_size),
+				.out          		(compute_outputs[i]), //What we want to see for the checkoff
+				.u_left       		((i == 0) ? 18'h0 : col_out[i-1]), //Maybe use compute_outputs (waveforms look wack rn)
+				.u_right      		((i == row_size-1) ? 18'h0 : col_out[i+1]),
+				.middle_out   		(middle_nodes[i]),
+				.u_n_out      		(col_out[i]), //Maybe unnecessary
+				.row_pyramid_step   ((i < row_size/2) ? i : row_size - i - 1)
+				
 				//Check logic for u_n_out within the column module (should it be compute output or u_n_reg that's passed
 				//to the left and right????
 

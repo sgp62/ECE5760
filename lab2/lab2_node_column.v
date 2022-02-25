@@ -60,6 +60,7 @@ module column(
 	input clk, reset,
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right,
+	input signed [17:0]  row_pyramid_step,
 	output signed [17:0] out, middle_out, u_n_out
 );
 
@@ -87,6 +88,7 @@ module column(
 	
 	reg signed  [17:0]   u_center;
 	
+	
 	reg signed [17:0]   pyramid_step;
 	
 	always @(posedge clk) begin
@@ -100,16 +102,17 @@ module column(
 			m10k_prev_write_en  <= 1'b1;
 			column_idx 		    <= 9'd0;
 			
-			pyramid_step       <= 18'hfff0 / column_size;
+//			pyramid_step       <= 18'hfff0 / column_size;
+			pyramid_step       <= 18'hff0 / column_size;
 			
 			u_center           <= 18'h0;
 			u_left_reg         <= 18'h0;
 			u_right_reg        <= 18'h0;
 			u_n_down_reg	   <= 18'h0;
 			u_n_reg 		   <= 18'h0;
-			u_n_up_reg		   <= 18'h2 * pyramid_step;
-			u_n_prev_reg 	   <= pyramid_step;
-			u_n_bottom_reg     <= pyramid_step;
+			u_n_up_reg		   <= 18'h2 * pyramid_step * row_pyramid_step;
+			u_n_prev_reg 	   <= pyramid_step * row_pyramid_step;
+			u_n_bottom_reg     <= pyramid_step * row_pyramid_step;
 			
 			m10k_read_reg       <= 18'h0;
 			m10k_prev_read_reg  <= 18'h0;
@@ -131,21 +134,19 @@ module column(
 					m10k_write_data <= 18'b0; //TODO: Resolve hard coding for variable column lengths
 				
 					memory_init_en <= 1'b0;
-					/* m10k_prev_write_en <= 1'b0;
-					m10k_write_en <= 1'b0; */
 				end
 				else begin
 					if (init_addr < ((column_size >> 1)-1)) begin
-						m10k_prev_write_data <= ((init_addr + 9'd1) * pyramid_step);
-						m10k_write_data <= ((init_addr + 9'd1) * pyramid_step);
+						m10k_prev_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
+						m10k_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
 					end
 					else if (init_addr > ((column_size >> 1)+1)) begin
-						m10k_prev_write_data <= (((column_size) - init_addr) * pyramid_step);
-						m10k_write_data <= (((column_size) - init_addr) *  pyramid_step); //TODO: Resolve hard coding for variable column lengths
+						m10k_prev_write_data <= (((column_size) - init_addr) * pyramid_step * row_pyramid_step);
+						m10k_write_data <= (((column_size) - init_addr) *  pyramid_step * row_pyramid_step); //TODO: Resolve hard coding for variable column lengths
 					end
 					else begin
-						m10k_prev_write_data <= ((column_size >> 1) * pyramid_step);
-						m10k_write_data <= ((column_size >> 1) * pyramid_step); //TODO: Resolve hard coding for variable column lengths
+						m10k_prev_write_data <= ((column_size >> 1) * pyramid_step * row_pyramid_step);
+						m10k_write_data <= ((column_size >> 1) * pyramid_step * row_pyramid_step); //TODO: Resolve hard coding for variable column lengths
 					end
 				end
 				init_state <= 1;
@@ -272,9 +273,10 @@ module column(
 
 
 	assign up_compute_input = u_n_up_reg;
-	assign cent_compute_input = (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg;
+	assign cent_compute_input = (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg; //mux for bottom
 	assign center_prev_compute_input = u_n_prev_reg;
-	assign down_compute_input = (column_idx == 9'b0) ? 18'b0 : u_n_down_reg;
+	assign down_compute_input = (column_idx == 9'b0) ? 18'b0 : u_n_down_reg; //mux for down
+	
 
 	compute_module calc_module (
 		.out       (out),
