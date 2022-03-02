@@ -25,11 +25,11 @@ module testbench();
 	//Initialize constants
 	initial begin
 		
-		rho              = 18'h01000;
-		eta_term         = 18'h000ff;
-		g_tension        = 18'h02000;
+		rho              = 18'h02000;
+		eta_term         = 18'h000ff;	
+		g_tension        = 18'h01000;
 		column_size      = 9'd30;
-		row_size         = 9'd30;  
+		row_size         = 9'd30;  //actually useless; need to set parameter directly
 	end
 
 	
@@ -68,9 +68,8 @@ module testbench();
 	end
 	
 	
-	assign out = center_amp_reg;
 	
-	node_grid  #(.row_size(30)) my_grid (
+	node_grid  #(.row_size(29)) my_grid (
 		.clk             (clk_50),
 		.reset           (reset),
 		.column_size     (column_size),

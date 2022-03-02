@@ -9,13 +9,13 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
 vcolumn
-Z1 !s110 1645821371
+Z1 !s110 1646254344
 !i10b 1
-!s100 oB:6@aea?5IK6Oj>5<lKG2
-ILbI4k[f`ATi<S8Jc3i<S20
+!s100 d1je>OKbA0b4LkEi9ihee3
+I?BMHC_l?HMHWIgCKIn0Eg3
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1645821205
+Z3 w1646253809
 Z4 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column.v
 Z5 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column.v
 L0 59
@@ -23,7 +23,7 @@ Z6 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z7 !s108 1645821371.230000
+Z7 !s108 1646254344.349000
 Z8 !s107 C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_single_node.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column.v|
 Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column.v|
 !i113 1
@@ -72,11 +72,11 @@ n@m10@k_512_18
 vnode_grid
 R1
 !i10b 1
-!s100 cJN[WJ?T96bEjRY?UK8fL1
-I^SMECJ6[V6]U?f6^F?gg72
+!s100 5zYZ625h1K@UX:z1ee2dh0
+IcB?=BagA4:`clI7VRn7JR0
 R2
 R0
-w1645821149
+w1646254337
 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v
 Z11 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
 Z12 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
@@ -85,7 +85,7 @@ R6
 r1
 !s85 0
 31
-Z13 !s108 1645821371.055000
+Z13 !s108 1646254344.176000
 Z14 !s107 C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\\\lab2_single_node.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\\lab2_node_column.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 Z15 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 !i113 1
@@ -135,11 +135,11 @@ R10
 vtestbench
 R1
 !i10b 1
-!s100 eCT2eCV7AF5Tk8QL[PLHA1
-Iz0Sfa0^zcz:cRFUS]azgC0
+!s100 8UR5;Del2QACLU06f;aQR0
+IR`O95<z:YE@>>kX??[FAa2
 R2
 R0
-w1645649973
+w1646251528
 R11
 R12
 L0 6

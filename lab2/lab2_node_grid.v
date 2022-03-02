@@ -45,9 +45,8 @@ module node_grid #(parameter row_size = 30) (
 				.u_left       		((i == 0) ? 18'h0 : col_out[i-1]), //Maybe use compute_outputs (waveforms look wack rn)
 				.u_right      		((i == row_size-1) ? 18'h0 : col_out[i+1]),
 				.middle_out   		(middle_nodes[i]),
-				.u_n_out      		(col_out[i]), //Maybe unnecessary
-				.row_pyramid_step   ((i < row_size/2) ? i : row_size - i - 1)
-				
+				.u_n_out      		(col_out[i]),
+				.column_num   ((i < row_size/2) ? i[17:0] + 18'b1 : row_size[17:0] - i[17:0]) //starts at 1, goes to row_size-1 inclusive
 				//Check logic for u_n_out within the column module (should it be compute output or u_n_reg that's passed
 				//to the left and right????
 

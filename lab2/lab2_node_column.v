@@ -60,7 +60,7 @@ module column(
 	input clk, reset,
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right,
-	input signed [17:0]  row_pyramid_step,
+	input signed [17:0]  column_num,
 	output signed [17:0] out, middle_out, u_n_out
 );
 
@@ -86,7 +86,7 @@ module column(
 	
 	reg  signed  [17:0]   m10k_read_reg, m10k_prev_read_reg;
 	
-	reg signed  [17:0]   u_center;
+	reg signed  [17:0]   u_center, u_n_out_reg;
 	
 	
 	reg signed [17:0]   pyramid_step;
@@ -104,18 +104,34 @@ module column(
 			
 //			pyramid_step       <= 18'hfff0 / column_size;
 			pyramid_step       <= 18'hff0 / column_size;
+			//pyramid_step       <= 18'd100;
 			
 			u_center           <= 18'h0;
 			u_left_reg         <= 18'h0;
 			u_right_reg        <= 18'h0;
 			u_n_down_reg	   <= 18'h0;
 			u_n_reg 		   <= 18'h0;
-			u_n_up_reg		   <= 18'h2 * pyramid_step * row_pyramid_step;
-			u_n_prev_reg 	   <= pyramid_step * row_pyramid_step;
-			u_n_bottom_reg     <= pyramid_step * row_pyramid_step;
+			u_n_up_reg		   <= 18'h2 * pyramid_step * (row_pyramid_step);
+			u_n_prev_reg 	   <= pyramid_step * (row_pyramid_step);
+			u_n_bottom_reg     <= pyramid_step * (row_pyramid_step);
+				
+/* 			u_n_bottom_reg     <= 18'h0;
+			
+			if((init_addr == (column_size >>1)) && (row_pyramid_step == (18'd14))) begin
+				u_n_prev_reg 	   <= 18'd4;
+				u_n_up_reg		   <= 18'h0;
+			end
+			else if ((init_addr == (column_size >> 1) - 1) && (row_pyramid_step == (18'd14))) begin 
+				u_n_prev_reg 	   <= 18'd0;
+				u_n_up_reg		   <= 18'd4;
+			end
+			else begin
+				u_n_up_reg		   <= 18'd0;
+				u_n_prev_reg 	   <= 18'h0;
+			end
 			
 			m10k_read_reg       <= 18'h0;
-			m10k_prev_read_reg  <= 18'h0;
+			m10k_prev_read_reg  <= 18'h0; */
 		end
 	end
 	
@@ -129,26 +145,50 @@ module column(
 				
 				m10k_prev_write_addr <= init_addr;
 				
+				
+				
+/* 				if(init_addr == (column_size)) begin
+					m10k_prev_write_data <= 18'b0;
+					m10k_write_data <= 18'b0; //TODO: Resolve hard coding for variable column lengths
+				
+					memory_init_en <= 1'b0;
+				end */
+				if (init_addr < (column_size >> 1)) begin
+					m10k_prev_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
+					m10k_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
+				end
+				else if (init_addr >= (column_size >> 1)) begin
+					m10k_prev_write_data <= (((column_size) - init_addr) * pyramid_step * row_pyramid_step);
+					m10k_write_data <= (((column_size) - init_addr) *  pyramid_step * row_pyramid_step); //TODO: Resolve hard coding for variable column lengths
+				end
+				
+				if(init_addr == column_size - 1) begin
+					memory_init_en <= 1'b0;
+				end
+/* 				m10k_write_addr <= init_addr;
+				
+				m10k_prev_write_addr <= init_addr;
+				
+				if(init_addr == 9'd14) begin
+					if(row_pyramid_step == (18'd14)) begin
+						m10k_prev_write_data <= 18'd4;
+						m10k_write_data <= 18'd4;
+					end
+					else begin
+						m10k_prev_write_data <= 18'd0;
+						m10k_write_data <= 18'd0;
+					end
+				end
+				else begin
+					m10k_prev_write_data <= 18'd0;
+					m10k_write_data <= 18'd0;
+				end
 				if(init_addr == (column_size)) begin
 					m10k_prev_write_data <= 18'b0;
 					m10k_write_data <= 18'b0; //TODO: Resolve hard coding for variable column lengths
 				
 					memory_init_en <= 1'b0;
-				end
-				else begin
-					if (init_addr < ((column_size >> 1)-1)) begin
-						m10k_prev_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
-						m10k_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
-					end
-					else if (init_addr > ((column_size >> 1)+1)) begin
-						m10k_prev_write_data <= (((column_size) - init_addr) * pyramid_step * row_pyramid_step);
-						m10k_write_data <= (((column_size) - init_addr) *  pyramid_step * row_pyramid_step); //TODO: Resolve hard coding for variable column lengths
-					end
-					else begin
-						m10k_prev_write_data <= ((column_size >> 1) * pyramid_step * row_pyramid_step);
-						m10k_write_data <= ((column_size >> 1) * pyramid_step * row_pyramid_step); //TODO: Resolve hard coding for variable column lengths
-					end
-				end
+				end */
 				init_state <= 1;
 			end
 			
@@ -165,12 +205,11 @@ module column(
 	end
 	
 	assign middle_out = u_center;
-	assign u_n_out = (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
+	assign u_n_out = u_n_out_reg;
 	
 	always @ (*) begin
 		m10k_read_reg = m10k_read_data;
 		m10k_prev_read_reg = m10k_prev_read_data;
-		
 	end
 	
 	always @ (posedge clk) begin
@@ -223,7 +262,7 @@ module column(
 					u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
 				end
 				
-				if(column_idx == (column_size >> 2)) u_center <= out;
+				if(column_idx == (column_size >> 1)) u_center <= out;
 				
 				if (column_idx == (column_size-9'd1)) begin
 					column_idx <= 9'd0;
@@ -232,6 +271,8 @@ module column(
 					//u_n_down_reg <= 0;
 				end
 				else column_idx <= (column_idx + 9'd1);  
+				
+				u_n_out_reg <= (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
 				
 				state <= 5'd0;
 			end
