@@ -1,5 +1,5 @@
 
-`include "/lab2_node_column.v"
+`include "/lab2_node_column_v2.v"
 
 
 module node_grid #(parameter row_size = 30) (

@@ -1,6 +1,5 @@
 //Module for node column for lab 2
 
-`include "/lab2_single_node.v"
 
 module M10K_512_18(
 	output reg signed [17:0] q,
@@ -19,8 +18,9 @@ module M10K_512_18(
 			mem[wraddress] <= data;
 	end
 	always @ (posedge clock) begin
-		if (rden_reg)
-		q <= mem[read_address_reg];
+		if (rden_reg) begin
+			q <= mem[read_address_reg];
+		end
 		read_address_reg <= rdaddress;
 		rden_reg <= rden;
 		 // Remember to change because not synthesizable
@@ -121,7 +121,7 @@ module column(
 			//u_n_bottom_reg     <= 18'h0;
 			u_n_prev_reg 	   <= pyramid_step;
 			u_n_bottom_reg     <= pyramid_step;
-				
+			
 /* 			u_n_bottom_reg     <= 18'h0;
 			
 			if((init_addr == (column_size >>1)) && (row_pyramid_step == (18'd14))) begin

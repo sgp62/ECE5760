@@ -47,7 +47,7 @@ module node_grid #(parameter row_size = 30) (
 				.middle_out   		(middle_nodes[i]),
 				.u_n_out      		(col_out[i]),
 				//.column_num   ((i < row_size/2) ? i[17:0] + 18'b1 : row_size[17:0] - i[17:0]) //starts at 1, goes to row_size-1 inclusive
-				.column_num   ((i < row_size/2) ? i[17:0] : row_size[17:0] - i[17:0] - 18'b1 ) //starts at 1, goes to row_size-1 inclusive
+				.column_num         ((i < row_size/2) ? i[17:0] : row_size[17:0] - i[17:0] - 18'b1 ) //starts at 1, goes to row_size-1 inclusive
 				//Check logic for u_n_out within the column module (should it be compute output or u_n_reg that's passed
 				//to the left and right????
 
