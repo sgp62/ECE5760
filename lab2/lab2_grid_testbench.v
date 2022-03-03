@@ -25,7 +25,7 @@ module testbench();
 	//Initialize constants
 	initial begin
 		rho              = 18'h02000;
-		eta_term         = 18'h000ff;	
+		eta_term         = 18'h000d0;	
 		g_tension        = 18'h01000;
 		column_size      = 9'd30;
 		row_size         = 9'd30;  //actually useless; need to set parameter directly

@@ -14,7 +14,7 @@ module testbench();
 	reg  signed  [17:0]  eta_term;
 
 	wire signed  [17:0] out;
-	
+	wire         [31:0] up_cyc;
 
 	reg			 [8:0]   column_size;
 	reg          [8:0]   row_size;
@@ -25,7 +25,7 @@ module testbench();
 	//Initialize constants
 	initial begin
 		rho              = 18'h02000;
-		eta_term         = 18'h000ff;	
+		eta_term         = 18'h002ff;	
 		g_tension        = 18'h01000;
 		column_size      = 9'd30;
 		row_size         = 9'd30;  //actually useless; need to set parameter directly
