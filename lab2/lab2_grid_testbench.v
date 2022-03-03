@@ -24,7 +24,6 @@ module testbench();
 	
 	//Initialize constants
 	initial begin
-		
 		rho              = 18'h02000;
 		eta_term         = 18'h000ff;	
 		g_tension        = 18'h01000;

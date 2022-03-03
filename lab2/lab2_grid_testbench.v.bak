@@ -69,7 +69,7 @@ module testbench();
 	
 	
 	
-	node_grid  #(.row_size(29)) my_grid (
+	node_grid  #(.row_size(30)) my_grid (
 		.clk             (clk_50),
 		.reset           (reset),
 		.column_size     (column_size),

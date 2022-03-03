@@ -60,7 +60,7 @@ module column(
 	input clk, reset,
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right,
-	input signed [17:0]  row_pyramid_step,
+	input signed [17:0]  column_num,
 	output signed [17:0] out, middle_out, u_n_out
 );
 
@@ -82,14 +82,17 @@ module column(
 	reg			 [8:0]    column_idx;
 	reg  signed  [17:0]   u_n_down_reg, u_n_reg, u_n_up_reg, u_n_prev_reg, u_n_bottom_reg, u_left_reg, u_right_reg;
 	
-	wire  signed  [17:0]   up_compute_input, cent_compute_input, center_prev_compute_input, down_compute_input;
+	wire  signed [17:0]   up_compute_input, cent_compute_input, center_prev_compute_input, down_compute_input;
 	
 	reg  signed  [17:0]   m10k_read_reg, m10k_prev_read_reg;
 	
-	reg signed  [17:0]   u_center, u_n_out_reg;
+	reg signed   [17:0]   u_center, u_n_out_reg;
 	
+	wire         [8:0]    init_addr_temp ;
+	wire         [8:0]    column_num_temp ;
 	
 	reg signed [17:0]   pyramid_step;
+	
 	
 	always @(posedge clk) begin
 		if (reset) begin
@@ -111,9 +114,13 @@ module column(
 			u_right_reg        <= 18'h0;
 			u_n_down_reg	   <= 18'h0;
 			u_n_reg 		   <= 18'h0;
-			u_n_up_reg		   <= 18'h2 * pyramid_step * (row_pyramid_step);
-			u_n_prev_reg 	   <= pyramid_step * (row_pyramid_step);
-			u_n_bottom_reg     <= pyramid_step * (row_pyramid_step);
+			/*** CHANGE THIS****/
+			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 * pyramid_step; //need to change for variable height
+			
+			//u_n_prev_reg 	   <= 18'h0;
+			//u_n_bottom_reg     <= 18'h0;
+			u_n_prev_reg 	   <= pyramid_step;
+			u_n_bottom_reg     <= pyramid_step;
 				
 /* 			u_n_bottom_reg     <= 18'h0;
 			
@@ -135,6 +142,9 @@ module column(
 		end
 	end
 	
+	assign init_addr_temp = (init_addr >= (column_size >> 1)) ? ((column_size) - init_addr - 9'b1) : init_addr;
+	assign column_num_temp = (column_num >= (column_size >> 1)) ? ((column_size) - column_num - 9'b1) : column_num;
+	
 	always @ (posedge clk) begin //Memory init
 		if(memory_init_en) begin
 			if (init_state == 0) begin
@@ -153,14 +163,32 @@ module column(
 				
 					memory_init_en <= 1'b0;
 				end */
-				if (init_addr < (column_size >> 1)) begin
+ 				
+				/*if (init_addr < (column_size >> 1)) begin
 					m10k_prev_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
 					m10k_write_data <= ((init_addr + 9'd1) * pyramid_step * row_pyramid_step);
 				end
 				else if (init_addr >= (column_size >> 1)) begin
 					m10k_prev_write_data <= (((column_size) - init_addr) * pyramid_step * row_pyramid_step);
 					m10k_write_data <= (((column_size) - init_addr) *  pyramid_step * row_pyramid_step); //TODO: Resolve hard coding for variable column lengths
-				end
+				end */
+				
+				
+				
+				//if (init_addr < (column_size >> 1)) begin
+					m10k_prev_write_data <= column_num_temp > init_addr_temp ? 
+					        ((init_addr_temp + 9'b1) * pyramid_step) : ((column_num_temp + 9'b1) * pyramid_step);
+							
+					m10k_write_data <= column_num_temp > init_addr_temp ? 
+					        ((init_addr_temp + 9'b1) * pyramid_step) : ((column_num_temp + 9'b1) * pyramid_step);
+				//end
+				/* else if (init_addr >= (column_size >> 1)) begin
+					m10k_prev_write_data <= column_num < init_addr ? 
+					        (((column_size) - init_addr) * pyramid_step) : (((column_size) - column_num) * pyramid_step);
+					m10k_write_data <= column_num < init_addr ? 
+					        (((column_size) - init_addr) * pyramid_step) : (((column_size) - column_num) * pyramid_step); //TODO: Resolve hard coding for variable column lengths
+				end */
+				
 				
 				if(init_addr == column_size - 1) begin
 					memory_init_en <= 1'b0;
@@ -189,7 +217,7 @@ module column(
 				
 					memory_init_en <= 1'b0;
 				end */
-				init_state <= 1;
+				init_state <= 2;
 			end
 			
 			if (init_state == 1) begin

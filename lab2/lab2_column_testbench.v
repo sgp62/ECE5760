@@ -84,7 +84,7 @@ column my_col(
 	.u_right      (18'h0),
 	.middle_out   (middle_out),
 	.u_n_out      (dont_care_wire),
-	.row_pyramid_step   (18'd1)
+	.column_num   (18'd15)
 
 );
 	
