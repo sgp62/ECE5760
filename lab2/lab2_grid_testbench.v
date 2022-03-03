@@ -14,7 +14,7 @@ module testbench();
 	reg  signed  [17:0]  eta_term;
 
 	wire signed  [17:0] out;
-	
+	wire         [31:0] up_cyc;
 
 	reg			 [8:0]   column_size;
 	reg          [8:0]   row_size;
@@ -75,7 +75,8 @@ module testbench();
 		.rho             (rho),
 		.g_tension       (g_tension),
 		.eta_term        (eta_term),
-		.center_node_amp (out)
+		.center_node_amp (out),
+		.update_cycles   (up_cyc)
 	);
 	
 	

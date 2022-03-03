@@ -9,13 +9,13 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
 vcolumn
-Z1 !s110 1646284547
+Z1 !s110 1646320527
 !i10b 1
-!s100 >P=zzKmm70SRRaGK@NGBo3
-IHji2m4:c?OIaX:YN0KmUf0
+!s100 UV7o3eD5K8<YFZ4W3JabW2
+I>a70G0m9dNP]V6OCI_iZD0
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1646284542
+Z3 w1646320516
 Z4 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v
 Z5 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v
 L0 53
@@ -23,7 +23,7 @@ Z6 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z7 !s108 1646284547.896000
+Z7 !s108 1646320527.426000
 Z8 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 !i113 1
@@ -31,8 +31,8 @@ Z10 o-work work
 vcompute_module
 R1
 !i10b 1
-!s100 DEkz;F:Tn?0L]Wj5HC?S62
-Il1Y_U8S4KU1PNiH2eXKlB3
+!s100 d:XdcJQz=3^M<VoSSlSog0
+I6`Ol?D25Td0LURgKOYOmU3
 R2
 R0
 R3
@@ -72,11 +72,11 @@ n@m10@k_512_18
 vnode_grid
 R1
 !i10b 1
-!s100 H_CRF1<YLW_[agRVO1HZe2
-IQ]^ZnG3VbDFSg>k<Ue6Of2
+!s100 Sk75O1of3;fIX4YO2OEz00
+IUD@ZT4jjdQ]FaDKM5IhiY3
 R2
 R0
-w1646279141
+w1646319757
 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v
 Z11 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
 Z12 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
@@ -85,7 +85,7 @@ R6
 r1
 !s85 0
 31
-Z13 !s108 1646284547.460000
+Z13 !s108 1646320527.015000
 Z14 !s107 C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\\lab2_node_column_v2.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 Z15 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 !i113 1
@@ -135,11 +135,11 @@ R10
 vtestbench
 R1
 !i10b 1
-!s100 b@12h^2GRCV]i1DJo:nh]1
-IHA9ojGUBQU`86cXi73=a72
+!s100 <NFW_Pf`2ESB<i@7CQ@UA3
+I3fZO0eFZG:7lhoYW4BhT[3
 R2
 R0
-w1646275083
+w1646319420
 R11
 R12
 L0 6
