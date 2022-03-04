@@ -1,6 +1,6 @@
 
-`include "/lab2_node_column_v2.v"
 
+`include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v"
 
 module node_grid #(parameter row_size = 30) (
 	input clk, reset, start_update,
@@ -20,7 +20,7 @@ module node_grid #(parameter row_size = 30) (
 	
 	reg signed  [17:0] center_node_reg;
 	
-	reg	               done_update [row_size-1:0];
+	wire	               done_update [row_size-1:0];
 	
 	wire         [31:0] cycles_per_update [row_size-1:0];
 	
@@ -47,6 +47,7 @@ module node_grid #(parameter row_size = 30) (
 			column my_col(
 				.clk          		(clk),
 				.reset        		(reset),
+				.init_memory        (init_memory)
 				.rho          		(rho),
 				.eta_term     		(eta_term),
 				.g_tension    		(g_tension),

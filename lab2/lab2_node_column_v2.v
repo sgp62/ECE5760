@@ -1,5 +1,19 @@
 //Node Column v2 implementation
 
+//////////////////////////////////////////////////
+//// signed mult of 1.17 format 2'comp////////////
+//////////////////////////////////////////////////
+
+module signed_mult (out, a, b);
+  output  signed  [17:0]  out;
+  input   signed  [17:0]  a;
+  input   signed  [17:0]  b;
+  // intermediate full bit length
+  wire    signed  [35:0]  mult_out;
+  assign mult_out = a * b;
+  // select bits for 1.17 fixed point
+  assign out = {mult_out[35], mult_out[33:17]};
+endmodule
 
 module M10K_512_18(
 	output reg signed [17:0] q,
@@ -51,7 +65,7 @@ module compute_module(
 endmodule
 
 module column(
-	input clk, reset, start_update,
+	input clk, reset, start_update, 
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right, u_drum_center,
 	input signed [17:0]  column_num,
@@ -73,7 +87,6 @@ module column(
 
 	reg          [4:0]    state, init_state;
 	reg          [8:0]    init_addr, column_idx;
-	reg 		          memory_init_en;
 
 	reg  signed  [17:0]   u_n_down_reg, u_n_reg, u_n_up_reg, u_n_prev_reg, u_n_bottom_reg, u_left_reg, u_right_reg;
 	reg  signed  [17:0]   u_n_center_reg, u_n_down_compute_reg;
@@ -83,13 +96,23 @@ module column(
 	
 	wire         [8:0]    init_addr_temp ;
 	wire         [8:0]    column_num_temp ;
-	
+	reg                   memory_init_en;
 	reg signed [17:0]   pyramid_step;
 	
 	reg 		 [31:0]   cycles_counter;
 	reg					  done_update;
 	
-	always @(posedge clk) begin
+	assign init_addr_temp = (init_addr >= (column_size >> 1)) ? ((column_size) - init_addr - 9'b1) : init_addr;
+	assign column_num_temp = (column_num >= (column_size >> 1)) ? ((column_size) - column_num - 9'b1) : column_num;
+	
+	
+	assign middle_out = u_center;
+	assign u_n_out = u_n_out_reg;
+	assign done_update_out = done_update;
+	
+
+	
+	always @ (posedge clk) begin
 		if (reset) begin
 			state 			   <= 5'd0;
 			init_state 		   <= 5'd0;
@@ -116,12 +139,13 @@ module column(
 			done_update		   <= 1'b0;
 			
 		end
-	end
-	
-	assign init_addr_temp = (init_addr >= (column_size >> 1)) ? ((column_size) - init_addr - 9'b1) : init_addr;
-	assign column_num_temp = (column_num >= (column_size >> 1)) ? ((column_size) - column_num - 9'b1) : column_num;
-	
-	always @ (posedge clk) begin //Memory init
+
+		cycles_counter <= cycles_counter + 32'b1;
+		if(done_update && ~reset) begin
+			cycles_per_update <= cycles_counter;
+			cycles_counter <= 32'b0;
+		end
+		
 		if(memory_init_en) begin
 			if (init_state == 0) begin
 				m10k_write_en <= 1'b1;
@@ -148,87 +172,74 @@ module column(
 			end
 			
 		end
-	end
-	
-	assign middle_out = u_center;
-	assign u_n_out = u_n_out_reg;
-	assign done_update_out = done_update;
-	
-	always@ (posedge clk) begin
-		cycles_counter <= cycles_counter + 32'b1;
-		if(done_update) begin
-			cycles_per_update <= cycles_counter;
-			cycles_counter <= 32'b0;
-		end
-	end
-	
-	always @ (posedge clk) begin
-		if(~memory_init_en && start_update) begin
-			if(state == 5'd0)begin
-				m10k_prev_write_en <= 1'b0;
-				m10k_write_en <= 1'b0;
-			
-				m10k_read_addr <= (column_idx == (column_size - 9'd1)) ? 9'd0 : column_idx + 9'd1;
-				m10k_prev_read_addr <= column_idx;
-			
-				done_update <= 1'b0;
+		if(~memory_init_en) begin
+			if(start_update) begin
+				if(state == 5'd0)begin
+					m10k_prev_write_en <= 1'b0;
+					m10k_write_en <= 1'b0;
 				
-				state <= 5'd1;
-			end
-			
-			if(state == 5'd1)begin
-				state <= 5'd2;
-			end
-			
-			if(state == 5'd2)begin
-
-				u_n_prev_reg <= m10k_prev_read_data;
-				u_n_up_reg <= (column_idx == (column_size - 9'd1)) ? 18'b0 : m10k_read_data;
-
-				u_left_reg <= u_left;
-				u_right_reg <= u_right;
+					m10k_read_addr <= (column_idx == (column_size - 9'd1)) ? 9'd0 : column_idx + 9'd1;
+					m10k_prev_read_addr <= column_idx;
 				
-				u_n_center_reg <= (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg;
-				u_n_down_compute_reg <= (column_idx == 9'b0) ? 18'b0 : u_n_down_reg;
-				
-				u_n_out_reg <= (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
-				
-				m10k_write_en <= 1'b0;
-				m10k_prev_write_en <= 1'b0;
-				
-				state <= 5'd3;
-			end
-			
-			if(state == 5'd3)begin
-				m10k_write_en <= (column_idx == 9'd0) ? 1'b0 : 1'b1;
-				m10k_prev_write_en <= 1'b1;
-				
-				m10k_write_addr <= column_idx;
-				m10k_prev_write_addr <= column_idx;
-				
-				if (column_idx > 9'd0) m10k_write_data <= out;
-				else m10k_write_data <= m10k_write_data;// m10k_write_data latch;
-				
-				if (column_idx == 9'd0) u_n_bottom_reg <= out;
-				else u_n_bottom_reg <= u_n_bottom_reg;
-				
-				m10k_prev_write_data <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
-				
-				u_n_reg <= u_n_up_reg;
-				u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
-
-				
-				if(column_idx == (column_size >> 1)) u_center <= out;
-				
-				if (column_idx == (column_size-9'd1)) begin
-					column_idx <= 9'd0;
-					done_update <= 9'b1;
+					done_update <= 1'b0;
+					
+					state <= 5'd1;
 				end
-				else column_idx <= (column_idx + 9'd1);  
 				
-				state <= 5'd0;
+				if(state == 5'd1)begin
+					state <= 5'd2;
+				end
+				
+				if(state == 5'd2)begin
+
+					u_n_prev_reg <= m10k_prev_read_data;
+					u_n_up_reg <= (column_idx == (column_size - 9'd1)) ? 18'b0 : m10k_read_data;
+
+					u_left_reg <= u_left;
+					u_right_reg <= u_right;
+					
+					u_n_center_reg <= (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg;
+					u_n_down_compute_reg <= (column_idx == 9'b0) ? 18'b0 : u_n_down_reg;
+					
+					u_n_out_reg <= (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
+					
+					m10k_write_en <= 1'b0;
+					m10k_prev_write_en <= 1'b0;
+					
+					state <= 5'd3;
+				end
+				
+				if(state == 5'd3)begin
+					m10k_write_en <= (column_idx == 9'd0) ? 1'b0 : 1'b1;
+					m10k_prev_write_en <= 1'b1;
+					
+					m10k_write_addr <= column_idx;
+					m10k_prev_write_addr <= column_idx;
+					
+					if (column_idx > 9'd0) m10k_write_data <= out;
+					else m10k_write_data <= m10k_write_data;// m10k_write_data latch;
+					
+					if (column_idx == 9'd0) u_n_bottom_reg <= out;
+					else u_n_bottom_reg <= u_n_bottom_reg;
+					
+					m10k_prev_write_data <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
+					
+					u_n_reg <= u_n_up_reg;
+					u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
+
+					
+					if(column_idx == (column_size >> 1)) u_center <= out;
+					
+					if (column_idx == (column_size-9'd1)) begin
+						column_idx <= 9'd0;
+						done_update <= 9'b1;
+					end
+					else column_idx <= (column_idx + 9'd1);  
+					
+					state <= 5'd0;
+				end
 			end
-		end
+		end 
 	end
 
 

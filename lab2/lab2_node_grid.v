@@ -1,6 +1,6 @@
 
-`include "/lab2_node_column_v2.v"
 
+`include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v"
 
 module node_grid #(parameter row_size = 30) (
 	input clk, reset, start_update,

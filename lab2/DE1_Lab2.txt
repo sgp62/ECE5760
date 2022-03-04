@@ -425,11 +425,17 @@ reg          [8:0]   row_size;
 
 wire signed  [17:0] drum_center_out;
 wire         [31:0] up_cyc;
-wire                start_update = 1'b1;
+reg                 start_update = 1'b1;
 wire                column_update_done;
+
+wire               reset;
+
+assign reset = ~KEY[0];
 
 //Drum Initialization
 always @ (posedge CLOCK_50) begin
+	
+
 	if(reset) begin
 		rho              = 18'h02000;
 		eta_term         = 18'h000d0;	
@@ -438,10 +444,6 @@ always @ (posedge CLOCK_50) begin
 		row_size         = 9'd30;
 	end
 	
-end
-
-always @ (*) begin
-	if(column_update_done) start_update = 1'b0;
 end
 
 node_grid  #(.row_size(30)) my_grid (
@@ -459,7 +461,7 @@ node_grid  #(.row_size(30)) my_grid (
 
 
 always @(posedge CLOCK_50) begin //CLOCK_50
-
+	if(column_update_done) start_update <= 1'b0;
 	// reset state machine and read/write controls
 	if (~KEY[0]) begin
 		state <= 0 ;
@@ -495,25 +497,17 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 	// -- start write to fifo for each channel
 	// -- first the left channel
 	if (state==4'd2 && fifo_space>8'd2) begin // 
-		
-		// Where to set start_update equal to one? Should we stall here until done_update
-		// Before writing to the bus?
-		if(~column_update_done) begin
-			state <= 4'd2;
-		end
-		else begin
-			state <= 4'd3;
-			// IF SW=10'h200 
-			// and Fout = (sample_rate)/(2^32)*{SW[9:0], 16'b0}
-			// then Fout=48000/(2^32)*(2^25) = 375 Hz
-			// dds_accum <= dds_accum + {SW[9:0], 16'b0} ;
-			// convert 16-bit table to 32-bit format
-			bus_write_data <= (drum_center_out) ;
-			bus_addr <= audio_left_address ;
-			bus_byte_enable <= 4'b1111;
-			bus_write <= 1'b1 ;
-			
-		end
+		state <= 4'd3;
+		start_update <= 1'b1;
+		// IF SW=10'h200 
+		// and Fout = (sample_rate)/(2^32)*{SW[9:0], 16'b0}
+		// then Fout=48000/(2^32)*(2^25) = 375 Hz
+		// dds_accum <= dds_accum + {SW[9:0], 16'b0} ;
+		// convert 16-bit table to 32-bit format
+		bus_write_data <= (drum_center_out) ;
+		bus_addr <= audio_left_address ;
+		bus_byte_enable <= 4'b1111;
+		bus_write <= 1'b1 ;
 	end	
 	// if no space, try again later
 	else if (state==4'd2 && fifo_space<=8'd2) begin
