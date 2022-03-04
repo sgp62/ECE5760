@@ -3,11 +3,12 @@
 
 
 module node_grid #(parameter row_size = 30) (
-	input clk, reset,
+	input clk, reset, start_update,
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term,
 	output signed [17:0] center_node_amp,
-	output [31:0] update_cycles
+	output [31:0] update_cycles,
+	output done_update_to_fifo
 );
 	
 
@@ -19,11 +20,15 @@ module node_grid #(parameter row_size = 30) (
 	
 	reg signed  [17:0] center_node_reg;
 	
+	wire	               done_update [row_size-1:0];
+	
 	wire         [31:0] cycles_per_update [row_size-1:0];
 	
 	assign center_node_amp = center_node_reg;
 	
 	assign update_cycles = cycles_per_update [row_size / 2];
+	
+	assign done_update_to_fifo = done_update [row_size / 2];
 	
 	
 	always @ (posedge clk) begin
@@ -53,8 +58,9 @@ module node_grid #(parameter row_size = 30) (
 				.u_n_out      		(col_out[i]),
 				.column_num         ((i < row_size/2) ? i[17:0] : row_size[17:0] - i[17:0] - 18'b1 ), //starts at 1, goes to row_size-1 inclusiv
 				.u_drum_center      (center_node_amp),
-				.cycles_per_update     (cycles_per_update[i])
-
+				.cycles_per_update  (cycles_per_update[i]),
+				.start_update       (start_update),
+				.done_update_out    (done_update[i])
 			);
 		end
 	endgenerate

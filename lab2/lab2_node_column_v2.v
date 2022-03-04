@@ -51,12 +51,13 @@ module compute_module(
 endmodule
 
 module column(
-	input clk, reset,
+	input clk, reset, start_update,
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right, u_drum_center,
 	input signed [17:0]  column_num,
 	output signed [17:0] out, middle_out, u_n_out,
-	output reg [31:0] cycles_per_update
+	output reg [31:0] cycles_per_update,
+	output done_update_out
 );
 
 	wire signed	 [17:0] m10k_read_data;
@@ -151,6 +152,7 @@ module column(
 	
 	assign middle_out = u_center;
 	assign u_n_out = u_n_out_reg;
+	assign done_update_out = done_update;
 	
 	always@ (posedge clk) begin
 		cycles_counter <= cycles_counter + 32'b1;
@@ -161,7 +163,7 @@ module column(
 	end
 	
 	always @ (posedge clk) begin
-		if(~memory_init_en) begin
+		if(~memory_init_en && start_update) begin
 			if(state == 5'd0)begin
 				m10k_prev_write_en <= 1'b0;
 				m10k_write_en <= 1'b0;

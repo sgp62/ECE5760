@@ -15,6 +15,7 @@ module testbench();
 
 	wire signed  [17:0] out;
 	wire         [31:0] up_cyc;
+	wire                to_fifo;
 
 	reg			 [8:0]   column_size;
 	reg          [8:0]   row_size;
@@ -26,7 +27,7 @@ module testbench();
 	initial begin
 		rho              = 18'h02000;
 		eta_term         = 18'h000d0;	
-		g_tension        = 18'h01000;
+		g_tension        = 18'h00800;
 		column_size      = 9'd30;
 		row_size         = 9'd30;  //actually useless; need to set parameter directly
 	end
@@ -76,7 +77,9 @@ module testbench();
 		.g_tension       (g_tension),
 		.eta_term        (eta_term),
 		.center_node_amp (out),
-		.update_cycles   (up_cyc)
+		.update_cycles   (up_cyc),
+		.start_update    (1'b1),
+		.done_update_to_fifo  (to_fifo)
 	);
 	
 	
