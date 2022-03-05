@@ -29,8 +29,8 @@ module testbench();
 		//g_tension        = 18'h02000;
 		
 		rho              = 18'h02000;
-		eta_term         = 18'h000ff;	
-		g_tension        = 18'h01000;
+		eta_term         = 18'd11;	//Power of 2 used for shifting
+		g_tension        = 18'd6; //Power of 2 to be shifted
 		
 		
 		column_size        = 9'd30;

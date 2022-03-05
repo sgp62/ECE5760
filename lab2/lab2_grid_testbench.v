@@ -17,7 +17,7 @@ module testbench();
 	wire         [31:0] up_cyc;
 	wire                to_fifo;
 
-	reg			 [8:0]   column_size;
+	reg			 [8:0]   column_power;
 	reg          [8:0]   row_size;
 	
 	
@@ -26,9 +26,9 @@ module testbench();
 	//Initialize constants
 	initial begin
 		rho              = 18'h02000;
-		eta_term         = 18'h00040;	
-		g_tension        = 18'h00800;
-		column_size      = 9'd30;
+		eta_term         = 18'd11;	//Power of 2 used for shifting
+		g_tension        = 18'd6; //Power of 2 to be shifted
+		column_power     = 9'd5;
 		row_size         = 9'd30;  //actually useless; need to set parameter directly
 	end
 
@@ -72,7 +72,7 @@ module testbench();
 	node_grid  #(.row_size(30)) my_grid (
 		.clk             (clk_50),
 		.reset           (reset),
-		.column_size     (column_size),
+		.column_power    (column_power),
 		.rho             (rho),
 		.g_tension       (g_tension),
 		.eta_term        (eta_term),

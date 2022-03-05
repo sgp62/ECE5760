@@ -1,6 +1,6 @@
 //Testbench for lab 2 node column
 `timescale 1ns/1ns
-`include "/lab2_node_column.v"
+`include "/lab2_node_column_v2.v"
 
 
 module testbench();

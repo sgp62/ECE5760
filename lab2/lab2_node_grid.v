@@ -4,7 +4,7 @@
 
 module node_grid #(parameter row_size = 30) (
 	input clk, reset, start_update,
-	input [8:0] column_size,
+	input [8:0] column_power,
 	input signed [17:0] rho, g_tension, eta_term,
 	output signed [17:0] center_node_amp,
 	output [31:0] update_cycles,
@@ -24,21 +24,31 @@ module node_grid #(parameter row_size = 30) (
 	
 	wire         [31:0] cycles_per_update [row_size-1:0];
 	
+	wire         [17:0] rho_eff;
+	wire         [17:0] u_cent_g_tension_2;
+	
+	reg signed   [17:0] pyramid_step;
+	
 	assign center_node_amp = center_node_reg;
 	
 	assign update_cycles = cycles_per_update [row_size / 2];
 	
 	assign done_update_to_fifo = done_update [row_size / 2];
-	
+
 	
 	always @ (posedge clk) begin
 		if(reset) begin
 			center_node_reg <= 18'h0;
+			pyramid_step <= 18'd13 - column_power; //Used as power of 2 math, would be 2^(13 - col_pow)
 		end
 		else begin
 			center_node_reg <= middle_nodes[row_size / 2];
 		end
 	end
+	
+	signed_mult mult5 (.out(u_cent_g_tension_2), .a(center_node_amp >>> g_tension), .b(center_node_amp >>> g_tension));
+  
+	assign rho_eff = (18'hfae1 < (rho + u_cent_g_tension_2)) ? 18'hfae1 : (rho + u_cent_g_tension_2);
 
 	generate
 		genvar i;
@@ -47,10 +57,11 @@ module node_grid #(parameter row_size = 30) (
 			column my_col(
 				.clk          		(clk),
 				.reset        		(reset),
-				.rho          		(rho),
+				.rho          		(rho_eff),
 				.eta_term     		(eta_term),
 				.g_tension    		(g_tension),
-				.column_size  		(column_size),
+				.pyramid_step       (pyramid_step),
+				.column_size  		(9'b1 << column_power),
 				.out          		(compute_outputs[i]), //What we want to see for the checkoff
 				.u_left       		((i == 0) ? 18'h0 : col_out[i-1]), 
 				.u_right      		((i == row_size-1) ? 18'h0 : col_out[i+1]),

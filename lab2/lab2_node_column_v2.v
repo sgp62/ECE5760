@@ -44,23 +44,20 @@ module compute_module(
   wire  signed   [17:0] rho_eff;
   wire  signed   [17:0] temp1;
   wire  signed   [17:0] temp2;
+  wire  signed   [17:0] temp3;
   wire  signed   [17:0] u_cent_g_tension;
   wire  signed   [17:0] u_cent_g_tension_2;
   
   assign out = u_n_next;
-  signed_mult mult4 (.out(u_cent_g_tension), .a(u_drum_center), .b(g_tension));
-  signed_mult mult5 (.out(u_cent_g_tension_2), .a(u_cent_g_tension), .b(u_cent_g_tension));
-  
-  assign rho_eff = (18'hfae1 < (rho + u_cent_g_tension_2)) ? 18'hfae1 : (rho + u_cent_g_tension_2);
+
   
   //u_n_next = (1-eta_term) * [rho *(-4*u_n) + 2*u_n - (1-eta_term)*u_n_prev
-  signed_mult mult1 (.out(temp1), .a(rho_eff), .b(u_left + u_right + u_n_up + u_n_down - (u_n << 2)));
+  signed_mult mult1 (.out(temp1), .a(rho), .b(u_left + u_right + u_n_up + u_n_down - (u_n << 2)));
   
+  assign temp2 = u_n_prev - (u_n_prev >>> eta_term);
+  assign temp3 = (u_n << 1) + temp1 - temp2;
+  assign u_n_next = temp3 - (temp3 >>> eta_term);
   
-  signed_mult mult2 (.out(temp2), .a(18'h1ffff-eta_term), .b(u_n_prev));
-  
-  
-  signed_mult mult3 (.out(u_n_next), .a((u_n << 1) + temp1 - temp2), .b(18'h1ffff-eta_term));
   
 endmodule
 
@@ -69,6 +66,7 @@ module column(
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right, u_drum_center,
 	input signed [17:0]  column_num,
+	input signed [17:0] pyramid_step,
 	output signed [17:0] out, middle_out, u_n_out,
 	output reg [31:0] cycles_per_update,
 	output done_update_out
@@ -97,7 +95,7 @@ module column(
 	wire         [8:0]    init_addr_temp ;
 	wire         [8:0]    column_num_temp ;
 	reg                   memory_init_en;
-	reg signed [17:0]   pyramid_step;
+	//reg signed [17:0]   pyramid_step;
 	
 	reg 		 [31:0]   cycles_counter;
 	reg					  done_update;
@@ -121,7 +119,7 @@ module column(
 			m10k_write_en 	   <= 1'b1;
 			m10k_prev_write_en <= 1'b1;
 			column_idx 		   <= 9'd0;
-			pyramid_step       <= 18'hfff0 / column_size;
+			//pyramid_step       <= 18'hfff0 / column_size;
 			
 			u_center           <= 18'h0;
 			u_left_reg         <= 18'h0;
@@ -129,7 +127,7 @@ module column(
 			u_n_down_reg	   <= 18'h0;
 			u_n_reg 		   <= 18'h0;
 
-			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 * pyramid_step; //need to change for variable height
+			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 <<< pyramid_step; //need to change for variable height
 			
 			u_n_prev_reg 	   <= pyramid_step;
 			u_n_bottom_reg     <= pyramid_step;
@@ -155,10 +153,10 @@ module column(
 				m10k_prev_write_addr <= init_addr;
 				
 				m10k_prev_write_data <= column_num_temp > init_addr_temp ? 
-						((init_addr_temp + 9'b1) * pyramid_step) : ((column_num_temp + 9'b1) * pyramid_step);
+						((init_addr_temp + 9'b1) <<< pyramid_step) : ((column_num_temp + 9'b1) <<< pyramid_step);
 						
 				m10k_write_data <= column_num_temp > init_addr_temp ? 
-						((init_addr_temp + 9'b1) * pyramid_step) : ((column_num_temp + 9'b1) * pyramid_step);
+						((init_addr_temp + 9'b1) <<< pyramid_step) : ((column_num_temp + 9'b1) <<< pyramid_step);
 
 				if(init_addr == column_size - 1) begin
 					memory_init_en <= 1'b0;
