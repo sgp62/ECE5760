@@ -403,10 +403,10 @@ assign LEDR = fifo_space ;
 //assign bus_byte_enable = 4'b1111;
 
 // DDS signals
-reg [31:0] dds_accum ;
+//reg [31:0] dds_accum ;
 // DDS LUT
-wire [15:0] sine_out ;
-sync_rom sineTable(CLOCK_50, dds_accum[31:24], sine_out);
+//wire [15:0] sine_out ;
+//sync_rom sineTable(CLOCK_50, dds_accum[31:24], sine_out);
 
 // get some signals exposed
 // connect bus master signals to i/o for probes
@@ -416,11 +416,14 @@ assign GPIO_0[2] = bus_ack ;
 //assign GPIO_0[3] = ??? ;
 
 
-reg  signed  [17:0]  rho;
-reg  signed  [17:0]  g_tension;
-reg  signed  [17:0]  eta_term;
+reg   signed  [17:0]  rho, g_tension, eta_term, initial_amp;
+wire  signed  [17:0]  rho_wire;
+wire  signed  [17:0]  g_tension_wire;
+wire  signed  [17:0]  eta_term_wire;
+wire  signed  [17:0]  initial_amp_wire;
 
-reg			 [8:0]   column_size;
+reg          [8:0]   column_power;
+wire			 [8:0]   column_power_wire;
 reg          [8:0]   row_size;
 
 wire signed  [17:0] drum_center_out;
@@ -432,24 +435,39 @@ wire               reset;
 
 assign reset = ~KEY[0];
 
-//Drum Initialization
-always @ (posedge CLOCK_50) begin
-	
-
-	if(reset) begin
-		rho              = 18'h02000;
-		eta_term         = 18'h000d0;	
-		g_tension        = 18'h00800;
-		column_size      = 9'd30;
-		row_size         = 9'd30;
+always @ (*) begin
+	if(reset)begin
+//      rho              = 18'h02000;
+//		eta_term         = 18'd11;	//Power of 2 used for shifting
+//		g_tension        = 18'd6; //Power of 2 to be shifted
+//		column_power     = 9'd5;
+//		row_size         = 9'd32; //should be 2^col_pow for square drum
+		rho       <= rho_wire;
+		g_tension <= g_tension_wire;
+		eta_term  <= eta_term_wire;
+		column_power <= column_power_wire;
+		initial_amp <= initial_amp_wire;
 	end
-	
 end
+//Drum Initialization
+//always @ (posedge CLOCK_50) begin
+//
+//
+//	if(reset) begin
+//		rho              <= 18'h02000;
+//		eta_term         <= 18'd11;	//Power of 2 used for shifting
+//		g_tension        <= 18'd6; //Power of 2 to be shifted
+//		column_power     <= 9'd5;
+//		row_size         <= 9'd32; //should be 2^col_pow for square drum
+//	end
+//	
+//end
 
-node_grid  #(.row_size(30)) my_grid (
+node_grid  #(.row_size(32)) my_grid (
 	.clk             (CLOCK_50),
 	.reset           (reset),
-	.column_size     (column_size),
+	.column_power    (column_power),
+	.initial_amp     (initial_amp),
 	.rho             (rho),
 	.g_tension       (g_tension),
 	.eta_term        (eta_term),
@@ -463,7 +481,8 @@ node_grid  #(.row_size(30)) my_grid (
 always @(posedge CLOCK_50) begin //CLOCK_50
 	if(column_update_done) start_update <= 1'b0;
 	// reset state machine and read/write controls
-	if (~KEY[0]) begin
+	if (~KEY[0]) begin //reset
+		start_update <= 1'b1;
 		state <= 0 ;
 		bus_read <= 0 ; // set to one if a read opeation from bus
 		bus_write <= 0 ; // set to one if a write operation to bus
@@ -498,13 +517,12 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 	// -- first the left channel
 	if (state==4'd2 && fifo_space>8'd2) begin // 
 		state <= 4'd3;
-		start_update <= 1'b1;
 		// IF SW=10'h200 
 		// and Fout = (sample_rate)/(2^32)*{SW[9:0], 16'b0}
 		// then Fout=48000/(2^32)*(2^25) = 375 Hz
 		// dds_accum <= dds_accum + {SW[9:0], 16'b0} ;
 		// convert 16-bit table to 32-bit format
-		bus_write_data <= (drum_center_out) ;
+		bus_write_data <= (drum_center_out << 14) ; //wanted to try to shift, 
 		bus_addr <= audio_left_address ;
 		bus_byte_enable <= 4'b1111;
 		bus_write <= 1'b1 ;
@@ -525,7 +543,9 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 	// -- now the right channel
 	if (state==4'd4) begin // 
 		state <= 4'd5;	
-		bus_write_data <= (drum_center_out) ;
+		start_update <= 1'b1;
+		
+		bus_write_data <= (drum_center_out << 14) ;
 		bus_addr <= audio_right_address ;
 		bus_write <= 1'b1 ;
 	end	
@@ -554,6 +574,13 @@ Computer_System The_System (
 	.system_pll_ref_clk_clk					(CLOCK_50),
 	.system_pll_ref_reset_reset			(1'b0),
 	.sdram_clk_clk								(state_clock),
+	
+	//PIO Ports
+	.pio_num_rows_external_connection_export    (column_power_wire),
+	.pio_rho_external_connection_export         (rho_wire),
+	.pio_initial_amp_external_connection_export (initial_amp_wire),
+	.pio_g_tension_external_connection_export   (g_tension_wire),
+	.pio_eta_term_external_connection_export    (eta_term_wire),
 
 	// AV Config
 	.av_config_SCLK							(FPGA_I2C_SCLK),

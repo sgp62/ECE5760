@@ -22,7 +22,7 @@ module M10K_512_18(
 	input wren, clock
 );
 	
-	reg [8:0] read_address_reg;
+	// reg [8:0] read_address_reg;
 	reg signed [17:0] mem [511:0];
 	
 	always @ (posedge clock)
@@ -66,7 +66,7 @@ module column(
 	input [8:0] column_size,
 	input signed [17:0] rho, g_tension, eta_term, u_left, u_right, u_drum_center,
 	input signed [17:0]  column_num,
-	input reg signed [17:0] pyramid_step,
+	input signed [17:0] pyramid_step,
 	output signed [17:0] out, middle_out, u_n_out,
 	output reg [31:0] cycles_per_update,
 	output done_update_out

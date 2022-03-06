@@ -22,8 +22,8 @@ module M10K_512_18(
 	input wren, clock
 );
 	
-	reg [8:0] read_address_reg;
-	reg signed [17:0] mem [511:0];
+	// reg [8:0] read_address_reg;
+	reg signed [17:0] mem [511:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
 	
 	always @ (posedge clock)
 	begin

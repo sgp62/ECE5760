@@ -17,7 +17,7 @@ module testbench();
 	wire         [31:0] up_cyc;
 	wire                to_fifo;
 
-	reg			 [8:0]   column_size;
+	reg			 [8:0]   column_power;
 	reg          [8:0]   row_size;
 	
 	

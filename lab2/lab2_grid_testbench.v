@@ -73,6 +73,7 @@ module testbench();
 		.clk             (clk_50),
 		.reset           (reset),
 		.column_power    (column_power),
+		.initial_amp     (18'd17),
 		.rho             (rho),
 		.g_tension       (g_tension),
 		.eta_term        (eta_term),

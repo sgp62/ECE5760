@@ -5,7 +5,7 @@
 module node_grid #(parameter row_size = 30) (
 	input clk, reset, start_update,
 	input [8:0] column_power,
-	input signed [17:0] rho, g_tension, eta_term,
+	input signed [17:0] rho, g_tension, eta_term, initial_amp,
 	output signed [17:0] center_node_amp,
 	output [31:0] update_cycles,
 	output done_update_to_fifo
@@ -31,18 +31,18 @@ module node_grid #(parameter row_size = 30) (
 	
 	assign center_node_amp = center_node_reg;
 	
-	assign update_cycles = cycles_per_update [row_size / 2];
+	assign update_cycles = cycles_per_update [row_size >> 1];
 	
-	assign done_update_to_fifo = done_update [row_size / 2];
+	assign done_update_to_fifo = done_update [row_size >> 1];
 
 	
 	always @ (posedge clk) begin
 		if(reset) begin
 			center_node_reg <= 18'h0;
-			pyramid_step <= 18'd13 - column_power; //Used as power of 2 math, would be 2^(13 - col_pow)
+			pyramid_step <= initial_amp - column_power; //Used as power of 2 math, would be 2^(17 - col_pow)
 		end
 		else begin
-			center_node_reg <= middle_nodes[row_size / 2];
+			center_node_reg <= middle_nodes[row_size >> 1];
 		end
 	end
 	
