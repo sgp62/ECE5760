@@ -25,7 +25,7 @@ module testbench();
 	
 	//Initialize constants
 	initial begin
-		rho              = 18'h02000;
+		rho              = 18'h3;
 		eta_term         = 18'd11;	//Power of 2 used for shifting
 		g_tension        = 18'd6; //Power of 2 to be shifted
 		column_power     = 9'd5;

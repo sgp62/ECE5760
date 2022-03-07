@@ -581,6 +581,7 @@ Computer_System The_System (
 	.pio_initial_amp_external_connection_export (initial_amp_wire),
 	.pio_g_tension_external_connection_export   (g_tension_wire),
 	.pio_eta_term_external_connection_export    (eta_term_wire),
+	.pio_update_cycles_external_connection_export (up_cyc),
 
 	// AV Config
 	.av_config_SCLK							(FPGA_I2C_SCLK),

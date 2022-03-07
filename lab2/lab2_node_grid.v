@@ -48,7 +48,7 @@ module node_grid #(parameter row_size = 32) (
 	
 	signed_mult mult5 (.out(u_cent_g_tension_2), .a(center_node_amp >>> g_tension), .b(center_node_amp >>> g_tension));
   
-	assign rho_eff = (18'hfae1 < (rho + u_cent_g_tension_2)) ? 18'hfae1 : (rho + u_cent_g_tension_2);
+	assign rho_eff = (18'hfae1 < ((18'h1ffff >>> rho) + u_cent_g_tension_2)) ? 18'hfae1 : ((18'h1ffff >>> rho) + u_cent_g_tension_2);
 
 	generate
 		genvar i;

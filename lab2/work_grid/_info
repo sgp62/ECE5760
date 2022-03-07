@@ -9,7 +9,7 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
 vcolumn
-Z1 !s110 1646604586
+Z1 !s110 1646672215
 !i10b 1
 !s100 l]T`E0EZNN7LAScJgg_4W0
 IoTP>4aD2G0KeBGNkfLh1k0
@@ -23,7 +23,7 @@ Z6 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z7 !s108 1646604586.874000
+Z7 !s108 1646672215.021000
 Z8 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 !i113 1
@@ -70,26 +70,26 @@ R9
 R10
 n@m10@k_512_18
 vnode_grid
-R1
+Z11 !s110 1646672214
 !i10b 1
-!s100 B4^I6nNILgL>HJmnXkS@C0
-IVJ`3mlMHlz5GSUBUanKD]2
+!s100 U[4gdaY2d>0hM?oBf1gG=1
+IIjn_f2JEh6<dWLac;Y68n1
 R2
 R0
-w1646603529
+w1646672206
 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v
-Z11 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
-Z12 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
+Z12 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
+Z13 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
 L0 5
 R6
 r1
 !s85 0
 31
-Z13 !s108 1646604586.511000
-Z14 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
-Z15 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
+Z14 !s108 1646672214.660000
+Z15 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
+Z16 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 !i113 1
-Z16 o-work work_grid
+Z17 o-work work_grid
 vsigned_mult
 R1
 !i10b 1
@@ -132,22 +132,22 @@ r1
 !i113 1
 R10
 vtestbench
-R1
+R11
 !i10b 1
-!s100 XF1D_?<=E`gE_7_41@b>g1
-I:;YKUF7X2:QP6@aXc<:C]2
+!s100 3z]fCPV29SQo4bb8ZT^5B0
+IG4Q@n5IJ<zWMz@S8MZlHL3
 R2
 R0
-w1646516077
-R11
+w1646672042
 R12
+R13
 L0 6
 R6
 r1
 !s85 0
 31
-R13
 R14
 R15
-!i113 1
 R16
+!i113 1
+R17
