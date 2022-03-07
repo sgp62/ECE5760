@@ -2,7 +2,7 @@
 
 `include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v"
 
-module node_grid #(parameter row_size = 30) (
+module node_grid #(parameter row_size = 32) (
 	input clk, reset, start_update,
 	input [8:0] column_power,
 	input signed [17:0] rho, g_tension, eta_term, initial_amp,
