@@ -33,7 +33,7 @@ module M10K_512_18(
 	always @ (posedge clock) begin
 		q <= mem[rdaddress];
 	end
-endmodule 
+endmodule
 
 module compute_module( 
   input  signed   [17:0] rho, g_tension, eta_term, u_n, u_n_prev, u_n_up, u_n_down, u_drum_center, u_left, u_right,
@@ -112,6 +112,17 @@ module column(
 	
 	always @ (posedge clk) begin
 		if (reset) begin
+			
+			m10k_write_data    <= 18'h0;
+			m10k_read_reg      <= 18'h0;
+			m10k_read_addr     <= 9'h0;
+			m10k_write_addr    <= 9'h0;
+			
+			m10k_prev_write_data    <= 18'h0;
+			m10k_prev_read_reg      <= 18'h0;
+			m10k_prev_read_addr     <= 9'h0;
+			m10k_prev_write_addr    <= 9'h0;
+		
 			state 			   <= 5'd0;
 			init_state 		   <= 5'd0;
 			memory_init_en 	   <= 1'b1;
@@ -126,8 +137,9 @@ module column(
 			u_right_reg        <= 18'h0;
 			u_n_down_reg	   <= 18'h0;
 			u_n_reg 		   <= 18'h0;
+			u_n_out_reg        <= 18'h0;
 
-			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 <<< pyramid_step; //need to change for variable height
+			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 << pyramid_step; //need to change for variable height
 			
 			u_n_prev_reg 	   <= pyramid_step;
 			u_n_bottom_reg     <= pyramid_step;
@@ -136,108 +148,114 @@ module column(
 			cycles_per_update  <= 32'b0;
 			done_update		   <= 1'b0;
 			
-		end
-
-		cycles_counter <= cycles_counter + 32'b1;
-		if(done_update && ~reset) begin
-			cycles_per_update <= cycles_counter;
-			cycles_counter <= 32'b0;
-		end
-		
-		if(memory_init_en) begin
-			if (init_state == 0) begin
-				m10k_write_en <= 1'b1;
-				m10k_prev_write_en <= 1'b1;
-
-				m10k_write_addr <= init_addr;
-				m10k_prev_write_addr <= init_addr;
-				
-				m10k_prev_write_data <= column_num_temp > init_addr_temp ? 
-						((init_addr_temp + 9'b1) <<< pyramid_step) : ((column_num_temp + 9'b1) <<< pyramid_step);
-						
-				m10k_write_data <= column_num_temp > init_addr_temp ? 
-						((init_addr_temp + 9'b1) <<< pyramid_step) : ((column_num_temp + 9'b1) <<< pyramid_step);
-
-				if(init_addr == column_size - 1) begin
-					memory_init_en <= 1'b0;
-				end
-				init_state <= 2;
-			end
-			
-			if (init_state == 2) begin
-				init_addr <= init_addr + 9'b1;
-				init_state <= 0;
-			end
+			u_n_center_reg     <= 18'h0;
+			u_n_down_compute_reg <= 18'h0;
 			
 		end
-		if(~memory_init_en) begin
-			if(start_update) begin
-				if(state == 5'd0)begin
-					m10k_prev_write_en <= 1'b0;
-					m10k_write_en <= 1'b0;
-				
-					m10k_read_addr <= (column_idx == (column_size - 9'd1)) ? 9'd0 : column_idx + 9'd1;
-					m10k_prev_read_addr <= column_idx;
-				
-					done_update <= 1'b0;
-					
-					state <= 5'd1;
-				end
-				
-				if(state == 5'd1)begin
-					state <= 5'd2;
-				end
-				
-				if(state == 5'd2)begin
-
-					u_n_prev_reg <= m10k_prev_read_data;
-					u_n_up_reg <= (column_idx == (column_size - 9'd1)) ? 18'b0 : m10k_read_data;
-
-					u_left_reg <= u_left;
-					u_right_reg <= u_right;
-					
-					u_n_center_reg <= (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg;
-					u_n_down_compute_reg <= (column_idx == 9'b0) ? 18'b0 : u_n_down_reg;
-					
-					u_n_out_reg <= (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
-					
-					m10k_write_en <= 1'b0;
-					m10k_prev_write_en <= 1'b0;
-					
-					state <= 5'd3;
-				end
-				
-				if(state == 5'd3)begin
-					m10k_write_en <= (column_idx == 9'd0) ? 1'b0 : 1'b1;
+		else begin
+			if(memory_init_en) begin
+				if (init_state == 0) begin
+					m10k_write_en <= 1'b1;
 					m10k_prev_write_en <= 1'b1;
-					
-					m10k_write_addr <= column_idx;
-					m10k_prev_write_addr <= column_idx;
-					
-					if (column_idx > 9'd0) m10k_write_data <= out;
-					else m10k_write_data <= m10k_write_data;// m10k_write_data latch;
-					
-					if (column_idx == 9'd0) u_n_bottom_reg <= out;
-					else u_n_bottom_reg <= u_n_bottom_reg;
-					
-					m10k_prev_write_data <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
-					
-					u_n_reg <= u_n_up_reg;
-					u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
 
+					m10k_write_addr <= init_addr;
+					m10k_prev_write_addr <= init_addr;
 					
-					if(column_idx == (column_size >> 1)) u_center <= out;
-					
-					if (column_idx == (column_size-9'd1)) begin
-						column_idx <= 9'd0;
-						done_update <= 9'b1;
+					m10k_prev_write_data <= column_num_temp > init_addr_temp ? 
+							((init_addr_temp + 9'b1) <<< pyramid_step) : ((column_num_temp + 9'b1) <<< pyramid_step);
+							
+					m10k_write_data <= column_num_temp > init_addr_temp ? 
+							((init_addr_temp + 9'b1) <<< pyramid_step) : ((column_num_temp + 9'b1) <<< pyramid_step);
+
+					if(init_addr == column_size - 1) begin
+						memory_init_en <= 1'b0;
 					end
-					else column_idx <= (column_idx + 9'd1);  
-					
-					state <= 5'd0;
+					init_state <= 2;
 				end
+				
+				if (init_state == 2) begin
+					init_addr <= init_addr + 9'b1;
+					init_state <= 0;
+				end
+				
 			end
-		end 
+			if(~memory_init_en) begin
+				if(start_update) begin
+					if(done_update) begin
+						cycles_per_update <= cycles_counter;
+						cycles_counter <= 32'b0;
+						done_update <= 1'b0;
+					end
+					else begin
+						cycles_counter <= cycles_counter + 32'b1;
+					end
+					if(state == 5'd0)begin
+						m10k_prev_write_en <= 1'b0;
+						m10k_write_en <= 1'b0;
+					
+						m10k_read_addr <= (column_idx == (column_size - 9'd1)) ? 9'd0 : column_idx + 9'd1;
+						m10k_prev_read_addr <= column_idx;
+					
+						done_update <= 1'b0;
+						
+						state <= 5'd1;
+					end
+					
+					if(state == 5'd1)begin
+						state <= 5'd2;
+					end
+					
+					if(state == 5'd2)begin
+
+						u_n_prev_reg <= m10k_prev_read_data;
+						u_n_up_reg <= (column_idx == (column_size - 9'd1)) ? 18'b0 : m10k_read_data;
+
+						u_left_reg <= u_left;
+						u_right_reg <= u_right;
+						
+						u_n_center_reg <= (column_idx == 9'b0) ? u_n_bottom_reg : u_n_reg;
+						u_n_down_compute_reg <= (column_idx == 9'b0) ? 18'b0 : u_n_down_reg;
+						
+						u_n_out_reg <= (column_idx == 0) ? u_n_bottom_reg : u_n_reg;
+						
+						m10k_write_en <= 1'b0;
+						m10k_prev_write_en <= 1'b0;
+						
+						state <= 5'd3;
+					end
+					
+					if(state == 5'd3)begin
+						m10k_write_en <= (column_idx == 9'd0) ? 1'b0 : 1'b1;
+						m10k_prev_write_en <= 1'b1;
+						
+						m10k_write_addr <= column_idx;
+						m10k_prev_write_addr <= column_idx;
+						
+						if (column_idx > 9'd0) m10k_write_data <= out;
+						else m10k_write_data <= m10k_write_data;// m10k_write_data latch;
+						
+						if (column_idx == 9'd0) u_n_bottom_reg <= out;
+						else u_n_bottom_reg <= u_n_bottom_reg;
+						
+						m10k_prev_write_data <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
+						
+						u_n_reg <= u_n_up_reg;
+						u_n_down_reg <= (column_idx == 9'd0) ? (u_n_bottom_reg) : u_n_reg;
+
+						
+						if(column_idx == (column_size >> 1)) u_center <= out;
+						
+						if (column_idx == (column_size-9'd1)) begin
+							column_idx <= 9'd0;
+							done_update <= 9'b1;
+						end
+						else column_idx <= (column_idx + 9'd1);  
+						
+						state <= 5'd0;
+					end
+				end
+			end 
+		end
 	end
 
 

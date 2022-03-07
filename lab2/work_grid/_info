@@ -9,13 +9,13 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
 vcolumn
-Z1 !s110 1646672215
+Z1 !s110 1646687788
 !i10b 1
-!s100 l]T`E0EZNN7LAScJgg_4W0
-IoTP>4aD2G0KeBGNkfLh1k0
+!s100 21iWn@R3DVcW`J6k:ddIP1
+IZ2hD_SHlY^=f>O14FXZRd1
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1646595231
+Z3 w1646687779
 Z4 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v
 Z5 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v
 L0 64
@@ -23,7 +23,7 @@ Z6 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z7 !s108 1646672215.021000
+Z7 !s108 1646687788.967000
 Z8 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 !i113 1
@@ -70,13 +70,13 @@ R9
 R10
 n@m10@k_512_18
 vnode_grid
-Z11 !s110 1646672214
+R1
 !i10b 1
 !s100 U[4gdaY2d>0hM?oBf1gG=1
 IIjn_f2JEh6<dWLac;Y68n1
 R2
 R0
-w1646672206
+Z11 w1646682265
 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v
 Z12 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
 Z13 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
@@ -85,7 +85,7 @@ R6
 r1
 !s85 0
 31
-Z14 !s108 1646672214.660000
+Z14 !s108 1646687788.606000
 Z15 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 Z16 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 !i113 1
@@ -132,13 +132,13 @@ r1
 !i113 1
 R10
 vtestbench
-R11
+R1
 !i10b 1
-!s100 3z]fCPV29SQo4bb8ZT^5B0
-IG4Q@n5IJ<zWMz@S8MZlHL3
+!s100 5oh4K678C0?iSM00jf7z<1
+IXDK^?XE`7N;QFKGiz2=:Y1
 R2
 R0
-w1646672042
+R11
 R12
 R13
 L0 6

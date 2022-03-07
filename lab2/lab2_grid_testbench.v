@@ -28,8 +28,8 @@ module testbench();
 		rho              = 18'h3;
 		eta_term         = 18'd11;	//Power of 2 used for shifting
 		g_tension        = 18'd6; //Power of 2 to be shifted
-		column_power     = 9'd5;
-		row_size         = 9'd30;  //actually useless; need to set parameter directly
+		column_power     = 9'd7;
+		
 	end
 
 	
@@ -69,7 +69,7 @@ module testbench();
 	
 	
 	
-	node_grid  #(.row_size(30)) my_grid (
+	node_grid  #(.row_size(32)) my_grid (
 		.clk             (clk_50),
 		.reset           (reset),
 		.column_power    (column_power),
