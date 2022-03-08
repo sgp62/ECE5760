@@ -33,7 +33,7 @@ module node_grid #(parameter row_size = 32) (
 	
 	assign update_cycles = cycles_per_update [row_size >> 1];
 	
-	assign done_update_to_fifo = done_update [row_size >> 1];
+	assign done_update_to_fifo = done_update [row_size >> 2];
 
 	
 	always @ (posedge clk) begin
