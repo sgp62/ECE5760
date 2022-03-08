@@ -397,7 +397,7 @@ wire state_clock ;
 // current free words in audio interface
 reg [7:0] fifo_space ;
 // debug check of space
-assign LEDR = fifo_space ;
+//assign LEDR = fifo_space ;
 
 // use 4-byte-wide bus-master	 
 //assign bus_byte_enable = 4'b1111;
@@ -428,7 +428,7 @@ wire			 [8:0]   column_power_wire;
 
 wire signed  [17:0] drum_center_out;
 wire         [31:0] up_cyc;
-reg                 start_update = 1'b1;
+reg                 start_update;
 wire                column_update_done;
 reg                 first_update_done;
 
@@ -450,7 +450,7 @@ assign reset = ~KEY[0];
 //	
 //end
 
-node_grid  #(.row_size(32)) my_grid (
+node_grid  #(.row_size(64)) my_grid (
 	.clk             (CLOCK_50),
 	.reset           (reset),
 	.column_power    (column_power),
@@ -474,6 +474,8 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 		bus_read <= 0 ; // set to one if a read opeation from bus
 		bus_write <= 0 ; // set to one if a write operation to bus
 		timer <= 0;
+		fifo_space <= 0; //Maybe unnecessary
+		
 		rho       <= rho_wire;
 		g_tension <= g_tension_wire;
 		eta_term  <= eta_term_wire;

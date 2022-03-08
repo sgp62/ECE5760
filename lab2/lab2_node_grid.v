@@ -10,7 +10,7 @@ module node_grid #(parameter row_size = 32) (
 	output [31:0] update_cycles,
 	output done_update_to_fifo
 );
-	
+
 
 
 	wire signed [17:0] middle_nodes [row_size-1:0];
@@ -33,7 +33,7 @@ module node_grid #(parameter row_size = 32) (
 	
 	assign update_cycles = cycles_per_update [row_size >> 1];
 	
-	assign done_update_to_fifo = done_update [row_size >> 2];
+	assign done_update_to_fifo = done_update [row_size >> 1];
 
 	
 	always @ (posedge clk) begin
@@ -42,7 +42,7 @@ module node_grid #(parameter row_size = 32) (
 			pyramid_step <= initial_amp - column_power; //Used as power of 2 math, would be 2^(17 - col_pow)
 		end
 		else begin
-			center_node_reg <= middle_nodes[row_size >> 1];
+			center_node_reg <= middle_nodes[(row_size >> 1) - 1];
 		end
 	end
 	

@@ -139,7 +139,7 @@ module column(
 			u_n_reg 		   <= 18'h0;
 			u_n_out_reg        <= 18'h0;
 
-			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 <<< pyramid_step; //need to change for variable height
+			u_n_up_reg		   <= ((column_num == 9'b0) || (column_num == (column_size - 9'b1))) ? pyramid_step : 18'd2 << pyramid_step; //need to change for variable height
 			
 			u_n_prev_reg 	   <= pyramid_step;
 			u_n_bottom_reg     <= pyramid_step;
@@ -181,15 +181,15 @@ module column(
 			end
 			if(~memory_init_en) begin
 				if(start_update) begin
-					if(done_update) begin
+					if(done_update && start_update) begin
 						cycles_per_update <= cycles_counter;
 						cycles_counter <= 32'b0;
 						done_update <= 1'b0;
 					end
-					else begin
+					else if (start_update) begin
 						cycles_counter <= cycles_counter + 32'b1;
 					end
-					if(state == 5'd0)begin
+					if(state == 5'd0 && start_update)begin
 						m10k_prev_write_en <= 1'b0;
 						m10k_write_en <= 1'b0;
 					
