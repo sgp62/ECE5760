@@ -9,7 +9,7 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
 vcolumn
-Z1 !s110 1646691030
+Z1 !s110 1646715529
 !i10b 1
 !s100 21iWn@R3DVcW`J6k:ddIP1
 IZ2hD_SHlY^=f>O14FXZRd1
@@ -23,7 +23,7 @@ Z6 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z7 !s108 1646691030.848000
+Z7 !s108 1646715529.079000
 Z8 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 Z9 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|
 !i113 1
@@ -70,26 +70,26 @@ R9
 R10
 n@m10@k_512_18
 vnode_grid
-R1
+Z11 !s110 1646715528
 !i10b 1
 !s100 U[4gdaY2d>0hM?oBf1gG=1
 IIjn_f2JEh6<dWLac;Y68n1
 R2
 R0
-Z11 w1646682265
+Z12 w1646682265
 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v
-Z12 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
-Z13 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
+Z13 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
+Z14 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v
 L0 5
 R6
 r1
 !s85 0
 31
-Z14 !s108 1646691030.481000
-Z15 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
-Z16 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
+Z15 !s108 1646715528.734000
+Z16 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_node_column_v2.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab2\\lab2_node_grid.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
+Z17 !s90 -reportprogress|300|-work|work_grid|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2/lab2_grid_testbench.v|
 !i113 1
-Z17 o-work work_grid
+Z18 o-work work_grid
 vsigned_mult
 R1
 !i10b 1
@@ -132,22 +132,22 @@ r1
 !i113 1
 R10
 vtestbench
-R1
+R11
 !i10b 1
 !s100 5oh4K678C0?iSM00jf7z<1
 IXDK^?XE`7N;QFKGiz2=:Y1
 R2
 R0
-R11
 R12
 R13
+R14
 L0 6
 R6
 r1
 !s85 0
 31
-R14
 R15
 R16
-!i113 1
 R17
+!i113 1
+R18
