@@ -1,0 +1,70 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab2
+vmandelbrot_iterator
+Z0 !s110 1646859972
+!i10b 1
+!s100 Y`XLOQZHNjGM9oFWmz:fS0
+ILkI5feiT;F`2Q;VJWFQd`0
+Z1 V`JN@9S9cnhjKRR_L]QIcM3
+Z2 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3
+Z3 w1646859968
+Z4 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v
+Z5 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v
+L0 18
+Z6 OV;L;10.3d;59
+r1
+!s85 0
+31
+Z7 !s108 1646859972.870000
+Z8 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|
+Z9 !s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|
+!i113 1
+Z10 o-work work_single
+vsigned_mult
+R0
+!i10b 1
+!s100 Vf`9VKbADl;Mgf;V3Z<JM3
+I9zMJi=h641m94EnchE4Xj1
+R1
+R2
+R3
+R4
+R5
+L0 5
+R6
+r1
+!s85 0
+31
+R7
+R8
+R9
+!i113 1
+R10
+vtestbench
+R0
+!i10b 1
+!s100 Wl_VZLD@_[A@jZ7PzJP<V3
+Ia4JN1Q6fUgUCS@c^=P?F50
+R1
+R2
+w1646859882
+8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_single_testbench.v
+FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_single_testbench.v
+L0 6
+R6
+r1
+!s85 0
+31
+!s108 1646859972.706000
+!s107 C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\\lab3_mandelbrot_one_iterator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_single_testbench.v|
+!s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_single_testbench.v|
+!i113 1
+R10

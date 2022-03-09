@@ -1,0 +1,14 @@
+//Mandelbrot Lab 3 Single Iterator Module
+
+//Signed 4.23 multiplier
+
+module signed_mult (out, a, b);
+  output  signed  [26:0]  out;
+  input   signed  [26:0]  a;
+  input   signed  [26:0]  b;
+  // intermediate full bit length
+  wire    signed  [53:0]  mult_out;
+  assign mult_out = a * b;
+  // select bits for 4.23 fixed point
+  assign out = {mult_out[35], mult_out[33:17]};
+endmodule
