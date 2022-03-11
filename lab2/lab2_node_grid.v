@@ -39,7 +39,7 @@ module node_grid #(parameter row_size = 32) (
 	always @ (posedge clk) begin
 		if(reset) begin
 			center_node_reg <= 18'h0;
-			pyramid_step <= initial_amp - column_power; //Used as power of 2 math, would be 2^(17 - col_pow)
+			pyramid_step <= (1 << initial_amp) / 18'd90;// - column_power;//Used as power of 2 math, would be 2^(17 - col_pow)
 		end
 		else begin
 			center_node_reg <= middle_nodes[(row_size >> 1) - 1];
@@ -61,7 +61,7 @@ module node_grid #(parameter row_size = 32) (
 				.eta_term     		(eta_term),
 				.g_tension    		(g_tension),
 				.pyramid_step       (pyramid_step),
-				.column_size  		(9'b1 << column_power),
+				.column_size  		(90), //Hardcode 90 for data, else 
 				.out          		(compute_outputs[i]), //What we want to see for the checkoff
 				.u_left       		((i == 0) ? 18'h0 : col_out[i-1]), 
 				.u_right      		((i == row_size-1) ? 18'h0 : col_out[i+1]),

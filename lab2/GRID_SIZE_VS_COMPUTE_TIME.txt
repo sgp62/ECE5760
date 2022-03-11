@@ -1,0 +1,14 @@
+Using 64 column drum:
+
+ROW SIZE:      COMPUTE TIME(us) on FPGA:
+16             1.20
+32             2.48
+64             5.04
+128            10.16
+256            20.40
+
+
+Compute times on the HPS(16,32,64,128,256 rows)(in us): 32, 144, 615, 2597, 10505
+
+With o3 optimization: 6, 17, 75, 304, 1390
+
