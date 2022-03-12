@@ -450,7 +450,7 @@ assign reset = ~KEY[0];
 //	
 //end
 
-node_grid  #(.row_size(64)) my_grid (
+node_grid  #(.row_size(90)) my_grid (
 	.clk             (CLOCK_50),
 	.reset           (reset),
 	.column_power    (column_power),

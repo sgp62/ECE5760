@@ -39,7 +39,7 @@ volatile int *pio_rho_ptr = NULL;
 volatile int *pio_initial_amp_ptr = NULL; // positive
 volatile int *pio_g_tension_ptr = NULL;
 volatile int *pio_eta_term_ptr = NULL;
-volatile int *pio_fpga_update_cycles_ptr = NULL;
+volatile int *pio_update_cycles_ptr = NULL;
 
 float fix_to_float(int);
 int float_to_fix(double f);
@@ -122,108 +122,13 @@ unsigned int paused = 0;
 
 // pthread_mutex_t clk_mtx = PTHREAD_MUTEX_INITIALIZER;
 char input_buffer[64];
+int input_int;
 
 // convert float to 32-bit sign extended 7.20 fixed point
 int float_to_fix(double f)
 {
 	// fix: {31:20} int bits {19:0} decimal bits
 	return (int)((float)f * (float)(1 << 20));
-}
-
-/* Thread to constantly wait and parse user input
- */
-void *parameter_scanner()
-{
-	while (1)
-	{
-		// Wait for user command input
-		printf("Change settings (or press C to display number of cycles per update)? Y/N\n");
-		scanf("%s", input_buffer);
-
-		if (strcmp(input_buffer, "Y"))
-		{
-			printf("Insert a new number for each (press enter to keep the same)\n");
-			printf("Number of rows (number will be taken to the power of 2):\n");
-			scanf("%s", input_buffer);
-			*pio_num_rows_ptr = ((atof(input_buffer)));
-			printf("Amplitude multiplier (number will be taken to the power of 2):\n");
-			scanf("%s", input_buffer);
-			*pio_initial_amp_ptr = ((atof(input_buffer)));
-			printf("Rho (number will be taken to the negative power of 2):\n");
-			scanf("%s", input_buffer);
-			*pio_rho_ptr = ((atof(input_buffer)));
-			printf("G_tension (number will be taken to the negative power of 2):\n");
-			scanf("%s", input_buffer);
-			*pio_g_tension_ptr = ((atof(input_buffer)));
-			printf("Eta term (number will be taken to the negative power of 2):\n");
-			scanf("%s", input_buffer);
-			*pio_eta_term_ptr = ((atof(input_buffer)));
-			printf("All Done!\n\n");
-		}
-		else if (strcmp(input_buffer, "C"))
-		{
-			printf("Cycles to update: %i\n", *pio_fpga_update_cycles_ptr);
-		}
-		else if (!strcmp(input_buffer, "N"))
-		{
-			printf("Invalid input... please try again");
-		}
-
-		// token = strtok(input_buffer, ":");
-		// if (strcmp(token, "R") == 0)
-		// {
-		// 	// reset and set initial conditions
-		// 	// CLEAR SCREEN
-		// 	reset_and_init();
-		// }
-		// // Pause command
-		// else if (strcmp(token, "P") == 0)
-		// {
-		// 	paused = paused ^ 1;
-		// 	pthread_mutex_lock(&clk_mtx);
-		// 	*pio_clk_reset_ptr = 0;
-		// 	pthread_mutex_unlock(&clk_mtx);
-		// }
-		// // Change speed
-		// else if (strcmp(token, "SP") == 0)
-		// {
-		// 	token = strtok(NULL, ":");
-		// 	clock_period = (unsigned long)(10000 / (atof(token)));
-		// }
-		// // Set sigma
-		// else if (strcmp(token, "SIG") == 0)
-		// {
-		// 	token = strtok(NULL, ":");
-		// 	*pio_sigma_ptr = float_to_fix(atof(token));
-		// 	updated_params = 1;
-		// 	reset();
-		// }
-		// // Set beta
-		// else if (strcmp(token, "BETA") == 0)
-		// {
-		// 	token = strtok(NULL, ":");
-		// 	*pio_beta_ptr = float_to_fix(atof(token));
-		// 	updated_params = 1;
-		// 	reset();
-		// }
-		// // Set rho
-		// else if (strcmp(token, "RHO") == 0)
-		// {
-		// 	token = strtok(NULL, ":");
-		// 	*pio_rho_ptr = float_to_fix(atof(token));
-		// 	updated_params = 1;
-		// 	reset();
-		// }
-		// // Clear screen
-		// else if (strcmp(token, "C") == 0)
-		// {
-		// 	reset();
-		// }
-		// else
-		// {
-		// 	printf("Unrecognized format...please try again.\n");
-		// }
-	}
 }
 
 int main(void)
@@ -277,12 +182,12 @@ int main(void)
 	// Get the address that maps to the FPGA pixel buffer
 	vga_pixel_ptr = (unsigned int *)(vga_pixel_virtual_base);
 
-	volatile int *pio_num_rows_ptr = NULL;
-	volatile int *pio_rho_ptr = NULL;
-	volatile int *pio_initial_amp_ptr = NULL;
-	volatile int *pio_g_tension_ptr = NULL;
-	volatile int *pio_eta_term_ptr = NULL;
-	volatile int *pio_fpga_update_cycles_ptr = NULL;
+//	volatile int *pio_num_rows_ptr = NULL;
+//	volatile int *pio_rho_ptr = NULL;
+//	volatile int *pio_initial_amp_ptr = NULL;
+//	volatile int *pio_g_tension_ptr = NULL;
+//	volatile int *pio_eta_term_ptr = NULL;
+//	volatile int *pio_fpga_update_cycles_ptr = NULL;
 
 	// === get VGA pixel addr ====================
 	// Get the address that maps to the PIO ports
@@ -291,25 +196,65 @@ int main(void)
 	pio_initial_amp_ptr = (unsigned int *)(vga_pixel_virtual_base + INITIAL_AMP);
 	pio_g_tension_ptr = (unsigned int *)(vga_pixel_virtual_base + G_TENSION);
 	pio_eta_term_ptr = (unsigned int *)(vga_pixel_virtual_base + ETA_TERM);
-	pio_eta_term_ptr = (unsigned int *)(vga_pixel_virtual_base + UPDATE_CYCLES);
+	pio_update_cycles_ptr = (unsigned int *)(vga_pixel_virtual_base + UPDATE_CYCLES);
 
-	// *pio_num_rows_ptr = 0x7;
-	// *pio_rho_ptr = 0x2000;
-	// *pio_initial_amp_ptr = 0x11; // 17
-	// *pio_g_tension_ptr = 0x6;
-	// *pio_eta_term_ptr = 0xb;
+  *pio_num_rows_ptr = 0x5;
+  *pio_rho_ptr = 0x3;
+  *pio_initial_amp_ptr = 0x11; // 17
+  *pio_g_tension_ptr = 0x6;
+  *pio_eta_term_ptr = 0xb; // 11
+  
 
-	pthread_t thread_scan;
+    while (1)
+	{
+		// Wait for user command input
+		printf("Change settings (or press C to display number of cycles per update)? Y/N\n");
+		scanf("%s", input_buffer);
+		if (strcmp(input_buffer, "Y") == 0 )
+		{
+			printf("Insert a new number for each (use 0 to keep the previous value)\n");
+			printf("Number of rows (number will be taken to the power of 2):\n");
 
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+			scanf("%d", &input_int);
 
-	// create threads
-	pthread_create(&thread_scan, NULL, parameter_scanner, NULL);
+      if(input_int) *pio_num_rows_ptr = input_int;
 
-	// join threads
-	pthread_join(thread_scan, NULL);
+      
+			printf("Amplitude multiplier (number will be taken to the power of 2):\n");
+			scanf("%d", &input_int);
+			if(input_int) *pio_initial_amp_ptr = (((input_int)));
+			printf("Rho (number will be taken to the negative power of 2):\n");
+			scanf("%d", &input_int);
+			if(input_int) *pio_rho_ptr = (((input_int)));
+			printf("G_tension (number will be taken to the negative power of 2):\n");
+			scanf("%d", &input_int);
+			if(input_int) *pio_g_tension_ptr = (((input_int)));
+			printf("Eta term (number will be taken to the negative power of 2):\n");
+			scanf("%d", &input_int);
+			if(input_int) *pio_eta_term_ptr = (((input_int)));
+			printf("All Done!\n\n");
+		}
+		else if (strcmp(input_buffer, "C") == 0 )
+		{
+			printf("Microseconds for update: %f\n", (float)*pio_update_cycles_ptr/50);
+		}
+		else if (!strcmp(input_buffer, "N") == 0 )
+		{
+			printf("Invalid input... please try again\n");
+		}
+	}
+
+//	pthread_t thread_scan;
+//
+//	pthread_attr_t attr;
+//	pthread_attr_init(&attr);
+//	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+//
+//	// create threads
+//	pthread_create(&thread_scan, NULL, parameter_scanner, NULL);
+//
+//	// join threads
+//	pthread_join(thread_scan, NULL);
 
 	return 0;
 
