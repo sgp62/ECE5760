@@ -415,27 +415,6 @@ assign GPIO_0[1] = bus_read ;
 assign GPIO_0[2] = bus_ack ;
 //assign GPIO_0[3] = ??? ;
 
-
-reg   signed  [17:0]  rho, g_tension, eta_term, initial_amp;
-wire  signed  [17:0]  rho_wire;
-wire  signed  [17:0]  g_tension_wire;
-wire  signed  [17:0]  eta_term_wire;
-wire  signed  [17:0]  initial_amp_wire;
-
-reg          [8:0]   column_power;
-wire			 [8:0]   column_power_wire;
-//reg          [8:0]   row_size;
-
-wire signed  [17:0] drum_center_out;
-wire         [31:0] up_cyc;
-reg                 start_update;
-wire                column_update_done;
-reg                 first_update_done;
-
-wire               reset;
-
-assign reset = ~KEY[0];
-
 //Drum Initialization
 //always @ (posedge CLOCK_50) begin
 //
@@ -449,6 +428,22 @@ assign reset = ~KEY[0];
 //	end
 //	
 //end
+
+
+reg	signed	[17:0]	rho, g_tension, eta_term, initial_amp;
+wire  	signed  [17:0]  rho_wire;
+wire  	signed  [17:0]  g_tension_wire;
+wire  	signed  [17:0]  eta_term_wire;
+wire  	signed  [17:0]  initial_amp_wire;
+reg          	[8:0]   column_power;
+wire		[8:0]   column_power_wire;
+wire 	signed  [17:0] 	drum_center_out;
+wire         	[31:0] 	up_cyc;
+reg                 	start_update;
+wire                	column_update_done;
+reg                 	first_update_done;
+wire               	reset;
+assign reset = ~KEY[0];
 
 node_grid  #(.row_size(90)) my_grid (
 	.clk             (CLOCK_50),
@@ -464,9 +459,7 @@ node_grid  #(.row_size(90)) my_grid (
 	.done_update_to_fifo  (column_update_done)
 );
 
-
 always @(posedge CLOCK_50) begin //CLOCK_50
-	
 	// reset state machine and read/write controls
 	if (~KEY[0]) begin //reset
 		start_update <= 1'b0;
@@ -474,8 +467,7 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 		bus_read <= 0 ; // set to one if a read opeation from bus
 		bus_write <= 0 ; // set to one if a write operation to bus
 		timer <= 0;
-		fifo_space <= 0; //Maybe unnecessary
-		
+		fifo_space <= 0;
 		rho       <= rho_wire;
 		g_tension <= g_tension_wire;
 		eta_term  <= eta_term_wire;
@@ -495,7 +487,6 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 			bus_byte_enable <= 4'b1111;
 			state <= 4'd1 ; // wait for read ACK
 		end
-		
 		// wait for read ACK and read the fifo available
 		// bus ACK is high when data is available
 		if (state==4'd1 && bus_ack==1) begin
@@ -505,7 +496,6 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 			// end the read
 			bus_read <= 1'b0 ;
 		end
-		
 		// When there is room in the FIFO
 		// -- compute next DDS sine sample
 		// -- start write to fifo for each channel
@@ -527,7 +517,6 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 		else if (state==4'd2 && fifo_space<=8'd2) begin
 			state <= 4'b0 ;
 		end
-		
 		// detect bus-transaction-complete ACK 
 		// for left channel write
 		// You MUST do this check
@@ -535,7 +524,6 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 			state <= 4'd4 ;
 			bus_write <= 0;
 		end
-		
 		// -- now the right channel
 		if (state==4'd4) begin // 
 			state <= 4'd5;	
@@ -545,7 +533,6 @@ always @(posedge CLOCK_50) begin //CLOCK_50
 			bus_addr <= audio_right_address ;
 			bus_write <= 1'b1 ;
 		end	
-		
 		// detect bus-transaction-complete ACK
 		// for right channel write
 		// You MUST do this check
