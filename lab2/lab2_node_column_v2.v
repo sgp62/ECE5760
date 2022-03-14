@@ -89,7 +89,6 @@ module column(
 	assign middle_out = u_center;
 	assign u_n_out = u_n_out_reg;
 	assign done_update_out = done_update;
-
 	always @ (posedge clk) begin
 		// Reset to initial conditions
 		if (reset) begin
@@ -144,7 +143,7 @@ module column(
 					init_state <= 0;
 				end
 			end
-			// Update to node amplitudes in the column
+			// Update the node amplitudes in the column
 			if(~memory_init_en) begin
 				// Restart counting the number of cycles for the update and indicate that the current update is not complete
 				if(done_update && start_update) begin
