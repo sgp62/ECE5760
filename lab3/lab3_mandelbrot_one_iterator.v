@@ -2,6 +2,12 @@
 
 //Signed 4.23 multiplier
 
+
+//Store the top left pixel value and the specified offset based on the number of iterators
+//Zooming corresponds to a shift of the offset, panning corresponds to a change of the top left pixel
+//VGA Memory is stored such that each row of pixels corresponds to a contiguous block, starting with top row 
+
+
 module signed_mult (out, a, b);
   output  signed  [26:0]  out;
   input   signed  [26:0]  a;
@@ -10,7 +16,7 @@ module signed_mult (out, a, b);
   wire    signed  [53:0]  mult_out;
   assign mult_out = a * b;
   // select bits for 4.23 fixed point
-   assign out = {mult_out[53], mult_out[48:23]};
+  assign out = {mult_out[53], mult_out[48:23]};
    
 endmodule
 
@@ -21,13 +27,15 @@ module mandelbrot_iterator (
 	input signed [26:0] ci,
 	input signed [26:0] cr,
 	input [31:0] max_iter,
-	output [31:0] num_iter
+	output [31:0] num_iter,
+	output       done
 );
 	reg         [3:0]  state;
-	reg                done;
+	reg                done_reg;
 	reg         [31:0] iter_counter, num_iter_out_reg;
 	reg signed  [26:0] zi, zr, zi_next, zr_next;
 	wire signed [26:0] zi_2, zr_2, zr_zi, zi_wire, zr_wire;
+	wire zi_comp, zr_comp, squared_comp;
 	
 	
 	signed_mult mult1 (.out(zi_2), .a(zi), .b(zi));
@@ -35,8 +43,13 @@ module mandelbrot_iterator (
 	signed_mult mult3 (.out(zr_zi), .a(zr), .b(zi));
 
 	assign num_iter = num_iter_out_reg;
+	assign done = done_reg;
 	//assign zi_wire = zi;
 	//assign zr_wire = zr;
+	
+	assign zi_comp = (zi < 0) ? (zi < -27'sh1000000) : (zi > 27'h1000000);
+	assign zr_comp = (zr < 0) ? (zr < -27'sh1000000) : (zr > 27'h1000000);
+	assign squared_comp = (zi_2 + zr_2 > 27'h2000000);
 	
 	always @ (posedge clk) begin
 		if (reset) begin
@@ -46,31 +59,31 @@ module mandelbrot_iterator (
 			zr_next          <= 0;
 			state            <= 0;
 			iter_counter     <= 0;
-			done             <= 0;
+			done_reg             <= 0;
 			num_iter_out_reg <= 0;
 			
 		end
 		
 		else begin
-			if(~done) begin
+			if(~done_reg) begin
 				
-				
-				zi_next <= (zr_zi <<< 1) + ci;
-				zr_next <= zr_2 - zi_2 + cr;
+				zi_next = (zr_zi <<< 1) + ci;
+				zr_next = zr_2 - zi_2 + cr;
 				
 				zi <= zi_next;
 				zr <= zr_next;
 				
-				if(iter_counter == max_iter || (zi > 27'h1000000) || (zr > 27'h1000000) || (zi_2 + zr_2 > 27'h2000000))
-					done <= 1; //Check signed comparison and also negative ranges, add flags to see which is triggering exit
+				if(iter_counter == max_iter || zi_comp || zr_comp || squared_comp)
+					done_reg <= 1; //Check signed comparison and also negative ranges, add flags to see which is triggering exit
 				else
 					iter_counter <= iter_counter + 1;
 			end
-			if(done)
-				num_iter_out_reg <= iter_counter - 1;
+			else if(done_reg) begin
+				num_iter_out_reg <= iter_counter;
+				done_reg <= 1'b0;
+			end
 		end
 	
 	end
-
-
+	
 endmodule
