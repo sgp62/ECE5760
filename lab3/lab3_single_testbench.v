@@ -15,6 +15,7 @@ module testbench();
 
 
 	wire        [31:0]  num_iter;
+	wire done;
 
 
 	//Initialize constants
@@ -37,10 +38,10 @@ module testbench();
 		//cr        = 27'h0;//0 Expected 1000
 		//ci        = 27'h800000;//0
 		//cr        = 27'h800000;//0 Expected 2
-		//ci        = -27'h600000;//-.75
-		//cr        = -27'h200000;//-.25 Expected 22
-		ci        = -27'sh100000;
-		cr        = 27'sh80000;
+		ci        = -27'h600000;//-.75
+		cr        = -27'h200000;//-.25 Expected 22
+		//ci        = -27'sh100000;
+		//cr        = 27'sh80000;
 		max_iter  = 31'd1000;
 	end
 
@@ -81,7 +82,7 @@ module testbench();
 	
 
 	//Instantiation of Device Under Test
-mandelbrot_iterator lab3_iter (clk_50, reset, ci, cr, max_iter, num_iter);
+mandelbrot_iterator lab3_iter (clk_50, reset, ci, cr, max_iter, num_iter, done);
 	
 endmodule
 

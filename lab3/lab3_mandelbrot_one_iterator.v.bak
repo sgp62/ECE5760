@@ -78,9 +78,11 @@ module mandelbrot_iterator (
 				else
 					iter_counter <= iter_counter + 1;
 			end
-			else if(done_reg)
+			else if(done_reg) begin
 				num_iter_out_reg <= iter_counter;
+				iter_counter <= 0;
 				done_reg <= 1'b0;
+			end
 		end
 	
 	end
