@@ -14,7 +14,8 @@ module testbench();
 	reg         [31:0]  max_iter;
 
 
-	wire        [31:0]  num_iter;
+	wire        [31:0]  num_iter; 
+	wire        [9:0]   x_px, y_px;
 	wire done;
 
 
@@ -38,8 +39,8 @@ module testbench();
 		//cr        = 27'h0;//0 Expected 1000
 		//ci        = 27'h800000;//0
 		//cr        = 27'h800000;//0 Expected 2
-		ci        = -27'h600000;//-.75
-		cr        = -27'h200000;//-.25 Expected 22
+		//ci        = -27'h600000;//-.75
+		//cr        = -27'h200000;//-.25 Expected 22
 		//ci        = -27'sh100000;
 		//cr        = 27'sh80000;
 		max_iter  = 31'd1000;
@@ -82,7 +83,30 @@ module testbench();
 	
 
 	//Instantiation of Device Under Test
-mandelbrot_iterator lab3_iter (clk_50, reset, ci, cr, max_iter, num_iter, done);
-	
+
+mandelbrot_iterator lab3_iter (
+	.clk      (clk_50),
+	.reset    (reset),
+	.ci_init  (27'sh800000),
+	.cr_init  (-27'sh1000000),
+	.ci_bottom_right (-27'sh800000),
+	.cr_bottom_right (27'sh800000),
+	.x1       (0),
+	.y1       (0),
+	.x2       (32'd639),
+	.y2       (32'd479),
+	.x_step   (1),
+	.y_step   (1),
+	.x_px     (x_px),
+	.y_px     (y_px),
+	.max_iter (max_iter),
+	.num_iter (num_iter),
+	.start    (1'b1),
+	.cr_incr   (27'h9999),
+	.ci_incr   (27'h8888),
+	.done     (done)
+);
+
+
 endmodule
 

@@ -412,7 +412,7 @@ wire vga_sram_chipselect = 1'b1;
 
 //=======================================================
 // pixel address is
-reg [9:0] vga_x_cood, vga_y_cood ;
+wire [9:0] vga_x_cood, vga_y_cood ;
 reg [7:0] color_reg ;
 
 
@@ -420,8 +420,7 @@ reg [7:0] color_reg ;
 // iterator instantiation
 wire [31:0]  max_iter = 32'd1000;
 wire [31:0]  num_iter;
-wire signed [26:0] ci; //[-1,1]
-wire signed [26:0] cr; //[-2,1]
+wire signed [26:0] ci_top_left, cr_top_left, ci_bottom_right, cr_bottom_right;
 reg  [31:0] zoom_factor;
 reg  [31:0] num_steps_x;
 reg  [31:0] num_steps_y;
@@ -429,21 +428,43 @@ reg  signed [26:0] ci_reg;//TODO: Set these in init stage
 reg  signed [26:0] cr_reg;
 wire finished_iter;
 
-wire signed [26:0] x_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
-wire signed [26:0] y_incr = 27'h8888 >> zoom_factor;
+wire signed [26:0] cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
+wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
 
-assign cr =  -27'sh1000000 + num_steps_x * x_incr; //Track recursively and just add x_incr, STORE current step
-assign ci =  27'sh800000 - num_steps_y * y_incr;
+//assign cr =  -27'sh1000000 + num_steps_x * x_incr; //Track recursively and just add x_incr, STORE current step
+//assign ci =  27'sh800000 - num_steps_y * y_incr;
+
+//assign cr = cr_reg;
+//assign ci = ci_reg; //Make an array for the vga pixels corresponding to each iterator
+
+assign cr_top_left =  -27'sh1000000;
+assign ci_top_left =  27'sh800000;
+assign ci_bottom_right = -27'sh800000;
+assign cr_bottom_right = 27'sh800000;
 
 mandelbrot_iterator m_it_0 (
 	.clk      (CLOCK_50),
 	.reset    (~KEY[0]),
-	.ci       (ci),
-	.cr       (cr),
+	.ci_init  (ci_top_left),
+	.cr_init  (cr_top_left),
+	.ci_bottom_right (ci_bottom_right),
+	.cr_bottom_right (cr_bottom_right),
+	.x1       (0),
+	.y1       (0),
+	.x2       (32'd639),
+	.y2       (32'd479),
+	.x_step   (1),
+	.y_step   (1),
+	.x_px     (vga_x_cood),
+	.y_px     (vga_y_cood),
 	.max_iter (max_iter),
 	.num_iter (num_iter),
+	.start    (1'b1),
+	.cr_incr   (cr_incr),
+	.ci_incr   (ci_incr),
 	.done     (finished_iter)
 );
+
 
 
 //=======================================================
@@ -452,19 +473,17 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 
    // reset state machine and read/write controls
 	if (~KEY[0]) begin
-		state <= 8'd19 ;
+		state <= 8'd19;
 		vga_sram_write <= 1'b0 ; // set to on if a write operation to bus
 		sram_write <= 1'b0 ;
 		timer <= 0;
-		x1    = 0;
+		x1    = 0; //These will have to be edited with zoom factor
 		y1    = 0;
 		x2    = 10'd639; //We want to write the entire VGA screen
 		y2    = 10'd479;
-		zoom_factor <= 0;
-		num_steps_x   <= 1;
-		num_steps_y   <= 1;
-		vga_x_cood    <= x1;
-		vga_y_cood    <= y1;
+		zoom_factor = 0;
+		num_steps_x   = 1;
+		num_steps_y   = 1;
 		
 	end
 	else begin
@@ -513,21 +532,10 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		end
 		
 		vga_sram_writedata <= color_reg;
-		// iterate through all x for each y in the list
-		if (vga_x_cood < x2) begin
-			vga_x_cood <= num_steps_x;
-			num_steps_x <= num_steps_x + 32'b1;
-		end
-		else begin
-			vga_x_cood <= x1 ;
-			vga_y_cood <= num_steps_y ;
-			num_steps_y <= num_steps_y + 32'b1;	
-			num_steps_x <= 0;
-		end
 		if (vga_x_cood>=x2 && vga_y_cood>=y2) state <= 8'd22 ; // ending
-		else state  <= 8'd19 ;
+		else state  <= 8'd19;
 		// write a point
-		//state <= 8'd20 ; 
+		//state <= 8'd20 ;
 	end
 	
 	// write a pixel to VGA memory
@@ -546,10 +554,6 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 	if (state == 8'd22) begin
 		// end vga write
 		vga_sram_write <= 1'b0;
-		vga_x_cood <= x1;
-		vga_y_cood <= y1;
-		num_steps_x   <= 1;
-		num_steps_y   <= 1;
 		// signal the HPS we are done
 		sram_address <= 8'd0 ;
 		sram_writedata <= 32'b0 ;
