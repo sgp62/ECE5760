@@ -36,6 +36,9 @@ void *h2p_lw_virtual_base;
 volatile unsigned int * sram_ptr = NULL ;
 void *sram_virtual_base;
 
+//mouse zoom pio:
+volatile int *pio_mouse_zoom_ptr = NULL; // positive
+
 // pixel buffer
 volatile unsigned int * vga_pixel_ptr = NULL ;
 void *vga_pixel_virtual_base;
@@ -66,7 +69,7 @@ struct timeval t1, t2;
 double elapsedTime;
 struct timespec delay_time ;
 	
-int vga(void)
+int main(void)
 {
 	delay_time.tv_nsec = 10 ;
 	delay_time.tv_sec = 0 ;
@@ -110,7 +113,7 @@ int vga(void)
 	// === get VGA pixel addr ====================
 	// get virtual addr that maps to physical
 	// SDRAM
-	vga_pixel_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, SDRAM_BASE); //SDRAM_BASE	
+	vga_pixel_virtual_base = mmap( NULL, SDRAM_FPGA_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, SDRAM_BASE); //SDRAM_BASE	
 	
 	if( vga_pixel_virtual_base == MAP_FAILED ) {
 		printf( "ERROR: mmap3() failed...\n" );
@@ -119,6 +122,11 @@ int vga(void)
 	}
     // Get the address that maps to the FPGA pixel buffer
 	vga_pixel_ptr =(unsigned int *)(vga_pixel_virtual_base);
+ 
+ 
+ // Get the address that maps to the PIO ports
+	pio_mouse_zoom_ptr = (unsigned int *)(vga_pixel_virtual_base + MOUSE_ZOOM);
+	
 	
 	// === get RAM FPGA parameter addr =========
 	sram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); //fp	
@@ -154,54 +162,142 @@ int vga(void)
 	count = 0;
 	// set a seed for rnadom numbers
 	srand((unsigned) time(&t1));
+ 
+ 
+ //====================MOUSE=========================================
+ 
+  int fd, bytes;
+  unsigned char data[3];
+  
+  const char *pDevice = "/dev/input/mice";
+  
+  // Open Mouse
+  fd = open(pDevice, O_RDWR);
+  if(fd == -1)
+  {
+      printf("ERROR Opening %s\n", pDevice);
+      return -1;
+  }
+  
+  int left, middle, right;
+  signed char x, y;
+  while(1)
+  {
+      // Read Mouse     
+      bytes = read(fd, data, sizeof(data));
+  
+      if(bytes > 0)
+      {
+          left = data[0] & 0x1; // Zoom In
+          right = data[0] & 0x2; // Zoom Out
+          x = data[1];
+          y = data[2];
+          printf("x=%d, y=%d, left=%d, right=%d\n", x, y, left, right);
+          if(left) *pio_mouse_zoom_ptr == 0x10;
+          else *pio_mouse_zoom_ptr == 0x00;
+      }   
+  }
+  return 0; 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 	
-	while(count++ < 99) 
-	{
-		int x1, y1, x2, y2, color ;
-		
-		// query for x1,y1,x2,y2, color(1-byte hex)
-		//scanf("%d %d %d %d %d", &x1, &y1, &x2, &y2, &color);
-		
-		// draw some random stuff
-		x1 = 32 + (rand() & 0x3f);
-		x2 = 32 + (rand() & 0xff);
-		y1 = rand() & 0x1ff ;
-		y2 = rand() & 0x1ff ;
-		color = rand() & 0xff ;
-		
-		// start the timer
-		gettimeofday(&t1, NULL);
-		
-		// use GPU
-		// assumes scratch memory at location
-		// sram_ptr
-		GPU_box(x1, y1, x2, y2, color) ;
-		
-		// time the FPGA
-		gettimeofday(&t2, NULL);
-		elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000000.0;      // sec to us
-		elapsedTime += (t2.tv_usec - t1.tv_usec) ;   // us to 
-		//sprintf(num_string, "# = %d     ", total_count);
-		sprintf(time_string, "T=%8.0f uSec  ", elapsedTime);
-		//VGA_text (10, 3, num_string);
-		VGA_text (10, 4, time_string);
-		
-		// Second--do the geometry in software
-		// start the timer
-		gettimeofday(&t1, NULL);
-		VGA_box (x1+320, y1, x2+320, y2, color) ;
-		// time the FPGA
-		gettimeofday(&t2, NULL);
-		
-		elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000000.0;      // sec to us
-		elapsedTime += (t2.tv_usec - t1.tv_usec) ;   // us to 
-		//sprintf(num_string, "# = %d     ", total_count);
-		sprintf(time_string, "T=%8.0f uSec  ", elapsedTime);
-		//VGA_text (10, 3, num_string);
-		VGA_text (40, 4, time_string);
-		
-	} // end while(1)
+//	while(count++ < 99) 
+//	{
+//		int x1, y1, x2, y2, color ;
+//		
+//		// query for x1,y1,x2,y2, color(1-byte hex)
+//		//scanf("%d %d %d %d %d", &x1, &y1, &x2, &y2, &color);
+//		
+//		// draw some random stuff
+//		x1 = 32 + (rand() & 0x3f);
+//		x2 = 32 + (rand() & 0xff);
+//		y1 = rand() & 0x1ff ;
+//		y2 = rand() & 0x1ff ;
+//		color = rand() & 0xff ;
+//		
+//		// start the timer
+//		gettimeofday(&t1, NULL);
+//		
+//		// use GPU
+//		// assumes scratch memory at location
+//		// sram_ptr
+//		GPU_box(x1, y1, x2, y2, color) ;
+//		
+//		// time the FPGA
+//		gettimeofday(&t2, NULL);
+//		elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000000.0;      // sec to us
+//		elapsedTime += (t2.tv_usec - t1.tv_usec) ;   // us to 
+//		//sprintf(num_string, "# = %d     ", total_count);
+//		sprintf(time_string, "T=%8.0f uSec  ", elapsedTime);
+//		//VGA_text (10, 3, num_string);
+//		VGA_text (10, 4, time_string);
+//		
+//		// Second--do the geometry in software
+//		// start the timer
+//		gettimeofday(&t1, NULL);
+//		VGA_box (x1+320, y1, x2+320, y2, color) ;
+//		// time the FPGA
+//		gettimeofday(&t2, NULL);
+//		
+//		elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000000.0;      // sec to us
+//		elapsedTime += (t2.tv_usec - t1.tv_usec) ;   // us to 
+//		//sprintf(num_string, "# = %d     ", total_count);
+//		sprintf(time_string, "T=%8.0f uSec  ", elapsedTime);
+//		//VGA_text (10, 3, num_string);
+//		VGA_text (40, 4, time_string);
+//		
+//	} // end while(1)
 } // end main
+
+
+///////////////////////////////////////////////////////////////////////
+// Mouse test from 
+// http://stackoverflow.com/questions/11451618/how-do-you-read-the-mouse-button-state-from-dev-input-mice
+//
+// Native ARM GCC Compile: gcc mouse_test.c -o mouse
+//
+///////////////////////////////////////////////////////////////////////
+
+int mouse(void)
+{
+    int fd, bytes;
+    unsigned char data[3];
+
+    const char *pDevice = "/dev/input/mice";
+
+    // Open Mouse
+    fd = open(pDevice, O_RDWR);
+    if(fd == -1)
+    {
+        printf("ERROR Opening %s\n", pDevice);
+        return -1;
+    }
+
+    int left, middle, right;
+    signed char x, y;
+    while(1)
+    {
+        // Read Mouse     
+        bytes = read(fd, data, sizeof(data));
+
+        if(bytes > 0)
+        {
+            left = data[0] & 0x1; // Zoom In
+            right = data[0] & 0x2; // Zoom Out
+            x = data[1];
+            y = data[2];
+            printf("x=%d, y=%d, left=%d, right=%d\n", x, y, left, right);
+        }   
+    }
+    return 0; 
+}
+	
 
 /****************************************************************************************
  * Subroutine to read a pixel from the video input 
@@ -446,50 +542,6 @@ void VGA_line(int x1, int y1, int x2, int y2, short c) {
 	}
 }
 
-///////////////////////////////////////////////////////////////////////
-// Mouse test from 
-// http://stackoverflow.com/questions/11451618/how-do-you-read-the-mouse-button-state-from-dev-input-mice
-//
-// Native ARM GCC Compile: gcc mouse_test.c -o mouse
-//
-///////////////////////////////////////////////////////////////////////
-
-int main(int argc, char** argv)
-{
-    int fd, bytes;
-    unsigned char data[3];
-
-    const char *pDevice = "/dev/input/mice";
-
-    // Open Mouse
-    fd = open(pDevice, O_RDWR);
-    if(fd == -1)
-    {
-        printf("ERROR Opening %s\n", pDevice);
-        return -1;
-    }
-
-    int left, middle, right;
-    signed char x, y;
-    while(1)
-    {
-        // Read Mouse     
-        bytes = read(fd, data, sizeof(data));
-
-        if(bytes > 0)
-        {
-            left = data[0] & 0x1; // Zoom In
-            right = data[0] & 0x2; // Zoom Out
-            //middle = data[0] & 0x4; 
-
-            x = data[1];
-            y = data[2];
-            printf("x=%d, y=%d, left=%d, right=%d\n", x, y, left, right);
-        }   
-    }
-    return 0; 
-}
-	
 
 /////////////////////////////////////////////
 
