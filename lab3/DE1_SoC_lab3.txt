@@ -418,18 +418,28 @@ reg [7:0] color_reg ;
 
 //=======================================================
 // iterator instantiation
-wire [31:0]  max_iter = 32'd1000;
-wire [31:0]  num_iter;
+wire [10:0]  max_iter = 11'd1000; //Need to change if we increase max_iter
+
 wire signed [26:0] ci_top_left, cr_top_left, ci_bottom_right, cr_bottom_right;
 reg  [31:0] zoom_factor;
 reg  [31:0] num_steps_x;
 reg  [31:0] num_steps_y;
 reg  signed [26:0] ci_reg;//TODO: Set these in init stage 
 reg  signed [26:0] cr_reg;
-wire finished_iter;
-
 wire signed [26:0] cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
 wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
+
+wire finished_iter;
+
+
+
+reg [10:0] num_iter_fifo [127:0]; // Holds num_iter values as they're created
+reg [7:0]  write_counter = 0;
+reg [7:0]  read_counter  = 0;
+reg [7:0]  fifo_count = 0;
+wire [10:0] num_iter_to_fifo; //To be tied to iterator_controller output
+reg [10:0] num_iter_from_fifo; //To be tied to color selection
+
 
 //assign cr =  -27'sh1000000 + num_steps_x * x_incr; //Track recursively and just add x_incr, STORE current step
 //assign ci =  27'sh800000 - num_steps_y * y_incr;
@@ -465,6 +475,21 @@ mandelbrot_iterator m_it_0 (
 	.done     (finished_iter)
 );
 
+mandelbrot_iterator_controller #(.num_iterators(25)) arbiter (
+	.clk         (CLOCK_50),
+	.reset       (~KEY[0]),
+	.iter_sel    ()
+);
+
+
+	input clk, reset, iter_sel
+	input [31:0] max_iter,
+	input [31:0] zoom_factor,
+	input signed [26:0] cr_top_left, cr_top_left, cr_bottom_right, ci_bottom_right,
+	input [31:0] start_array,
+	output finished_array,
+	output [31:0] single_num_iter, single_x, single_y
+
 
 
 //=======================================================
@@ -484,11 +509,30 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		zoom_factor = 0;
 		num_steps_x   = 1;
 		num_steps_y   = 1;
+		read_counter  = 8'b0;
+		write_counter = 8'b0;
+		fifo_count    = 8'b0;
 		
 	end
 	else begin
 		// general purpose tick counter
 		timer <= timer + 1;
+		// FIFO logic
+		if(read_counter == 8'd128)
+			read_counter = 8'd0;
+		if(write_counter == 8'd128)
+			write_counter = 8'd0;
+			
+		if(read_counter > write_counter)
+			fifo_count = read_counter - write_counter;
+		else if(write_counter > read_counter)
+			fifo_count = write_counter - read_counter;
+			
+		if(finished_iter && fifo_count < 8'd128) begin
+			num_iter_fifo[write_counter] = num_iter_to_fifo;
+			write_counter = write_counter + 8'b1;
+		end
+		
 	end
 
 	// --------------------------------------
@@ -496,58 +540,58 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 	// write to the VGA sram
 
 	if (state==8'd19 && finished_iter) begin // && ((timer & 15)==0)
-		vga_sram_write <= 1'b1;
-		// compute address
-	   vga_sram_address <= vga_out_base_address + {22'b0, vga_x_cood} + ({22'b0,vga_y_cood}*640) ; 
-		// data
-		if (num_iter >= max_iter) begin
-			color_reg = 8'b_000_000_00 ; // black
-		end
-		else if (num_iter >= (max_iter >>> 1)) begin
-		  color_reg = 8'b_011_001_00 ;
-		end
-		else if (num_iter >= (max_iter >>> 2)) begin
-		  color_reg = 8'b_011_001_00 ;
-		end
-		else if (num_iter >= (max_iter >>> 3)) begin
-		  color_reg = 8'b_101_010_01 ;
-		end
-		else if (num_iter >= (max_iter >>> 4)) begin
-		  color_reg = 8'b_011_001_01 ;
-		end
-		else if (num_iter >= (max_iter >>> 5)) begin
-		  color_reg = 8'b_001_001_01 ;
-		end
-		else if (num_iter >= (max_iter >>> 6)) begin
-		  color_reg = 8'b_011_010_10 ;
-		end
-		else if (num_iter >= (max_iter >>> 7)) begin
-		  color_reg = 8'b_010_100_10 ;
-		end
-		else if (num_iter >= (max_iter >>> 8)) begin
-		  color_reg = 8'b_010_100_10 ;
-		end
-		else begin
-		  color_reg = 8'b_010_100_10 ;
-		end
 		
-		vga_sram_writedata <= color_reg;
-		if (vga_x_cood>=x2 && vga_y_cood>=y2) state <= 8'd22 ; // ending
-		else state  <= 8'd19;
+		// data
+		if(fifo_count != 0) begin
+		
+			vga_sram_write <= 1'b1;
+			// compute address
+			vga_sram_address <= vga_out_base_address + {22'b0, vga_x_cood} + ({22'b0,vga_y_cood}*640) ; 
+		
+			num_iter_from_fifo = num_iter_fifo[read_counter];
+			read_counter = read_counter + 8'b1;
+
+			if (num_iter_from_fifo >= max_iter) begin
+				color_reg = 8'b_000_000_00 ; // black
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 1)) begin
+			  color_reg = 8'b_011_001_00 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 2)) begin
+			  color_reg = 8'b_011_001_00 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 3)) begin
+			  color_reg = 8'b_101_010_01 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 4)) begin
+			  color_reg = 8'b_011_001_01 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 5)) begin
+			  color_reg = 8'b_001_001_01 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 6)) begin
+			  color_reg = 8'b_011_010_10 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 7)) begin
+			  color_reg = 8'b_010_100_10 ;
+			end
+			else if (num_iter_from_fifo >= (max_iter >>> 8)) begin
+			  color_reg = 8'b_010_100_10 ;
+			end
+			else begin
+			  color_reg = 8'b_010_100_10 ;
+			end
+			
+			vga_sram_writedata <= color_reg;
+			if (vga_x_cood>=x2 && vga_y_cood>=y2) state <= 8'd22 ; // ending
+			else state  <= 8'd19;
+		end
+		else begin //Nothing in fifo, go back to this state and check again
+			state  <= 8'd19;
+		end
 		// write a point
 		//state <= 8'd20 ;
 	end
-	
-	// write a pixel to VGA memory
-//	if (state==20) begin
-//		vga_sram_write <= 1'b1;
-//		// vga_sram_address is combinatorial;
-//		vga_sram_writedata <= pixel_color  ;
-//		// done?
-//		if (vga_x_cood>=x2 && vga_y_cood>=y2) state <= 8'd22 ; // ending
-//		else state  <= 8'd19 ;
-//	end
-	
 	
 	// -- finished: --
 	// -- set up done flag to Qsys sram 0 ---

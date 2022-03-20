@@ -7,4 +7,86 @@ z2
 !i10e 25
 !i10f 100
 cModel Technology
-dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3
+Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3
+vmandelbrot_iterator
+Z1 !s110 1647805622
+!i10b 1
+!s100 0l343hUeTeSN_=LhjM1Rz0
+I<oJm=C7c0E5F]NR;08CBh2
+Z2 V`JN@9S9cnhjKRR_L]QIcM3
+R0
+Z3 w1647805617
+Z4 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v
+Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
+Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
+L0 24
+Z7 OV;L;10.3d;59
+r1
+!s85 0
+31
+Z8 !s108 1647805622.407000
+Z9 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
+Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
+!i113 1
+Z11 o-work work
+vmandelbrot_iterator_controller
+R1
+!i10b 1
+!s100 [o3RhL4RnUlOb<jCBe>1o3
+IQJR:47`mEoUUjhm5i[WN32
+R2
+R0
+R3
+R5
+R6
+L0 4
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+R11
+vsigned_mult
+R1
+!i10b 1
+!s100 kg0ofnR9A=7PUF2hR8MPJ2
+Ig]nij2<2U>D>`l91dC@Ef1
+R2
+R0
+R3
+R4
+R5
+R6
+L0 11
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+R11
+vtestbench
+R1
+!i10b 1
+!s100 AEm0UV:Xf;IgVGEed7<YZ1
+I<<kf3]8;0T7@gg`R_iGn^0
+R2
+R0
+w1647805437
+8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v
+FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v
+L0 7
+R7
+r1
+!s85 0
+31
+!s108 1647805622.245000
+!s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\\lab3_iterator_controller.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
+!s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
+!i113 1
+R11

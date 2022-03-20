@@ -18,6 +18,9 @@ module testbench();
 	wire        [9:0]   x_px, y_px;
 	wire done;
 
+	reg  finished_array [10:0];
+	wire someone_is_finished;
+	assign someone_is_finished = finished_array[0] > 0;
 
 	//Initialize constants
 	initial begin

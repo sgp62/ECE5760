@@ -31,7 +31,8 @@ module mandelbrot_iterator (
 	input start,
 	input [31:0] max_iter,
 	input signed [26:0] ci_incr, cr_incr,
-	output [31:0] num_iter, x_px, y_px,
+	output [31:0] num_iter, 
+	output [9:0]  x_px, y_px,
 	output       done
 );
 	reg         [3:0]  state;

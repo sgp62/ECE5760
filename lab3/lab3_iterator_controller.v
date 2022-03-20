@@ -2,17 +2,27 @@
 `include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v"
 
 module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
-	input clk, reset, iter_sel
+	input clk, reset, iter_sel,
 	input [31:0] max_iter,
 	input [31:0] zoom_factor,
-	input signed [26:0] cr_top_left, cr_top_left, cr_bottom_right, ci_bottom_right,
-	output finished_array,
-	output [31:0] single_num_iter, single_x, single_y
+	input signed [26:0] cr_top_left, ci_top_left, cr_bottom_right, ci_bottom_right,
+	//output finished_array,
+	output [31:0] single_num_iter, 
+	output [9:0]  single_x, single_y
 );
 
 	wire   [31:0]  num_iter_array [num_iterators-1:0];
+	wire   [9:0]  x_px_array [num_iterators-1:0];
+	wire   [9:0]  y_px_array [num_iterators-1:0];
 	
-	reg   [31:0]  start_array, finished_array; //Stores bitwise synch signals for the iterators
+	reg [9:0] single_x_reg, single_y_reg;
+	reg [31:0] single_num_iter_reg;
+	
+	assign single_num_iter = single_num_iter_reg;
+	assign single_x = single_x_reg;
+	assign single_y = single_y_reg;
+	
+	reg   [31:0]  start_array; //Stores bitwise synch signals for the iterators
 	
 	//wire   [31:0]  num_steps_x_array [num_iterators-1:0];//Arrays because each iterator finishes at different times, could be at different offsets
 	//wire   [31:0]  num_steps_y_array [num_iterators-1:0];
@@ -23,6 +33,11 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	wire signed [26:0] x_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
 	wire signed [26:0] y_incr = 27'h8888 >> zoom_factor;
 	
+	wire finished_array [num_iterators-1:0];
+	reg [5:0] finish_loop_offset;
+	reg [5:0] j;
+	reg [5:0] init_i;
+	reg found_one;
 	
 	//need to generate the initial upper left (cr,ci) and (x,y) for each iterator,
 	//Only the first one is (-2,1) , (0,0)
@@ -35,19 +50,42 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	always @ (posedge clk) begin
 		//How to initialize and update each ci_reg, cr_reg pair independently?
 		if(reset) begin
-			start_array <=  32'hffffffff;
+			found_one <= 0;
+			//start_array <=  32'hffffffff; Move this to top level, since it's an input (controls which iterators can run)
+			for(init_i = 0; init_i < num_iterators; init_i = init_i + 1) begin
+				start_array[init_i] = 1;
+			end
 		end
 		
 		else begin
-			//if(finished_array > 0) begin //One iterator is done, tell it to stop and need to write its value to VGA sram
+		
+			//One iterator is done, tell it to stop and need to write its value to VGA sram
 				//Might just do this in top level module, this will control the VGA state machine
 				//How to deal with possible starvation of finished iterators?
-				
-			//end
+			
+			//loop through iterators until we find one that's finished
+			for(j = 0; j < num_iterators; j=j+1) begin
+				if(j+finish_loop_offset > num_iterators) //preventing overflow
+					finish_loop_offset = 0;
+				if(~found_one) begin
+					if(finished_array[j+finish_loop_offset] == 1) begin //Found a finished iterator, set its values as the output
+						single_num_iter_reg = num_iter_array[j+finish_loop_offset];
+						single_x_reg = x_px_array[j+finish_loop_offset];
+						single_y_reg = y_px_array[j+finish_loop_offset];
+						
+						//Tell this iterator it's allowed to start again
+						start_array[j+finish_loop_offset] <= 1;
+						finish_loop_offset = j+finish_loop_offset;
+						found_one = 1; //Only want to do this ONCE per clock cycle
+					end
+				else 
+					found_one <= 0; // this will take effect the NEXT clock cycle (entire for loop executes this cycle)
+					start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
+				end
+			end
 			//Send the x and y coordinate of the chosen iterator up to the top level module, along with the color.
 			//Use this to write to the x and y pixel that that iterator is assigned to
 			
-			//Need to reassign the step values to be multiplied by the num_iterators
 		end
 	end
 	
@@ -63,29 +101,23 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				.cr_init  (cr_top_left + x_incr * i ),
 				.ci_bottom_right (ci_bottom_right),
 				.cr_bottom_right (cr_bottom_right),
+				.x1       (0),
+				.y1       (0),
+				.x2       (32'd639), //Need to modify these values with zooming
+				.y2       (32'd479),
+				.x_step   (1),
+				.y_step   (1),
+				.x_px     (x_px_array[i]),
+				.y_px     (x_px_array[i]),
 				.max_iter (max_iter),
 				.num_iter (num_iter_array[i]),
 				.start    (start_array[i]),
-				.x_incr   (x_incr), //MULTIPY YOU IDIOT
-				.y_incr   (y_incr),
+				.cr_incr  (x_incr * num_iterators), //Hopefully doesn't use any more DSP units
+				.ci_incr  (y_incr),
 				.done     (finished_array[i])
+			
 			);
 		end
 	endgenerate
 
 endmodule
-
-/*
-wire signed [26:0] ci; //[-1,1]
-wire signed [26:0] cr; //[-2,1]
-reg  [31:0] zoom_factor;
-reg  [31:0] num_steps_x;
-reg  [31:0] num_steps_y;
-
-wire signed [26:0] x_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
-wire signed [26:0] y_incr = 27'h8888 >> zoom_factor;
-
-assign cr =  -27'sh1000000 + num_steps_x * x_incr;
-assign ci =  27'sh800000 - num_steps_y * y_incr;
-
-*/
