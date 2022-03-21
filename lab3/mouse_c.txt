@@ -193,8 +193,9 @@ int main(void)
           x = data[1];
           y = data[2];
           printf("x=%d, y=%d, left=%d, right=%d\n", x, y, left, right);
-          if(left) *pio_mouse_zoom_ptr == 0x10;
-          else *pio_mouse_zoom_ptr == 0x00;
+          if (left) *pio_mouse_zoom_ptr = 0x2;
+          else if (right) *pio_mouse_zoom_ptr = 0x1;
+          //printf("mouse zoom: %d\n", *pio_mouse_zoom_ptr);
       }   
   }
   return 0; 
