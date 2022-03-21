@@ -1,4 +1,4 @@
-`include "C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\lab3_mandelbrot_one_iterator.v"
+`include "C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\lab3_iterator_controller.v"
 
 module DE1_SoC_Computer (
 	////////////////////////////////////
@@ -436,9 +436,9 @@ wire finished_iter;
 reg [10:0] num_iter_fifo [127:0]; // Holds num_iter values as they're created
 reg [7:0]  write_counter = 0;
 reg [7:0]  read_counter  = 0;
-reg [7:0]  fifo_count = 0;
+reg [7:0]  fifo_count = 1; //Placeholder
 wire [10:0] num_iter_to_fifo; //To be tied to iterator_controller output
-reg [10:0] num_iter_from_fifo; //To be tied to color selection
+wire [10:0] num_iter_from_fifo; //To be tied to color selection
 
 
 //assign cr =  -27'sh1000000 + num_steps_x * x_incr; //Track recursively and just add x_incr, STORE current step
@@ -452,44 +452,44 @@ assign ci_top_left =  27'sh800000;
 assign ci_bottom_right = -27'sh800000;
 assign cr_bottom_right = 27'sh800000;
 
-mandelbrot_iterator m_it_0 (
-	.clk      (CLOCK_50),
-	.reset    (~KEY[0]),
-	.ci_init  (ci_top_left),
-	.cr_init  (cr_top_left),
-	.ci_bottom_right (ci_bottom_right),
-	.cr_bottom_right (cr_bottom_right),
-	.x1       (0),
-	.y1       (0),
-	.x2       (32'd639),
-	.y2       (32'd479),
-	.x_step   (1),
-	.y_step   (1),
-	.x_px     (vga_x_cood),
-	.y_px     (vga_y_cood),
+//mandelbrot_iterator m_it_0 (
+//	.clk      (CLOCK_50),
+//	.reset    (~KEY[0]),
+//	.ci_init  (ci_top_left),
+//	.cr_init  (cr_top_left),
+//	.ci_bottom_right (ci_bottom_right),
+//	.cr_bottom_right (cr_bottom_right),
+//	.x1       (0),
+//	.y1       (0),
+//	.x2       (32'd639),
+//	.y2       (32'd479),
+//	.x_step   (1),
+//	.y_step   (1),
+//	.x_px     (vga_x_cood),
+//	.y_px     (vga_y_cood),
+//	.max_iter (max_iter),
+//	.num_iter (num_iter),
+//	.start    (1'b1),
+//	.cr_incr   (cr_incr),
+//	.ci_incr   (ci_incr),
+//	.done     (finished_iter)
+//);
+
+mandelbrot_iterator_controller #(.num_iterators(20)) lab3_arbiter (
+	.clk    (CLOCK_50),
+	.reset  (~KEY[0]),
+	.iter_sel (1'b0),
 	.max_iter (max_iter),
-	.num_iter (num_iter),
-	.start    (1'b1),
-	.cr_incr   (cr_incr),
-	.ci_incr   (ci_incr),
-	.done     (finished_iter)
+	.zoom_factor (0),
+	.cr_top_left (cr_top_left),
+	.ci_top_left (ci_top_left),
+	.cr_bottom_right (cr_bottom_right),
+	.ci_bottom_right (ci_bottom_right),
+	.single_num_iter (num_iter_from_fifo), //Testing with NO FIFO
+	.single_x (vga_x_cood),
+	.single_y (vga_y_cood)
+
 );
-
-mandelbrot_iterator_controller #(.num_iterators(25)) arbiter (
-	.clk         (CLOCK_50),
-	.reset       (~KEY[0]),
-	.iter_sel    ()
-);
-
-
-	input clk, reset, iter_sel
-	input [31:0] max_iter,
-	input [31:0] zoom_factor,
-	input signed [26:0] cr_top_left, cr_top_left, cr_bottom_right, ci_bottom_right,
-	input [31:0] start_array,
-	output finished_array,
-	output [31:0] single_num_iter, single_x, single_y
-
 
 
 //=======================================================
@@ -511,27 +511,27 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		num_steps_y   = 1;
 		read_counter  = 8'b0;
 		write_counter = 8'b0;
-		fifo_count    = 8'b0;
+		fifo_count    = 8'b1;
 		
 	end
 	else begin
 		// general purpose tick counter
 		timer <= timer + 1;
 		// FIFO logic
-		if(read_counter == 8'd128)
-			read_counter = 8'd0;
-		if(write_counter == 8'd128)
-			write_counter = 8'd0;
-			
-		if(read_counter > write_counter)
-			fifo_count = read_counter - write_counter;
-		else if(write_counter > read_counter)
-			fifo_count = write_counter - read_counter;
-			
-		if(finished_iter && fifo_count < 8'd128) begin
-			num_iter_fifo[write_counter] = num_iter_to_fifo;
-			write_counter = write_counter + 8'b1;
-		end
+//		if(read_counter == 8'd128)
+//			read_counter = 8'd0;
+//		if(write_counter == 8'd128)
+//			write_counter = 8'd0;
+//			
+//		if(read_counter > write_counter)
+//			fifo_count = read_counter - write_counter;
+//		else if(write_counter > read_counter)
+//			fifo_count = write_counter - read_counter;
+//			
+//		if(finished_iter && fifo_count < 8'd128) begin
+//			num_iter_fifo[write_counter] = num_iter_to_fifo;
+//			write_counter = write_counter + 8'b1;
+//		end
 		
 	end
 
@@ -548,8 +548,8 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 			// compute address
 			vga_sram_address <= vga_out_base_address + {22'b0, vga_x_cood} + ({22'b0,vga_y_cood}*640) ; 
 		
-			num_iter_from_fifo = num_iter_fifo[read_counter];
-			read_counter = read_counter + 8'b1;
+			//num_iter_from_fifo = num_iter_fifo[read_counter];
+			//read_counter = read_counter + 8'b1;
 
 			if (num_iter_from_fifo >= max_iter) begin
 				color_reg = 8'b_000_000_00 ; // black

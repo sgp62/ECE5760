@@ -20,7 +20,7 @@ module testbench();
 
 	reg  finished_array [10:0];
 	wire someone_is_finished;
-	//assign someone_is_finished = finished_array > 0;
+	assign someone_is_finished = finished_array[0] > 0;
 
 	//Initialize constants
 	initial begin

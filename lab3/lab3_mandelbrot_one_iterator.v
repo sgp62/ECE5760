@@ -90,32 +90,33 @@ module mandelbrot_iterator (
 					iter_counter <= iter_counter + 1;
 			end
 			else if(done_reg) begin
-				num_iter_out_reg <= iter_counter;
-				iter_counter     <= 0;
-				zi               <= 0;
-				zr               <= 0;
-				zi_next          <= 0;
-				zr_next          <= 0;
-				if(start) //If the iterator is allowed to continue, based on the start input
+				if(start) begin //If the iterator is allowed to continue, based on the start input
+					num_iter_out_reg <= iter_counter;
+					iter_counter     <= 0;
+					zi               <= 0;
+					zr               <= 0;
+					zi_next          <= 0;
+					zr_next          <= 0;
 					done_reg <= 1'b0;
-				if(cr_reg < cr_bottom_right) begin
-					cr_reg <= cr_reg + cr_incr;
-					x_px_reg <= x_px_reg + x_step;
-					//Eventually put vga pixel coordinates here, as well
-				end
-				else if (ci_reg > ci_bottom_right) begin
-					ci_reg <= ci_reg - ci_incr;
-					cr_reg <= cr_init;
-					
-					y_px_reg <= y_px_reg + y_step;
-					x_px_reg <= x1;
-				end
-				else begin
-					ci_reg <= ci_init;
-					cr_reg <= cr_init;
-					
-					x_px_reg <= x1;
-					y_px_reg <= y1;
+					if(cr_reg < cr_bottom_right) begin
+						cr_reg <= cr_reg + cr_incr;
+						x_px_reg <= x_px_reg + x_step;
+						//Eventually put vga pixel coordinates here, as well
+					end
+					else if (ci_reg > ci_bottom_right) begin
+						ci_reg <= ci_reg - ci_incr;
+						cr_reg <= cr_init;
+						
+						y_px_reg <= y_px_reg + y_step;
+						x_px_reg <= x1;
+					end
+					else begin
+						ci_reg <= ci_init;
+						cr_reg <= cr_init;
+						
+						x_px_reg <= x1;
+						y_px_reg <= y1;
+					end
 				end
 			end
 		end

@@ -76,28 +76,29 @@ module mandelbrot_iterator (
 		end
 		
 		else begin
-			if(start) begin
-				if(~done_reg) begin
-					
-					zi_next = (zr_zi <<< 1) + ci_reg;
-					zr_next = zr_2 - zi_2 + cr_reg;
-					
-					zi <= zi_next;
-					zr <= zr_next;
-					
-					if(iter_counter == max_iter || zi_comp || zr_comp || squared_comp)
-						done_reg <= 1; //Check signed comparison and also negative ranges, add flags to see which is triggering exit
-					else
-						iter_counter <= iter_counter + 1;
-				end
-				else if(done_reg) begin
+			if(~done_reg) begin
+				
+				zi_next = (zr_zi <<< 1) + ci_reg;
+				zr_next = zr_2 - zi_2 + cr_reg;
+				
+				zi <= zi_next;
+				zr <= zr_next;
+				
+				if(iter_counter == max_iter || zi_comp || zr_comp || squared_comp)
+					done_reg <= 1; //Check signed comparison and also negative ranges, add flags to see which is triggering exit
+				else
+					iter_counter <= iter_counter + 1;
+			end
+			else if(done_reg) begin
+				if(start) begin //If the iterator is allowed to continue, based on the start input
 					num_iter_out_reg <= iter_counter;
 					iter_counter     <= 0;
-					done_reg         <= 1'b0;
 					zi               <= 0;
 					zr               <= 0;
 					zi_next          <= 0;
 					zr_next          <= 0;
+					
+						done_reg <= 1'b0;
 					if(cr_reg < cr_bottom_right) begin
 						cr_reg <= cr_reg + cr_incr;
 						x_px_reg <= x_px_reg + x_step;
