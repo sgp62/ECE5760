@@ -6,8 +6,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	input [31:0] max_iter,
 	input [31:0] zoom_factor,
 	input signed [26:0] cr_top_left, ci_top_left, cr_bottom_right, ci_bottom_right,
-	//output finished_array,
-	output [31:0] single_num_iter, 
+	output fin_val,
+	output [10:0] single_num_iter, 
 	output [9:0]  single_x, single_y
 );
 
@@ -39,7 +39,9 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	reg [5:0] init_i;
 	reg found_one;
 	reg [5:0] sel_idx;
+	reg fin_val_reg;
 	
+	assign fin_val = fin_val_reg;
 	//need to generate the initial upper left (cr,ci) and (x,y) for each iterator,
 	//Only the first one is (-2,1) , (0,0)
 	//x = -2 + i * x_incr + num_steps_x * x_incr;
@@ -54,10 +56,11 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			found_one <= 0;
 			offset <= 0;
 			sel_idx <= 0;
+			fin_val_reg = 0;
 		end
 		
 		else begin
-		
+			fin_val_reg = 0;
 			//One iterator is done, tell it to stop and need to write its value to VGA sram
 				//Might just do this in top level module, this will control the VGA state machine
 				//How to deal with possible starvation of finished iterators?
@@ -65,16 +68,17 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			//loop through iterators until we find one that's finished
 			for(j = 0; j < num_iterators; j=j+1) begin
 				if(~found_one) begin
-					if(j+offset >= num_iterators-1) //preventing overflow and out of bounds 
+					if(j+offset > num_iterators-1) //preventing overflow and out of bounds 
 						offset = 0;
 					if(finished_array[j+offset] == 1) begin //Found a finished iterator, set its values as the output
 						single_num_iter_reg = num_iter_array[j+offset];
 						single_x_reg = x_px_array[j+offset];
 						single_y_reg = y_px_array[j+offset];
-						sel_idx = j + offset; // Identify which iterator was selected
-						start_array[j+offset] = 1;//Tell this iterator it's allowed to start again
+						sel_idx = j+offset; // Identify which iterator was selected
+						start_array[j+offset] <= 1;//Tell this iterator it's allowed to start again
 						offset = j+offset+1; //Move so as to not starve other iterators
 						found_one = 1; //Only want to do this ONCE per clock cycle
+						fin_val_reg = 1;
 					end
 				end
 				else begin
@@ -83,6 +87,10 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 					if(j != sel_idx)
 						start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
 				end
+				if(start_array[0] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
+					start_array[0] <= 0;
+				end
+
 			end
 			//Send the x and y coordinate of the chosen iterator up to the top level module, along with the color.
 			//Use this to write to the x and y pixel that that iterator is assigned to
