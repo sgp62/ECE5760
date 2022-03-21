@@ -9,13 +9,13 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3
 vmandelbrot_iterator
-Z1 !s110 1647885809
+Z1 !s110 1647892027
 !i10b 1
 !s100 l7B5Kg9cY@:zUAQg:;Zko0
 IDXUNAGE@@C5I=n7>4RW>K3
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1647885508
+Z3 w1647892023
 Z4 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v
 Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
 Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
@@ -24,7 +24,7 @@ Z7 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z8 !s108 1647885809.886000
+Z8 !s108 1647892027.792000
 Z9 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
 Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
 !i113 1
@@ -32,8 +32,8 @@ Z11 o-work work
 vmandelbrot_iterator_controller
 R1
 !i10b 1
-!s100 bZUcB4]dB6@[g`HPC7i5=1
-ITlR1O6GgoFb>7R@fjHNRX2
+!s100 3>O00OTRPO2Vb0:9>om<63
+IOBXAE6=omf3hU]BR0k4Z;3
 R2
 R0
 R3
@@ -85,7 +85,7 @@ R7
 r1
 !s85 0
 31
-!s108 1647885809.699000
+!s108 1647892027.611000
 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\\lab3_iterator_controller.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
 !i113 1

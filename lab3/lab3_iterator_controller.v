@@ -6,6 +6,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	input [31:0] max_iter,
 	input [31:0] zoom_factor,
 	input signed [26:0] cr_top_left, ci_top_left, cr_bottom_right, ci_bottom_right,
+	input signed [26:0] cr_incr, ci_incr,
 	output fin_val,
 	output [10:0] single_num_iter, 
 	output [9:0]  single_x, single_y
@@ -30,10 +31,13 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	//wire   [26:0]  ci_init_array [num_iterators-1:0];
 	//wire   [26:0]  cr_init_array [num_iterators-1:0];
 	
-	wire signed [26:0] cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
-	wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
+	//wire signed [26:0] cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
+	//wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
+	
+	
 	
 	wire finished_array [num_iterators-1:0];
+	wire signed [26:0] cr_incr_scaled;
 	reg [5:0] offset;
 	reg [5:0] j;
 	reg [5:0] init_i;
@@ -42,6 +46,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	reg fin_val_reg;
 	
 	assign fin_val = fin_val_reg;
+	assign cr_incr_scaled = cr_incr * num_iterators[26:0];
 	//need to generate the initial upper left (cr,ci) and (x,y) for each iterator,
 	//Only the first one is (-2,1) , (0,0)
 	//x = -2 + i * x_incr + num_steps_x * x_incr;
@@ -107,7 +112,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				.clk      (clk),
 				.reset    (reset),
 				.ci_init  (ci_top_left),
-				.cr_init  (cr_top_left + cr_incr * i[26:0] ),
+				.cr_init  (cr_top_left + cr_incr * i[26:0] ),//Watch DSP unitsDSP units
 				.ci_bottom_right (ci_bottom_right),
 				.cr_bottom_right (cr_bottom_right),
 				.x1       (i), //Modify with zooming
@@ -121,7 +126,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				.max_iter (max_iter),
 				.num_iter (num_iter_array[i]),
 				.start    (start_array[i]),
-				.cr_incr  (cr_incr * num_iterators[26:0]), //Hopefully doesn't use any more DSP units
+				.cr_incr  (cr_incr_scaled), 
 				.ci_incr  (ci_incr),
 				.done     (finished_array[i])
 			
