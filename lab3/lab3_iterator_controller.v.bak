@@ -6,6 +6,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	input [31:0] max_iter,
 	input [31:0] zoom_factor,
 	input signed [26:0] cr_top_left, ci_top_left, cr_bottom_right, ci_bottom_right,
+	input signed [26:0] cr_incr, ci_incr,
 	output fin_val,
 	output [10:0] single_num_iter, 
 	output [9:0]  single_x, single_y
@@ -30,8 +31,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	//wire   [26:0]  ci_init_array [num_iterators-1:0];
 	//wire   [26:0]  cr_init_array [num_iterators-1:0];
 	
-	wire signed [26:0] cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
-	wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
+	//wire signed [26:0] cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
+	//wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
 	
 	
 	
@@ -91,8 +92,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 					if(j != sel_idx)
 						start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
 				end
-				if(start_array[0] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
-					start_array[0] <= 0;
+				if(start_array[offset] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
+					start_array[offset] <= 0;
 				end
 
 			end

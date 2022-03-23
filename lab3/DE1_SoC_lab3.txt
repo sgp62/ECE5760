@@ -418,8 +418,8 @@ reg [7:0] color_reg ;
 
 //=======================================================
 // mouse zoom data instantiation
-// [21:12] - x delta
-// [11:2]  - y delta
+// [31:17] - x delta
+// [16:2]  - y delta
 // [1]     - zoom in
 // [0]     - zoom out
 reg signed [31:0] pio_mouse_zoom;
@@ -447,6 +447,23 @@ wire signed [26:0] ci_incr;
 wire finished_iter;
 wire reset_it;
 
+// Increment the center
+wire signed [26:0] cr_delta; 
+wire signed [26:0] ci_delta;
+
+// amount to add/subtract in each dimension to zoom
+wire signed [26:0] cr_init_delta;
+wire signed [26:0] ci_init_delta;
+
+//read change from screen and multiply to get shift amount
+assign cr_delta = {{12'b0},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
+assign ci_delta = {{12'b0},{pio_mouse_zoom[16:2]}} * ci_incr;
+
+assign cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
+assign ci_incr = 27'h8888 >> zoom_factor;
+
+assign cr_init_delta = 27'sh1800_000 >> (zoom_factor + 1); //3 
+assign ci_init_delta = 27'sh1000_000 >> (zoom_factor + 1);//2
 
 reg [10:0] num_iter_fifo [127:0]; // Holds num_iter values as they're created
 reg [7:0]  write_counter = 0;
@@ -461,17 +478,6 @@ wire fin_val;
 
 //assign cr = cr_reg;
 //assign ci = ci_reg; //Make an array for the vga pixels corresponding to each iterator
-
-assign cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
-assign ci_incr = 27'h8888 >> zoom_factor;
-
-// amount to add/subtract in each dimension to zoom
-wire signed [26:0] cr_init_delta;
-wire signed [26:0] ci_init_delta;
-
-assign cr_init_delta = 27'sh1800_000 >> (zoom_factor + 1); //3 
-assign ci_init_delta = 27'sh1000_000 >> (zoom_factor + 1);//2
-
 
 //assign cr =  -27'sh1000000 + num_steps_x * x_incr; //Track recursively and just add x_incr, STORE current step
 //assign ci =  27'sh800000 - num_steps_y * y_incr;
@@ -526,7 +532,6 @@ mandelbrot_iterator_controller #(.num_iterators(16)) lab3_arbiter (
 	.single_num_iter (num_iter_from_fifo), //Testing with NO FIFO
 	.single_x (vga_x_cood), //Look into discrepancies with multiple iterators getting same pixels
 	.single_y (vga_y_cood)
-
 );
 
 
@@ -552,7 +557,7 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		fifo_count    = 8'b1;
 		cr_center = -27'sh1000_000 + (27'sh1800_000 >> 1); //recompile - cetner off shifted fix
 		ci_center = 0;
-		
+		prev_mouse_zoom = 32'b0;
 	end
 	else begin
 		// general purpose tick counter
@@ -676,7 +681,9 @@ Computer_System The_System (
 	.onchip_vga_buffer_s1_writedata  (vga_sram_writedata),   
 	// PIO for mouse zoom data
 	.pio_mouse_zoom_external_connection_export(pio_mouse_zoom),
-
+	.pio_ci_incr_external_connection_export(ci_incr),
+	.pio_cr_incr_external_connection_export(cr_incr),
+	
 	// AV Config
 	.av_config_SCLK							(FPGA_I2C_SCLK),
 	.av_config_SDAT							(FPGA_I2C_SDAT),
