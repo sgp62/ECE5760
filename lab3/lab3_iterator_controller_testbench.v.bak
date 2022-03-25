@@ -81,8 +81,10 @@ mandelbrot_iterator_controller #(.num_iterators(25)) lab3_arbiter (
 	.ci_top_left (ci_top_left),
 	.cr_bottom_right (cr_bottom_right),
 	.ci_bottom_right (ci_bottom_right),
+	.ci_incr(), 
+	.cr_incr(),
 	//.finished_array  (finished_array),
-	.fin_val         (fin_val)
+	.fin_val         (fin_val),
 	.single_num_iter (num_iter),
 	.single_x (single_x),
 	.single_y (single_y)

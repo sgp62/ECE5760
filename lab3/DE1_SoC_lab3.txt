@@ -428,7 +428,7 @@ reg signed [2:0] prev_mouse_zoom;
 
 //=======================================================
 // iterator instantiation
-wire [10:0]  max_iter = 11'd1000; //Need to change if we increase max_iter
+wire [10:0]  max_iter;// = 11'd1000; //Need to change if we increase max_iter
 
 wire signed [26:0] ci_top_left, cr_top_left, ci_bottom_right, cr_bottom_right;
 reg  [31:0] zoom_factor;
@@ -448,16 +448,23 @@ wire finished_iter;
 wire reset_it;
 
 // Increment the center
-wire signed [26:0] cr_delta; 
-wire signed [26:0] ci_delta;
+reg signed [26:0] cr_mouse_delta; 
+reg signed [26:0] ci_mouse_delta;
+reg signed [26:0] cr_mouse_delta_prev; 
+reg signed [26:0] ci_mouse_delta_prev;
 
 // amount to add/subtract in each dimension to zoom
 wire signed [26:0] cr_init_delta;
 wire signed [26:0] ci_init_delta;
 
+wire signed [31:0] cycles;
+
+wire  signed [26:0] ci_center_init = 0;//TODO: Set these in init stage 
+wire  signed [26:0] cr_center_init = -27'sh1000_000 + (27'sh1800_000 >> 1);
+
 //read change from screen and multiply to get shift amount
-assign cr_delta = {{12'b0},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
-assign ci_delta = {{12'b0},{pio_mouse_zoom[16:2]}} * ci_incr;
+//assign cr_mouse_delta = {{12'b0},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
+//assign ci_mouse_delta = {{12'b0},{pio_mouse_zoom[16:2]}} * ci_incr;
 
 assign cr_incr = 27'h9999 >> zoom_factor; //1\640 is 27'h3333
 assign ci_incr = 27'h8888 >> zoom_factor;
@@ -492,7 +499,9 @@ assign ci_top_left = ci_center + ci_init_delta;//27'sh800_000; // 1
 assign cr_bottom_right = cr_center + cr_init_delta;//27'sh800_000; // 1
 assign ci_bottom_right = ci_center - ci_init_delta;//-27'sh800_000; // -1
 
-assign reset_it = ~KEY[0] || pio_mouse_zoom[1] || pio_mouse_zoom[0];
+wire mouse_pos_updated = (cr_mouse_delta != cr_mouse_delta_prev) || (ci_mouse_delta != ci_mouse_delta_prev);//updating prob too much fix later
+
+assign reset_it = ~KEY[0] || pio_mouse_zoom[1] || pio_mouse_zoom[0] || mouse_pos_updated;
 //mandelbrot_iterator m_it_0 (
 //	.clk      (CLOCK_50),
 //	.reset    (~KEY[0]),
@@ -516,7 +525,7 @@ assign reset_it = ~KEY[0] || pio_mouse_zoom[1] || pio_mouse_zoom[0];
 //	.done     (finished_iter)
 //);
 
-mandelbrot_iterator_controller #(.num_iterators(16)) lab3_arbiter (
+mandelbrot_iterator_controller #(.num_iterators(5)) lab3_arbiter (
 	.clk    (CLOCK_50),
 	.reset  (reset_it),
 	.iter_sel (1'b0),
@@ -531,9 +540,11 @@ mandelbrot_iterator_controller #(.num_iterators(16)) lab3_arbiter (
 	.fin_val         (fin_val),
 	.single_num_iter (num_iter_from_fifo), //Testing with NO FIFO
 	.single_x (vga_x_cood), //Look into discrepancies with multiple iterators getting same pixels
-	.single_y (vga_y_cood)
+	.single_y (vga_y_cood),
+	.cycles(cycles)
 );
 
+assign LEDR = pio_mouse_zoom[25:17];
 
 //=======================================================
 // do the work outlined above
@@ -573,8 +584,15 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 			prev_mouse_zoom = 2'b01;
 		end
 		else prev_mouse_zoom = 2'b00;
-
 		
+		cr_mouse_delta_prev = cr_mouse_delta;
+		ci_mouse_delta_prev = ci_mouse_delta;
+		cr_mouse_delta = {{12'b0},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
+		ci_mouse_delta = {{12'b0},{pio_mouse_zoom[16:2]}} * ci_incr;
+		
+		cr_center <= cr_center_init + cr_mouse_delta;
+		ci_center <= ci_center_init + ci_mouse_delta;
+
 	end
 
 	// --------------------------------------
@@ -683,6 +701,12 @@ Computer_System The_System (
 	.pio_mouse_zoom_external_connection_export(pio_mouse_zoom),
 	.pio_ci_incr_external_connection_export(ci_incr),
 	.pio_cr_incr_external_connection_export(cr_incr),
+	.pio_ci_bottom_external_connection_export(ci_bottom_right),
+	.pio_ci_top_external_connection_export(ci_top_left),
+	.pio_cr_left_external_connection_export(cr_top_left),
+	.pio_cr_right_external_connection_export(cr_bottom_right),
+	.pio_cycles_external_connection_export(cycles),
+	.pio_max_iter_external_connection_export(max_iter),
 	
 	// AV Config
 	.av_config_SCLK							(FPGA_I2C_SCLK),

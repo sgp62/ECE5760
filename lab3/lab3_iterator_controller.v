@@ -9,9 +9,15 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	input signed [26:0] cr_incr, ci_incr,
 	output fin_val,
 	output [10:0] single_num_iter, 
-	output [9:0]  single_x, single_y
+	output [9:0]  single_x, single_y,
+	output [31:0] cycles
 );
+	
+	reg [31:0] 	cycles_counter;
+	reg [31:0] 	cycles_per_update;
 
+	assign cycles = cycles_per_update;
+	
 	wire   [31:0]  num_iter_array [num_iterators-1:0];
 	wire   [9:0]  x_px_array [num_iterators-1:0];
 	wire   [9:0]  y_px_array [num_iterators-1:0];
@@ -37,6 +43,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	
 	
 	wire finished_array [num_iterators-1:0];
+	//wire running_array [num_iterators-1:0];
 	wire signed [26:0] cr_incr_scaled;
 	reg [5:0] offset;
 	reg [5:0] j;
@@ -62,6 +69,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			offset <= 0;
 			sel_idx <= 0;
 			fin_val_reg = 0;
+			cycles_counter <= 0;
+			cycles_per_update <= 0;
 		end
 		
 		else begin
@@ -69,7 +78,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			//One iterator is done, tell it to stop and need to write its value to VGA sram
 				//Might just do this in top level module, this will control the VGA state machine
 				//How to deal with possible starvation of finished iterators?
-			
+			if ((single_x_reg <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
+			else cycles_per_update <= cycles_counter;
 			//loop through iterators until we find one that's finished
 			for(j = 0; j < num_iterators; j=j+1) begin
 				if(~found_one) begin

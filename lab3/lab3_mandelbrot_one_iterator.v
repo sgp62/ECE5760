@@ -90,7 +90,7 @@ module mandelbrot_iterator (
 					iter_counter <= iter_counter + 1;
 			end
 			else if(done_reg) begin
-				if(start) begin //If the iterator is allowed to continue, based on the start input
+				if(start && ((x_px_reg <= 10'd639) || (y_px_reg <= 10'd479))) begin //If the iterator is allowed to continue, based on the start input
 					num_iter_out_reg <= iter_counter;
 					iter_counter     <= 0;
 					zi               <= 0;

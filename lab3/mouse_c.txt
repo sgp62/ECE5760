@@ -15,6 +15,7 @@
 #include <sys/mman.h>
 #include <sys/time.h> 
 #include <math.h> 
+#include <sys/stat.h>
 
 #include "address_map_arm_brl4.h"
 
@@ -38,6 +39,18 @@ void *sram_virtual_base;
 
 //mouse zoom pio:
 volatile int *pio_mouse_zoom_ptr = NULL; // positive
+//complex coord increments sent by the FPGA
+volatile int *pio_cr_incr_ptr = NULL;  
+volatile int *pio_ci_incr_ptr = NULL; 
+
+volatile int *pio_cr_left_ptr = NULL; 
+volatile int *pio_cr_right_ptr = NULL;  
+volatile int *pio_ci_top_ptr = NULL; 
+volatile int *pio_ci_bottom_ptr = NULL; 
+
+volatile int *pio_max_iter = NULL;
+volatile int *pio_cycles = NULL;
+ 
 
 // pixel buffer
 volatile unsigned int * vga_pixel_ptr = NULL ;
@@ -68,6 +81,17 @@ int fd;
 struct timeval t1, t2;
 double elapsedTime;
 struct timespec delay_time ;
+
+
+float fix_to_float(int fix);
+
+
+// convert 32-bit sign extended 7.20 fixed point to float
+float fix_to_float(int fix)
+{
+	// fix: {31:20} int bits {19:0} decimal bits
+	return ((float)fix / (float)(1 << 20));
+}
 	
 int main(void)
 {
@@ -126,6 +150,14 @@ int main(void)
  
  // Get the address that maps to the PIO ports
 	pio_mouse_zoom_ptr = (unsigned int *)(vga_pixel_virtual_base + MOUSE_ZOOM);
+	pio_cr_incr_ptr = (unsigned int *)(vga_pixel_virtual_base + CR_INCR);
+	pio_ci_incr_ptr = (unsigned int *)(vga_pixel_virtual_base + CI_INCR);
+  pio_cr_left_ptr = (unsigned int *)(vga_pixel_virtual_base + CR_LEFT); 
+  pio_cr_right_ptr = (unsigned int *)(vga_pixel_virtual_base + CR_RIGHT); 
+  pio_ci_top_ptr = (unsigned int *)(vga_pixel_virtual_base + CI_TOP); 
+  pio_ci_bottom_ptr = (unsigned int *)(vga_pixel_virtual_base + CI_BOTTOM); 
+  pio_max_iter = (unsigned int *)(vga_pixel_virtual_base + MAX_ITER);
+  pio_cycles = (unsigned int *)(vga_pixel_virtual_base + CYCLES);
 	
 	
 	// === get RAM FPGA parameter addr =========
@@ -145,7 +177,7 @@ int main(void)
           and LCD displays */
 	char text_top_row[40] = "DE1-SoC ARM/FPGA\0";
 	char text_bottom_row[40] = "Cornell ece5760\0";
-	char num_string[20], time_string[50] ;
+	char num_string[20], time_string[50];
 	
 	// a pixel from the video
 	int pixel_color;
@@ -179,25 +211,88 @@ int main(void)
       return -1;
   }
   
+  //int flags = fcntl(fd, F_GETFL, 0);
+  //fcntl(fd, F_SETFL, flags | O_NONBLOCK);
   int left, middle, right;
-  signed char x, y;
+  signed char x_delta, y_delta;
+  signed int mouse_x, mouse_y;
+  //NEED  TO RESET TO ZERO ON FPGA RESET - pio port or smth
+  mouse_x = 0;
+  mouse_y = 0;
+  struct stat st;
+  *pio_max_iter = 1000;
   while(1)
   {
       // Read Mouse     
+      
+      //stat(pDevice, &st);
+      //printf("size: %d\n", st.st_size);
+      //if (st.st_size) {
+      
+      
+      // PRINT CORNERS	
+      char text_top_row[40] = "DE1-SoC ARM/FPGA\0";
+    	char text_bottom_row[40] = "Cornell ece5760\0";
+    	char num_string[20], time_string[50];
+	
+    	// a pixel from the video
+    	int pixel_color;
+    	// video input index
+    	int i,j, count;
+    	
+    	// clear the screen
+    	VGA_box (0, 0, 639, 479, 0x03);
+    	// clear the text
+    	VGA_text_clear();
+    	VGA_text (1, 56, text_top_row);
+    	VGA_text (1, 57, text_bottom_row);
+      
+      
+      // PRINT CYCLES
+      
+      // POLL FOR MAX ITER
+      
+      
+
       bytes = read(fd, data, sizeof(data));
-  
+      printf("mouse_x: %d\n", mouse_x);
+      printf("mouse_y: %d\n", mouse_y);
       if(bytes > 0)
       {
           left = data[0] & 0x1; // Zoom In
           right = data[0] & 0x2; // Zoom Out
-          x = data[1];
-          y = data[2];
-          printf("x=%d, y=%d, left=%d, right=%d\n", x, y, left, right);
+          x_delta = data[1];
+          y_delta = data[2];
+          printf("x=%d, y=%d, left=%d, right=%d\n", x_delta, y_delta, left, right);
           if (left) *pio_mouse_zoom_ptr = 0x2; //10
           else if (right == 2) *pio_mouse_zoom_ptr = 0x1; //01
           else *pio_mouse_zoom_ptr = 0; //00
+          mouse_x += x_delta>>3;
+          mouse_y += y_delta>>3;
+          *pio_mouse_zoom_ptr |= mouse_x<<17;
+          *pio_mouse_zoom_ptr |= mouse_y<<2;
+          
+          
           //printf("mouse zoom: %d\n", *pio_mouse_zoom_ptr);
       }   
+      if (mouse_x > 320){
+        mouse_x = 320;
+      }
+      else if (mouse_x < -320){
+        mouse_x = -320;
+      }
+      if (mouse_y > 240){
+        mouse_y = 240;
+      }
+      else if (mouse_y < -240){
+        mouse_y = -240;
+      }
+      
+    //}
+      //else{
+          //printf("read nothing\n");
+      //    *pio_mouse_zoom_ptr = 0;
+      //}
   }
   return 0; 
  
