@@ -1,4 +1,17 @@
-set mouse x and y in c to 0 on fpga reset - pio port
-in de1soc, make negatives sign extend properly
-print the stuff to the fpga
+NEW:
+do a condition reset based on reset_it in FPGA
+set mouse x and y in c to 0 on fpga reset - pio port - BROKE
+werid mouse glitch
+fix large y dsiplacement glitch
+
+print the stuff to the command line?- when asked?
 fix sending max iter through command line
+
+fix -y condition
+
+send zoom through pio
+
+
+
+
+in de1soc, make negatives sign extend properly

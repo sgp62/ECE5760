@@ -9,16 +9,25 @@
 #define A9_ONCHIP_END         0xFFFFFFFF
 #define SDRAM_BASE            0xC0000000
 #define SDRAM_END             0xC3FFFFFF
-#define SDRAM_SPAN			  0x06000000
-#define SDRAM_FPGA_SPAN   0x06000000
+//#define SDRAM_SPAN			      0x06000000
+#define SDRAM_FPGA_SPAN       0x06000000
 
-#define MOUSE_ZOOM        0x5000000
+#define MOUSE_ZOOM            0x05000000
+#define CR_INCR               0x05000010
+#define CI_INCR               0x05000020
+#define CR_LEFT               0x05000030
+#define CR_RIGHT              0x05000040
+#define CI_TOP                0x05000050
+#define CI_BOTTOM             0x05000060
+#define MAX_ITER              0x05000070
+#define CYCLES                0x05000080
+#define RESET                 0x05000090
 
 //
 #define FPGA_ONCHIP_BASE      0xC8000000
 //#define FPGA_ONCHIP_END       0xC803FFFF
 // modified for 640x480
-// #define FPGA_ONCHIP_SPAN      0x00040000
+//#define FPGA_ONCHIP_SPAN      0x00040000
 #define FPGA_ONCHIP_SPAN      0x00080000
 
 
