@@ -14,8 +14,8 @@ module testbench();
 	reg  signed [26:0]  cr;
 	reg         [31:0]  max_iter;
 
-
-	wire        [31:0]  num_iter;
+	wire        [31:0]  cycles;
+	wire        [10:0]  num_iter;
 	wire        [9:0] single_x, single_y;
 	wire   finished_array [24:0];
 	wire done, fin_val;
@@ -87,7 +87,8 @@ mandelbrot_iterator_controller #(.num_iterators(25)) lab3_arbiter (
 	.fin_val         (fin_val),
 	.single_num_iter (num_iter),
 	.single_x (single_x),
-	.single_y (single_y)
+	.single_y (single_y),
+	.cycles (cycles)
 
 );
 	
