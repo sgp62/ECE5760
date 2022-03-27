@@ -84,6 +84,18 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				if ((single_x_reg <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
 				else cycles_per_update <= cycles_counter;
 				//loop through iterators until we find one that's finished
+				if(finished_array[offset] == 1) begin
+					sel_idx = offset;
+					offset = offset + 1;
+					fin_val_reg = 1;
+					state <= 4'd1;
+				end
+				else begin
+					offset = offset+1;
+				end
+				if(offset >= num_iterators)
+					offset = 0;
+				/*
 				for(j = 0; j < num_iterators; j=j+1) begin
 					if(~found_one) begin
 						if(j+offset > num_iterators-1) //preventing overflow and out of bounds 
@@ -108,22 +120,25 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 					end
 
 
-				end
-				
-				
+				end*/
 			end
 			else if (state == 4'd1) begin
 				if ((single_x_reg <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
 				else cycles_per_update <= cycles_counter;
+				
+				for(j = 0; j < num_iterators; j=j+1) begin
+					if(j != sel_idx)
+						start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
+				end
 				
 				single_num_iter_reg = num_iter_array[sel_idx];
 				single_x_reg = x_px_array[sel_idx];
 				single_y_reg = y_px_array[sel_idx];
 				start_array[sel_idx] <= 1;
 				
-				if(start_array[0] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
-					start_array[0] <= 0;
-				end
+				//if(start_array[0] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
+				//	start_array[0] <= 0;
+				//end
 				state <= 4'd0;
 			end
 		end
