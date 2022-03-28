@@ -33,7 +33,8 @@ module mandelbrot_iterator (
 	input signed [26:0] ci_incr, cr_incr,
 	output [31:0] num_iter, 
 	output [9:0]  x_px, y_px,
-	output       done
+	output       done,
+	output 		 at_end
 );
 	reg         [3:0]  state;
 	reg                done_reg;
@@ -41,7 +42,7 @@ module mandelbrot_iterator (
 	reg signed  [26:0] zi, zr, zi_next, zr_next, ci_reg, cr_reg;
 	wire signed [26:0] zi_2, zr_2, zr_zi, zi_wire, zr_wire;
 	wire zi_comp, zr_comp, squared_comp;
-	
+	reg at_end_reg;
 	
 	signed_mult mult1 (.out(zi_2), .a(zi), .b(zi));
 	signed_mult mult2 (.out(zr_2), .a(zr), .b(zr));
@@ -51,6 +52,8 @@ module mandelbrot_iterator (
 	assign done = done_reg;
 	assign x_px = x_px_reg;
 	assign y_px = y_px_reg;
+	
+	assign at_end = at_end_reg;
 	//assign zi_wire = zi;
 	//assign zr_wire = zr;
 	
@@ -72,6 +75,7 @@ module mandelbrot_iterator (
 			cr_reg           <= cr_init;
 			x_px_reg         <= x1;
 			y_px_reg         <= y1;
+			at_end_reg       <= 0;
 			
 		end
 		
@@ -90,7 +94,7 @@ module mandelbrot_iterator (
 					iter_counter <= iter_counter + 1;
 			end
 			else if(done_reg) begin
-				if(start && ((x_px_reg <= 10'd639) || (y_px_reg <= 10'd479))) begin //If the iterator is allowed to continue, based on the start input
+				if(start && ((x_px_reg < x2) || (y_px_reg < y2))) begin //If the iterator is allowed to continue, based on the start input
 					num_iter_out_reg <= iter_counter;
 					iter_counter     <= 0;
 					zi               <= 0;
@@ -98,11 +102,13 @@ module mandelbrot_iterator (
 					zi_next          <= 0;
 					zr_next          <= 0;
 					done_reg <= 1'b0;
-					if(cr_reg < cr_bottom_right) begin
+					//if((cr_reg + cr_incr) < cr_bottom_right) begin
+					if((x_px_reg + x_step) < x2) begin
 						cr_reg <= cr_reg + cr_incr;
 						x_px_reg <= x_px_reg + x_step;
 					end
-					else if (ci_reg > ci_bottom_right) begin
+					//else if ((ci_reg - ci_incr) > ci_bottom_right) begin
+					else if ((y_px_reg + y_step) < y2) begin
 						ci_reg <= ci_reg - ci_incr;
 						cr_reg <= cr_init;
 						
@@ -116,6 +122,9 @@ module mandelbrot_iterator (
 						x_px_reg <= x1;
 						y_px_reg <= y1;
 					end
+				end
+				else if (!((x_px_reg < x2) || (y_px_reg < y2))) begin
+					at_end_reg <= 1;
 				end
 			end
 		end

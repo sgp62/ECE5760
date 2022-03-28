@@ -71,7 +71,7 @@ module testbench();
 	
 
 	//Instantiation of Device Under Test
-mandelbrot_iterator_controller #(.num_iterators(25)) lab3_arbiter (
+mandelbrot_iterator_controller #(.num_iterators(24)) lab3_arbiter (
 	.clk    (clk_50),
 	.reset  (reset),
 	.iter_sel (1'b0),

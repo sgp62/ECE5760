@@ -14,8 +14,8 @@ module testbench();
 	reg  signed [26:0]  cr;
 	reg         [31:0]  max_iter;
 
-
-	wire        [31:0]  num_iter;
+	wire        [31:0]  cycles;
+	wire        [10:0]  num_iter;
 	wire        [9:0] single_x, single_y;
 	wire   finished_array [24:0];
 	wire done, fin_val;
@@ -71,7 +71,7 @@ module testbench();
 	
 
 	//Instantiation of Device Under Test
-mandelbrot_iterator_controller #(.num_iterators(25)) lab3_arbiter (
+mandelbrot_iterator_controller #(.num_iterators(2)) lab3_arbiter (
 	.clk    (clk_50),
 	.reset  (reset),
 	.iter_sel (1'b0),
@@ -81,13 +81,14 @@ mandelbrot_iterator_controller #(.num_iterators(25)) lab3_arbiter (
 	.ci_top_left (ci_top_left),
 	.cr_bottom_right (cr_bottom_right),
 	.ci_bottom_right (ci_bottom_right),
-	.ci_incr(), 
-	.cr_incr(),
+	.ci_incr(27'h8888), 
+	.cr_incr(27'h9999),
 	//.finished_array  (finished_array),
 	.fin_val         (fin_val),
 	.single_num_iter (num_iter),
 	.single_x (single_x),
-	.single_y (single_y)
+	.single_y (single_y),
+	.cycles (cycles)
 
 );
 	

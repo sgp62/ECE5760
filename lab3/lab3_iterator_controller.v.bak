@@ -41,7 +41,7 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	//wire signed [26:0] ci_incr = 27'h8888 >> zoom_factor;
 	
 	
-	
+	wire [num_iterators-1:0] at_end_wire;
 	wire finished_array [num_iterators-1:0];
 	//wire running_array [num_iterators-1:0];
 	wire signed [26:0] cr_incr_scaled;
@@ -69,72 +69,60 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			found_one <= 0;
 			offset <= 0;
 			sel_idx <= 0;
-			fin_val_reg = 0;
+			fin_val_reg <= 0;
 			cycles_counter <= 0;
 			cycles_per_update <= 0;
+			single_x_reg <= 0;
+			single_y_reg <= 0;
 			state <= 4'd0;
 		end
 		
 		else begin
 			if (state == 4'd0) begin
-				fin_val_reg = 0;
+			
+				for(j = 0; j < num_iterators; j=j+1) begin
+					//if(j != sel_idx)
+					start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
+				end
 				//One iterator is done, tell it to stop and need to write its value to VGA sram
 					//Might just do this in top level module, this will control the VGA state machine
 					//How to deal with possible starvation of finished iterators?
-				if ((single_x_reg <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
-				else cycles_per_update <= cycles_counter;
+				//if (((single_x_reg+num_iterators) < 10'd639) || (single_y_reg < 10'd478)) cycles_counter <= cycles_counter + 1'b1;
+				//else state <= 4'd2;
+				
+				cycles_counter <= cycles_counter + 32'b1;
 				//loop through iterators until we find one that's finished
 				if(finished_array[offset] == 1) begin
-					sel_idx = offset;
-					fin_val_reg = 1;
+					sel_idx <= offset;
+					fin_val_reg <= 1;
 					state <= 4'd1;
 				end
+				else begin
+					fin_val_reg <= 0;
+				end
 				offset <= (offset == num_iterators-1) ? 0 : offset + 1;
-				/*
-				for(j = 0; j < num_iterators; j=j+1) begin
-					if(~found_one) begin
-						if(j+offset > num_iterators-1) //preventing overflow and out of bounds 
-							offset = 0;
-						if(finished_array[j+offset] == 1) begin //Found a finished iterator, set its values as the output
- 							//single_num_iter_reg = num_iter_array[j+offset];
-							//single_x_reg = x_px_array[j+offset];
-							//single_y_reg = y_px_array[j+offset];
-							sel_idx = j+offset; // Identify which iterator was selected
-							//start_array[j+offset] <= 1; //Tell this iterator it's allowed to start again
-							offset = j+offset+1; //Move so as to not starve other iterators
-							found_one = 1; //Only want to do this ONCE per clock cycle
-							fin_val_reg = 1;
-						end
-					end
-					else begin
-						if(j == num_iterators-1)
-							found_one = 0; // this will take effect the NEXT clock cycle (entire for loop executes this cycle)
-							state <= 4'd1;
-						if(j != sel_idx)
-							start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
-					end
 
-
-				end*/
 			end
 			else if (state == 4'd1) begin
-				if ((single_x_reg <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
-				else cycles_per_update <= cycles_counter;
-				
-				for(j = 0; j < num_iterators; j=j+1) begin
-					if(j != sel_idx)
-						start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
+				if (at_end_wire < {num_iterators{1'b1}}) begin
+					cycles_counter <= cycles_counter + 32'b1;
+					state <= 4'd0;
 				end
+				else state <= 4'd2;
 				
-				single_num_iter_reg = num_iter_array[sel_idx];
-				single_x_reg = x_px_array[sel_idx];
-				single_y_reg = y_px_array[sel_idx];
+				single_num_iter_reg <= num_iter_array[sel_idx];
+				single_x_reg <= x_px_array[sel_idx];
+				single_y_reg <= y_px_array[sel_idx];
 				start_array[sel_idx] <= 1;
 				
 				//if(start_array[0] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
 				//	start_array[0] <= 0;
 				//end
-				state <= 4'd0;
+			end
+			else if (state == 4'd2) begin //Done state, stop looking at iterators
+				//if (cycles_per_update == 32'b0) 
+				cycles_per_update <= cycles_counter;
+				//state <= 4'd0;
 			end
 		end
 	end
@@ -153,8 +141,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				.cr_bottom_right (cr_bottom_right),
 				.x1       (i), //Modify with zooming
 				.y1       (0), //Modify with zooming
-				.x2       (32'd639), //Need to modify these values with zooming
-				.y2       (32'd479), //Modify with zooming
+				.x2       (32'd64), //Need to modify these values with zooming
+				.y2       (32'd48), //Modify with zooming
 				.x_step   (num_iterators),
 				.y_step   (1),
 				.x_px     (x_px_array[i]),
@@ -164,8 +152,8 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				.start    (start_array[i]),
 				.cr_incr  (cr_incr_scaled), 
 				.ci_incr  (ci_incr),
-				.done     (finished_array[i])
-			
+				.done     (finished_array[i]),
+				.at_end   (at_end_wire[i])
 			);
 		end
 	endgenerate
