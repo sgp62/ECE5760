@@ -98,12 +98,11 @@ module mandelbrot_iterator (
 					zi_next          <= 0;
 					zr_next          <= 0;
 					done_reg <= 1'b0;
-					if(cr_reg < cr_bottom_right) begin
+					if((cr_reg + cr_incr) < cr_bottom_right) begin
 						cr_reg <= cr_reg + cr_incr;
 						x_px_reg <= x_px_reg + x_step;
-						//Eventually put vga pixel coordinates here, as well
 					end
-					else if (ci_reg > ci_bottom_right) begin
+					else if ((ci_reg - ci_incr) > ci_bottom_right) begin
 						ci_reg <= ci_reg - ci_incr;
 						cr_reg <= cr_init;
 						

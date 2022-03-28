@@ -714,6 +714,7 @@ Computer_System The_System (
 	.pio_cycles_external_connection_export(cycles),
 	.pio_max_iter_external_connection_export(max_iter),
 	.pio_reset_external_connection_export({{7'b0},{~KEY[0]}}),
+	.pio_update_external_connection_export(pio_update),
 	
 	// AV Config
 	.av_config_SCLK							(FPGA_I2C_SCLK),

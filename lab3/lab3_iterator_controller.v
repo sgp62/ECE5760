@@ -81,20 +81,15 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 				//One iterator is done, tell it to stop and need to write its value to VGA sram
 					//Might just do this in top level module, this will control the VGA state machine
 					//How to deal with possible starvation of finished iterators?
-				if ((single_x_reg <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
+				if (((single_x_reg+num_iterators) <= 10'd639) || (single_y_reg <= 10'd479)) cycles_counter <= cycles_counter + 1'b1;
 				else cycles_per_update <= cycles_counter;
 				//loop through iterators until we find one that's finished
 				if(finished_array[offset] == 1) begin
 					sel_idx = offset;
-					offset = offset + 1;
 					fin_val_reg = 1;
 					state <= 4'd1;
 				end
-				else begin
-					offset = offset+1;
-				end
-				if(offset >= num_iterators)
-					offset = 0;
+				offset <= (offset == num_iterators-1) ? 0 : offset + 1;
 				/*
 				for(j = 0; j < num_iterators; j=j+1) begin
 					if(~found_one) begin

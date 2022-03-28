@@ -1,17 +1,18 @@
 NEW:
-do a condition reset based on reset_it in FPGA
+
+
+do sending max iter through command line
+
+
+send zoom through pio - easy
+
+
+
+DONE:
+in de1soc, make negatives sign extend properly
 set mouse x and y in c to 0 on fpga reset - pio port - BROKE
+print the stuff to the command line?- when asked? - nah
+do a condition reset based on reset_it in FPGA - nvm don't need
+fix -y condition - anding with 8fff instead of 7fff oops
 werid mouse glitch
 fix large y dsiplacement glitch
-
-print the stuff to the command line?- when asked?
-fix sending max iter through command line
-
-fix -y condition
-
-send zoom through pio
-
-
-
-
-in de1soc, make negatives sign extend properly

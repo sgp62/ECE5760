@@ -9,7 +9,7 @@
 #define A9_ONCHIP_END         0xFFFFFFFF
 #define SDRAM_BASE            0xC0000000
 #define SDRAM_END             0xC3FFFFFF
-//#define SDRAM_SPAN			      0x06000000
+//#define SDRAM_SPAN	      0x06000000
 #define SDRAM_FPGA_SPAN       0x06000000
 
 #define MOUSE_ZOOM            0x05000000
@@ -22,6 +22,7 @@
 #define MAX_ITER              0x05000070
 #define CYCLES                0x05000080
 #define RESET                 0x05000090
+#define UPDATE		      0x05000100
 
 //
 #define FPGA_ONCHIP_BASE      0xC8000000
