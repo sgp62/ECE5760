@@ -1,0 +1,22 @@
+Insert timing from specific area images HERE:
+
+
+Full set vs No. Solver pipelines, 100max iter
+
+24: 73.36ms
+16: 106.35ms
+8: 204.81ms
+4: 404.30ms
+2: 805.32ms
+1: 1608.11ms
+HPS: 4.6 seconds
+
+Full Set, 24 iterators, varying max iterations:
+
+1000: 73.36ms
+500: 41.07ms
+250: 25.26ms
+125: 17.37ms
+50: 14.12ms
+10: 12.12ms
+
