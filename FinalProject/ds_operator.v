@@ -1,22 +1,6 @@
 //FinalProj_DS_One_Iterator
 
-// Implement an the M10K block write to/ read fom memory
-module M10K_512_20(
-	output reg signed [7:0] q,
-	input signed 		[7:0] data,
-	input 				[8:0] wraddress, rdaddress,
-	input 				wren, clock
-);
-	reg signed 			[7:0] mem [511:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
-	always @ (posedge clock)
-	begin
-		if (wren) 
-			mem[wraddress] <= data;
-	end
-	always @ (posedge clock) begin
-		q <= mem[rdaddress];
-	end
-endmodule
+
 
 
 module diamond_step (
@@ -42,6 +26,28 @@ module square_step (
 	
 endmodule
 
+module lfsr ( //Used for pseudorandom R numbers
+	input clk, reset,
+	input [7:0] seed,
+	output [7:0] out_num
+);
+	reg [7:0] num;
+	reg in_bit;
+	assign out_num = num;
+
+	always @ (posedge clk) begin
+		if(reset) begin
+			num <= seed;
+		end
+		else begin
+			in_bit <= (num[6] ^ num[5]) ^ num[4];
+			num <= num << 1;
+			num[0] <= in_bit;
+		end
+		
+	end
+
+endmodule
 
 
 module diamond_square_operator (#parameter dim = 257) (
@@ -51,7 +57,7 @@ module diamond_square_operator (#parameter dim = 257) (
 	
 );
 	wire	[7:0] 	m10k_r_data[dim-1:0];
-	reg		[7:0]   
+	reg		[7:0]   r_data_down[dim-1:0];
 	reg	 	[7:0] 	m10k_w_data[dim-1:0];
 	reg	 	[8:0] 	m10k_r_addr[dim-1:0], m10k_w_addr[dim-1:0];
 	reg 	        m10k_w_en[dim-1:0];
@@ -89,19 +95,6 @@ module diamond_square_operator (#parameter dim = 257) (
 			
 			not_done <= 10'd513;
 			state <= 4'd0;
-			
-			//TODO: Initialize 4 Corners, figure out random init
-			
-			//Also generate 
-			
-			// Initialize random values for corners
-			// maxval and minval get closer together, so they can't be fixed
-			//Not synthesizable, need to use PIO port 
-			tl <= $urandom_range(maxval, minval);
-			tr <= $urandom_range(maxval, minval);
-			bl <= $urandom_range(maxval, minval);
-			br <= $urandom_range(maxval, minval);
-			
 			//TODO: Set up state machine
 			/*
 					1. Write four corners to memory
@@ -141,15 +134,19 @@ module diamond_square_operator (#parameter dim = 257) (
 
 			state <= 4'd2;
 		end
-		// Diamond Step Part 1; Set up Reads
-		if (state == 2) begin
+		// Read Setup Stage for Diamond Stage
+		if (state == 4'd2) begin
 			//Disable corner writes
 			m10k_w_en[0] <= 0;
 			m10k_w_en[dim-1] <= 0;
-		
-
+			
+			//Read bottom row, possibly store in bottom registers
+			
 		
 		end
+		
+		
+		
 		// Square Step
 		if (state == 3) begin
 		
