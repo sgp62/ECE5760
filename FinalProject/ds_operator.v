@@ -67,23 +67,8 @@ module diamond_square_operator (#parameter dim_power = 8) (
 				.val_r				(),
 				.val_l_down			(),
 				.val_r_down			(),
-				.out_up				()
-				
-				.rho          		(rho_eff),
-				.eta_term     		(eta_term),
-				.g_tension    		(g_tension),
-				.pyramid_step       	(pyramid_step),
-				.column_size  		(90), //Hardcode 90 for data, else 
-				.out          		(compute_outputs[i]), //What we want to see for the checkoff
-				.u_left       		((i == 0) ? 18'h0 : col_out[i-1]), 
-				.u_right      		((i == row_size-1) ? 18'h0 : col_out[i+1]),
-				.middle_out   		(middle_nodes[i]),
-				.u_n_out      		(col_out[i]),
-				.column_num         	((i < row_size/2) ? i[17:0] : row_size[17:0] - i[17:0] - 18'b1 ), // Srarts at 1, goes to row_size-1 inclusiv
-				.u_drum_center      	(center_node_amp),
-				.cycles_per_update  	(cycles_per_update[i]),
-				.start_update       	(start_update),
-				.done_update_out    	(done_update[i])
+				.out_up				(),
+				.out_down			()
 			);
 		end
 	endgenerate

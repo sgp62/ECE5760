@@ -55,7 +55,19 @@ module diamond_square_col (
 	assign out_down = r_data_down;
 	assign step_size = 1 << step_power;
 	assign half = step_size >> 1;
-	assign dim = 1 >> dim_power + 1; // so in our case ideally 257
+	assign dim = 1 << dim_power + 1; // so in our case ideally 257
+
+	/*
+			1. Write four corners to memory
+			2. Read all values from memory
+			3. Diamond Step
+			4. Write all values to memory
+			5. Read all values from memory
+			6. Square Step
+			7. Write all values to memory
+			8. Loop through steps 2 - 7 until all values written to memory (occurs after dim/2 loops throguh steps 2-7)
+	*/
+	
 
 	always@(posedge clk) begin
 		// Reset to initial conditions
@@ -114,11 +126,18 @@ module diamond_square_col (
 		// Diamond Step
 		if(state == 4'd7) begin
 			// Take col_id, subtract step_size >> 2 --> AND with step_size-1 --> gets you mod step_size
-			if (!(col_id - half) & (step_size - 1)) begin // I think it should be NOT because we desire the output of the AND to be 0 
+			if (!((col_id - half) & (step_size - 1))) begin 
 				m10k_w_en <= 1'b1;
 				m10k_w_addr <= row_id;
 				sum = val_l + val_r + val_l_down + val_r_down; //Resolve val_l and val_r as inputs
 				m10k_w_data <= {(sum >> 2)}[7:0]; // Maybe syntax error???
+			end
+			
+			if ((step_size + row_id) < dim) begin
+				row_id <= row_id + step_size;
+				r_data_down <= r_data_up;
+				m10k_r_addr <= row_id + step_size + half; //TODO: Address wrap around
+				state <= 4'd10; 					
 			end
 			else begin
 				// Finished Diamond Step, moving to Square Step
@@ -158,7 +177,7 @@ module diamond_square_col (
 		end
 		if (state == 4'd12) begin //Square Step
 			//col_id % (step_size >> 1)
-			if (col_id & ((step_size >> 1)-1)) begin
+			if (!(col_id & ((step_size >> 1)-1))) begin
 				m10k_w_en <= 1'b1;
 				m10k_w_addr <= row_id;
 				sum = val_l + val_r + r_data_up + r_data_down; //Resolve val_l and val_r as inputs

@@ -62,7 +62,12 @@ module diamond_square_operator (#parameter dim_power = 8) (
 				.clk          		(clk),
 				.reset        		(reset),
 				.col_id             (i),
-				.dim_power          (dim_power)
+				.dim_power          (dim_power),
+				.val_l				(),
+				.val_r				(),
+				.val_l_down			(),
+				.val_r_down			(),
+				.out_up				()
 				
 				.rho          		(rho_eff),
 				.eta_term     		(eta_term),
