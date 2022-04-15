@@ -1,0 +1,113 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/altera/15.0
+vdiamond_square_col
+Z0 !s110 1650051730
+!i10b 1
+!s100 @YC;g^=kU2TN6=2gJ[on63
+IbIYVI7P6@S8ie:PBmkDoU1
+Z1 V`JN@9S9cnhjKRR_L]QIcM3
+Z2 dC:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject
+Z3 w1650051727
+Z4 F./ds_col.v
+Z5 8C:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_operator.v
+Z6 FC:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_operator.v
+L0 23
+Z7 OV;L;10.3d;59
+r1
+!s85 0
+31
+Z8 !s108 1650051730.682000
+Z9 !s107 ./ds_col.v|C:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_operator.v|
+Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_operator.v|
+!i113 1
+Z11 o-work work
+vdiamond_square_operator
+R0
+!i10b 1
+!s100 iDYb>2MmkKRDc3FN<N97=1
+I;<42zEgN`Gn?V?H85JOB:2
+R1
+R2
+Z12 w1650047383
+R5
+R6
+L0 30
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+R11
+vlfsr
+R0
+!i10b 1
+!s100 n>FaIm?GZ[5kRcWzF[F[?0
+ITHQC?CEHMe4oigQRi3gAF1
+R1
+R2
+R12
+R5
+R6
+L0 6
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+R11
+vM10K_512_20
+R0
+!i10b 1
+!s100 n5YJKHfM?VMMh7bgX[D532
+I6VHi?amGm]^kU[f^LGHPG1
+R1
+R2
+R3
+R4
+R5
+R6
+L0 4
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+R11
+n@m10@k_512_20
+vtestbench
+R0
+!i10b 1
+!s100 nh>[b6c=JmojgoBMcQ1PU0
+IYamYUA;WTfF?B;W0@c2Cf0
+R1
+R2
+w1650043506
+8C:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_testbench.v
+FC:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_testbench.v
+L0 6
+R7
+r1
+!s85 0
+31
+!s108 1650051730.357000
+!s107 ./ds_col.v|C:\Users\hlg66\Documents\ece5760\ECE5760\FinalProject\\ds_operator.v|C:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_testbench.v|
+!s90 -reportprogress|300|-work|work|-stats=none|C:/Users/hlg66/Documents/ece5760/ECE5760/FinalProject/ds_testbench.v|
+!i113 1
+R11
