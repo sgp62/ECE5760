@@ -1,5 +1,5 @@
 //Iterator Controller
-`include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v"
+`include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_one_iterator.v"
 
 module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 	input clk, reset, iter_sel,
