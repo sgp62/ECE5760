@@ -1,15 +1,15 @@
 //Iterator Controller
 `include "C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_one_iterator.v"
 
-module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
-	input clk, reset, iter_sel,
+module mandelbrot_iterator_controller #(parameter num_iterators = 25) ( //Parameter for number of solvers to generate
+	input clk, reset, iter_sel, //Which solver had its outputs selected
 	input [31:0] max_iter,
-	input [31:0] zoom_factor,
-	input signed [26:0] cr_top_left, ci_top_left, cr_bottom_right, ci_bottom_right,
-	input signed [26:0] cr_incr, ci_incr,
-	output fin_val,
-	output [10:0] single_num_iter, 
-	output [9:0]  single_x, single_y,
+	input [31:0] zoom_factor, //Zoom factor from mouse input which affects complex coordinate incrementing
+	input signed [26:0] cr_top_left, ci_top_left, cr_bottom_right, ci_bottom_right, //Screen bounds, complex space
+	input signed [26:0] cr_incr, ci_incr, //Complex coordinate incrementing, to be sent to solvers
+	output fin_val, //If we found an output in a given cycle
+	output [10:0] single_num_iter, //Selected number of iterations to be turned into a VGA color
+	output [9:0]  single_x, single_y, //Pixel value selected
 	output [31:0] cycles
 );
 	
@@ -81,43 +81,35 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			if (state == 4'd0) begin
 			
 				for(j = 0; j < num_iterators; j=j+1) begin
-					//if(j != sel_idx)
 					start_array[j] <= 0; //Each iterator should not start again unless it's value was outputted
 				end
 				//One iterator is done, tell it to stop and need to write its value to VGA sram
-					//Might just do this in top level module, this will control the VGA state machine
-					//How to deal with possible starvation of finished iterators?
-				//if (((single_x_reg+num_iterators) < 10'd639) || (single_y_reg < 10'd478)) cycles_counter <= cycles_counter + 1'b1;
-				//else state <= 4'd2;
 				
 				cycles_counter <= cycles_counter + 32'b1;
 				//loop through iterators until we find one that's finished
 				if(finished_array[offset] == 1) begin
-					sel_idx <= offset;
+					sel_idx <= offset; //The selected iterator's id is set to sel_idx
 					fin_val_reg <= 1;
 					state <= 4'd1;
 				end
 				else begin
-					fin_val_reg <= 0;
+					fin_val_reg <= 0; //None are finished, try again
 				end
-				offset <= (offset == num_iterators-1) ? 0 : offset + 1;
+				offset <= (offset == num_iterators-1) ? 0 : offset + 1; //Increase offset to solve starvation problem.
 
 			end
 			else if (state == 4'd1) begin
-				if (at_end_wire < {num_iterators{1'b1}}) begin
-					cycles_counter <= cycles_counter + 32'b1;
+				if (at_end_wire < {num_iterators{1'b1}}) begin //If not all the iterators are finished yet
+					cycles_counter <= cycles_counter + 32'b1; //Go back to selection stage on next cycle
 					state <= 4'd0;
 				end
-				else state <= 4'd2;
+				else state <= 4'd2; //If all iterators are finished, go to done stage.
 				
-				single_num_iter_reg <= num_iter_array[sel_idx];
+				single_num_iter_reg <= num_iter_array[sel_idx]; //Setting arbiter outputs to selected solver's pixel and iterations calculated
 				single_x_reg <= x_px_array[sel_idx];
 				single_y_reg <= y_px_array[sel_idx];
 				start_array[sel_idx] <= 1;
 				
-				//if(start_array[0] == 1) begin //Edge case with iterator 0 running indefinitely (start should only be asserted for 1 cycle maximum)
-				//	start_array[0] <= 0;
-				//end
 			end
 			else if (state == 4'd2) begin //Done state, stop looking at iterators
 				//if (cycles_per_update == 32'b0) 
@@ -135,24 +127,24 @@ module mandelbrot_iterator_controller #(parameter num_iterators = 25) (
 			mandelbrot_iterator m_it (
 				.clk      (clk),
 				.reset    (reset),
-				.ci_init  (ci_top_left),
-				.cr_init  (cr_top_left + cr_incr * i[26:0] ),//Watch DSP unitsDSP units
-				.ci_bottom_right (ci_bottom_right),
+				.ci_init  (ci_top_left), //Top left screen bound, y coordinate
+				.cr_init  (cr_top_left + cr_incr * i[26:0] ), //Initial x coordinate, changes so each iterator is unique.
+				.ci_bottom_right (ci_bottom_right), //Bottom right screen bounds
 				.cr_bottom_right (cr_bottom_right),
-				.x1       (i), //Modify with zooming
-				.y1       (0), //Modify with zooming
-				.x2       (32'd640), //Need to modify these values with zooming
-				.y2       (32'd480), //Modify with zooming
-				.x_step   (num_iterators),
+				.x1       (i), //Initial pixel will be the same x coordinate as this solver's ID
+				.y1       (0), 
+				.x2       (32'd640), 
+				.y2       (32'd480),
+				.x_step   (num_iterators), //Spacing between selected pixels for each iterator, equal to the number of solvers
 				.y_step   (1),
-				.x_px     (x_px_array[i]),
+				.x_px     (x_px_array[i]), //Hook up outputs
 				.y_px     (y_px_array[i]),
 				.max_iter (max_iter),
-				.num_iter (num_iter_array[i]),
-				.start    (start_array[i]),
-				.cr_incr  (cr_incr_scaled), 
+				.num_iter (num_iter_array[i]), //Hook up outputs
+				.start    (start_array[i]), //Enable signals, arbiter controls setting of these
+				.cr_incr  (cr_incr_scaled), //Increment between complex pairs, changes with zooming
 				.ci_incr  (ci_incr),
-				.done     (finished_array[i]),
+				.done     (finished_array[i]), //Status signal, tells arbiter the solver is finished
 				.at_end   (at_end_wire[i])
 			);
 		end
