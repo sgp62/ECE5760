@@ -17,7 +17,7 @@ module lfsr ( //Used for pseudorandom R numbers
 			num <= seed;
 		end
 		else begin
-			in_bit <= (num[6] ^ num[5]) ^ num[4];
+			in_bit <= num[7] ^ num[5] ^ num[4] ^ num[2];
 			num <= num << 1;
 			num[0] <= in_bit;
 		end
@@ -35,14 +35,15 @@ module diamond_square_operator #(parameter dim_power = 3) (
 );
 
 	wire		 	done;
-	wire    [8:0]	dim, step_size;
+	wire    [8:0]	dim, step_size, half;
 	
-	wire	[7:0]	out_up_array [((1 << dim_power) + 8'b1)-1:0];
-	wire	[7:0]	out_down_array [((1 << dim_power) + 8'b1)-1:0];
-	wire    [8:0]   step_size_array [((1 << dim_power) + 8'b1)-1:0];
+	wire	[7:0]	out_up_array [(1 << dim_power) : 0];
+	wire	[7:0]	out_down_array [(1 << dim_power): 0];
+	wire    [8:0]   step_size_array [(1 << dim_power): 0];
 	
-	assign dim = (1 << dim_power) + 8'b1;
+	assign dim = (1 << dim_power) + 9'b1;
 	assign step_size = step_size_array[dim >> 1];
+	assign half = step_size >> 1;
 	
 	assign x = 0;
 	assign y = 0;
@@ -64,10 +65,10 @@ module diamond_square_operator #(parameter dim_power = 3) (
 				.col_id             (i),
 				.dim_power          (dim_power),
 				.step_size_out      (step_size_array[i]),
-				.val_l				(out_up_array[i - (step_size >> 1)]), //From step_size/2 columns to the left (Wrap around???)
-				.val_r				(out_up_array[i + (step_size >> 1)]), //From step_size/2 columns to the right
-				.val_l_down			(out_down_array[i - (step_size >> 1)]), //Undefined for diamond step, otherwise stepsize/2 columns to left
-				.val_r_down			(out_down_array[i + (step_size >> 1)]), //Undefined for diamond step, otherwise stepsize/2 columns to right
+				.val_l				(out_up_array[((i<half) ? (dim-9'b1-half) : (i-half))]), //From step_size/2 columns to the left (Wrap around???)
+				.val_r				(out_up_array[((i>=(dim-half)) ? (half) : (i+half))]), //From step_size/2 columns to the right
+				.val_l_down			(out_down_array[((i<half) ? (dim-9'b1-half) : (i-half))]), //Undefined for diamond step, otherwise stepsize/2 columns to left
+				.val_r_down			(out_down_array[((i>=(dim-half)) ? (half) : (i+half))]), //Undefined for diamond step, otherwise stepsize/2 columns to right
 				.out_up				(out_up_array[i]),
 				.out_down			(out_down_array[i])
 			);

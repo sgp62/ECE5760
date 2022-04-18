@@ -8,4 +8,13 @@ Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
 Top level modules:
 	testbench
 
+} {} {}} C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v {1 {vlog -work work -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
+Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
+-- Compiling module signed_mult
+-- Compiling module mandelbrot_iterator
+-- Compiling module mandelbrot_iterator_controller
+
+Top level modules:
+	mandelbrot_iterator_controller
+
 } {} {}}

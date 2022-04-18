@@ -9,14 +9,14 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3
 vmandelbrot_iterator
-Z1 !s110 1648495825
+Z1 !s110 1650296850
 !i10b 1
 !s100 CgdCX3]=Z>c>Ocz79L47`2
-IfhTG?^8@Ol[4I4kn_4W?40
+ISJFI3^5d`]k:;@oR<QeCb1
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1648495819
-Z4 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v
+Z3 w1650296809
+Z4 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_one_iterator.v
 Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
 Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v
 L0 24
@@ -24,16 +24,16 @@ Z7 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z8 !s108 1648495825.311000
-Z9 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
+Z8 !s108 1650296850.326000
+Z9 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_one_iterator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
 Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller.v|
 !i113 1
 Z11 o-work work
 vmandelbrot_iterator_controller
 R1
 !i10b 1
-!s100 W4LAQdVQXFY<Oc0zLmUf10
-Ia8lWMkT<9SX>mBA2>Z6Xm1
+!s100 E]BFI_5O33X5ZVnJoB7hm1
+ITMb`47j_Plekim[IQa<OK0
 R2
 R0
 R3
@@ -53,7 +53,7 @@ vsigned_mult
 R1
 !i10b 1
 !s100 kg0ofnR9A=7PUF2hR8MPJ2
-Ig]nij2<2U>D>`l91dC@Ef1
+ITEK@:OiGVz<=MVbj6b<BM1
 R2
 R0
 R3
@@ -85,8 +85,8 @@ R7
 r1
 !s85 0
 31
-!s108 1648495825.138000
-!s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_mandelbrot_one_iterator.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\\lab3_iterator_controller.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
+!s108 1650296850.131000
+!s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_one_iterator.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\lab3\\lab3_iterator_controller.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/lab3/lab3_iterator_controller_testbench.v|
 !i113 1
 R11
