@@ -9,13 +9,13 @@ z2
 cModel Technology
 dC:/altera/15.0
 vdiamond_square_col
-Z0 !s110 1650313030
+Z0 !s110 1650484761
 !i10b 1
-!s100 G@eko`]QgF]hPNP7[R@SB3
-IcWZf4cbYPbEA]:5FKng>T0
+!s100 =0Y<Mf>Kjc@LJEXoonA3D2
+IkA;G[3FWA^f3^E5FXdhGT0
 Z1 V`JN@9S9cnhjKRR_L]QIcM3
 Z2 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject
-Z3 w1650313027
+Z3 w1650484753
 Z4 F./ds_col.v
 Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
 Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
@@ -24,7 +24,7 @@ Z7 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z8 !s108 1650313030.131000
+Z8 !s108 1650484761.201000
 Z9 !s107 ./ds_col.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v|
 Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v|
 !i113 1
@@ -32,14 +32,14 @@ Z11 o-work work
 vdiamond_square_operator
 R0
 !i10b 1
-!s100 ihX6TF0iEa]0A>C66l6gD3
-I`V<`iY>T2E0j4U^?[K@m_1
+!s100 W2gGWRZj8FodKKXgRVk8^2
+Imb1=5WLSO?Ube=W2J1eB`1
 R1
 R2
-Z12 w1650307283
+R3
 R5
 R6
-L0 30
+L0 87
 R7
 r1
 !s85 0
@@ -50,13 +50,13 @@ R10
 !i113 1
 R11
 vlfsr
-R0
+!s110 1650471955
 !i10b 1
-!s100 n>FaIm?GZ[5kRcWzF[F[?0
-IECQQRoY]o3K1Dd:QnNG2_3
+!s100 TN1W?lBP4PL;Zdibn8U@<3
+IaTh2L5VkChWBZOAKjKjWB3
 R1
 R2
-R12
+w1650313409
 R5
 R6
 L0 6
@@ -64,7 +64,7 @@ R7
 r1
 !s85 0
 31
-R8
+!s108 1650471955.488000
 R9
 R10
 !i113 1
@@ -91,14 +91,34 @@ R10
 !i113 1
 R11
 n@m10@k_512_20
-vtestbench
-!s110 1650313029
+vrand63
+R0
 !i10b 1
-!s100 nh>[b6c=JmojgoBMcQ1PU0
-ID3@1SgmMMG0S?d?g:NF_z1
+!s100 NmT_H64IH9N^C`76lLW1T0
+IXHLA]KFL2kn[PK;@XeOLP3
 R1
 R2
-w1650296809
+R3
+R5
+R6
+L0 15
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+R11
+vtestbench
+!s110 1650484760
+!i10b 1
+!s100 RbkaNWjRfe_bO`0oICSF_2
+ISVVOBGYe80_J1eei9cIO^2
+R1
+R2
+w1650484757
 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 L0 6
@@ -106,7 +126,7 @@ R7
 r1
 !s85 0
 31
-!s108 1650313029.788000
+!s108 1650484760.860000
 !s107 ./ds_col.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\\ds_operator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v|
 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v|
 !i113 1

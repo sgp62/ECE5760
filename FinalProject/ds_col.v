@@ -22,12 +22,13 @@ endmodule
 
 module diamond_square_col (
 	input       	clk, reset,
-	input  [8:0] 	col_id,
+	input   [8:0] 	col_id,
+	input	[7:0]	r,
 	//input  [9:0] 	dim,
-	input  [4:0] 	dim_power,// TODO ***** need to set in higher level module to actually use this
-	input  [7:0] 	val_l, val_r, val_l_down, val_r_down,
-	output [8:0]    step_size_out,
-	output [7:0] 	out_up, out_down
+	input   [4:0] 	dim_power,// TODO ***** need to set in higher level module to actually use this
+	input   [7:0] 	val_l, val_r, val_l_down, val_r_down,
+	output  [8:0]    step_size_out,
+	output  [7:0] 	out_up, out_down
 );
 
 	wire	[7:0] 	m10k_r_data;
@@ -42,7 +43,6 @@ module diamond_square_col (
 	wire    [8:0] 	dim;
 	wire 	[8:0]	step_size;
 	reg     [3:0] 	step_power;
-	reg 	[7:0]	r;
 	reg 	[9:0]	i;
 	reg		[3:0]	state;
 	reg				m10k_init;
@@ -161,7 +161,7 @@ module diamond_square_col (
 					m10k_w_en <= 1'b1;
 					m10k_w_addr <= row_id;
 					sum = val_l + val_r + val_l_down + val_r_down; //Resolve val_l and val_r as inputs
-					m10k_w_data <= (sum >> 2); // Maybe syntax error???
+					m10k_w_data <= (sum >> 2) + (r & ((1 << step_size) - 1)); // Maybe syntax error???
 				end
 				r_data_down <= r_data_up;
 				
@@ -223,7 +223,7 @@ module diamond_square_col (
 					else //Even columns use up values
 						sum = val_l + val_r + r_data_up + r_data_down;
 					
-					m10k_w_data <= (sum >> 2); // Maybe syntax error???
+					m10k_w_data <= (sum >> 2) + (r & ((1 << step_size) - 1)); // Maybe syntax error???
 				end
 				r_data_down <= r_data_up;
 				

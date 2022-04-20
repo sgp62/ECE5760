@@ -1,6 +1,6 @@
 //Testbench for lab 2 node grid
 `timescale 1ns/1ns
-`include "/lab2_node_grid.v"
+`include "/ds_operator.v"
 
 
 module testbench();
