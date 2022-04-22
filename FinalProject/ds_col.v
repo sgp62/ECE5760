@@ -25,7 +25,7 @@ module diamond_square_col (
 	input   [8:0] 	col_id,
 	input	[7:0]	r,
 	//input  [9:0] 	dim,
-	input   [4:0] 	dim_power,// TODO ***** need to set in higher level module to actually use this
+	input   [4:0] 	dim_power,
 	input   [7:0] 	val_l, val_r, val_l_down, val_r_down,
 	output  [8:0]    step_size_out,
 	output  [7:0] 	out_up, out_down
@@ -48,14 +48,10 @@ module diamond_square_col (
 	reg				m10k_init;
 	reg             done;
 	
-	reg     [9:0]   sum; //Used to add all four values together, thus is 10 bits instead of 8 for overflow
+	reg     [9:0]   sum; //Used to add all four values together, this is 10 bits instead of 8 for overflow
 	
 	reg		[8:0]	row_id;
 
-	/* Indicates when all pixels are done.
-		Occurs after 512 iterations of either diamond or square for dim = 513
-		Should increment after corners are initially set and after values for a given stage are fully written to memory
-	*/
 	assign step_size_out = step_size;
 	assign out_up = r_data_up;
 	assign out_down = r_data_down;
@@ -64,6 +60,7 @@ module diamond_square_col (
 	assign dim = (9'b1 << dim_power) + 9'b1; // so in our case ideally 257
 
 	assign test_idx = (col_id<half) ? (dim-9'b1-half) : (col_id-half);
+	
 	/*
 			1. Write four corners to memory
 			2. Read all values from memory
@@ -75,7 +72,6 @@ module diamond_square_col (
 			8. Loop through steps 2 - 7 until all values written to memory (occurs after dim/2 loops throguh steps 2-7)
 	*/
 	
-
 	always@(posedge clk) begin
 		// Reset to initial conditions
 		if(reset) begin
@@ -282,12 +278,6 @@ module diamond_square_col (
 			end
 		end
 	end
-	/*
-		// Divide step_size by two after every time we loop through one diamond step and one square step
-	if (prev_state == 4) begin
-		step_size <= step_size >> 1;
-	end
-	*/
 	
 
 	M10K_512_20 ds_m10k (

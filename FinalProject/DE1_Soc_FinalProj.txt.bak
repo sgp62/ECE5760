@@ -503,32 +503,32 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		y1    = 0;
 		x2    = 10'd640; //We want to write the entire VGA screen
 		y2    = 10'd480;
-		//zoom_factor = 0;
+		zoom_factor = 0;
 		num_steps_x   = 1;
 		num_steps_y   = 1;
 		//read_counter  = 8'b0;
 		//write_counter = 8'b0;
 		fifo_count    = 8'b1;
-		//cr_center = -(27'sh1000_000 >> 2);
-		//ci_center = 0;
-		//prev_mouse_zoom = 32'b0;
+		cr_center = -(27'sh1000_000 >> 2);
+		ci_center = 0;
+		prev_mouse_zoom = 32'b0;
 	end
 	else begin
 		// general purpose tick counter
 		timer <= timer + 1;
 		// zoom in
-		//if (pio_mouse_zoom[1]) begin
-		//	if (~prev_mouse_zoom[1]) zoom_factor <= zoom_factor + 32'b1;
-		//	prev_mouse_zoom <= 2'b10;
+		if (pio_mouse_zoom[1]) begin
+			if (~prev_mouse_zoom[1]) zoom_factor <= zoom_factor + 32'b1;
+			prev_mouse_zoom <= 2'b10;
 			//zoom_updated = 1;
-		//end
+		end
 		//zoom_out
-		//else if (pio_mouse_zoom[0]) begin
-		//	if (~prev_mouse_zoom[0]) zoom_factor <= ((zoom_factor > 0) ? (zoom_factor - 32'b1) : 32'b0);
-		//	prev_mouse_zoom <= 2'b01;
+		else if (pio_mouse_zoom[0]) begin
+			if (~prev_mouse_zoom[0]) zoom_factor <= ((zoom_factor > 0) ? (zoom_factor - 32'b1) : 32'b0);
+			prev_mouse_zoom <= 2'b01;
 			//zoom_updated = 1;
-		//end
-		//else prev_mouse_zoom = 2'b00;
+		end
+		else prev_mouse_zoom = 2'b00;
 		
 		//read change from screen and multiply to get shift amount
 		//assign cr_mouse_delta = {{12{pio_mouse_zoom[31]}},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
@@ -549,16 +549,16 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 //		ci_bottom_right = ci_center - ci_init_delta;//-27'sh800_000; // -1
 
 		
-//		cr_mouse_delta_prev <= cr_mouse_delta;
-//		ci_mouse_delta_prev <= ci_mouse_delta;
-//		cr_mouse_delta <= {{12{pio_mouse_zoom[31]}},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
-//		ci_mouse_delta <= {{12{pio_mouse_zoom[16]}},{pio_mouse_zoom[16:2]}} * ci_incr;
+		cr_mouse_delta_prev <= cr_mouse_delta;
+		ci_mouse_delta_prev <= ci_mouse_delta;
+		cr_mouse_delta <= {{12{pio_mouse_zoom[31]}},{pio_mouse_zoom[31:17]}} * cr_incr; //1\640 is 27'h3333
+		ci_mouse_delta <= {{12{pio_mouse_zoom[16]}},{pio_mouse_zoom[16:2]}} * ci_incr;
 		
-//		cr_center <= cr_center_init + cr_mouse_delta;
-//		ci_center <= ci_center_init + ci_mouse_delta;
+		cr_center <= cr_center_init + cr_mouse_delta;
+		ci_center <= ci_center_init + ci_mouse_delta;
 		
-//		mouse_pos_updated <= (cr_mouse_delta != cr_mouse_delta_prev) || (ci_mouse_delta != ci_mouse_delta_prev);
-//		zoom_updated <= (pio_mouse_zoom[1]) || (pio_mouse_zoom[0]);
+		mouse_pos_updated <= (cr_mouse_delta != cr_mouse_delta_prev) || (ci_mouse_delta != ci_mouse_delta_prev);
+		zoom_updated <= (pio_mouse_zoom[1]) || (pio_mouse_zoom[0]);
 	end
 
 	// --------------------------------------
