@@ -86,12 +86,13 @@ endmodule
 
 module diamond_square_operator #(parameter dim_power = 3) (
 	input clk, reset,
+	output  [8:0]   dim_out,
 	output 	[9:0]	x,y,
-	output	[7:0]	z
+	output	[7:0]	z,
+	output          done
 	
 );
 
-	wire		 	done;
 	wire    [8:0]	dim, step_size, half;
 
 	wire	[7:0]	out_up_array [(1 << dim_power) : 0];
@@ -99,26 +100,75 @@ module diamond_square_operator #(parameter dim_power = 3) (
 	wire    [8:0]   step_size_array [(1 << dim_power): 0];
 	wire	[63:1]	seed [(1 << (dim_power-2)): 0];
 	wire	[15:0]	r [(1 << (dim_power-2)): 0];
-
+	wire    [7:0]   out_vga_array [(1 << dim_power) : 0];
+	wire			done_array [(1 << dim_power) : 0];
+	
+	reg     [8:0]   col_select, addr_counter;
+	reg     [3:0]   vga_state;
+	
+	reg     [9:0]   x_reg, y_reg;
 	
 	assign dim = (1 << dim_power) + 9'b1;
 	assign step_size = step_size_array[dim >> 1];
 	assign half = step_size >> 1;
 	
-	assign x = 0;
-	assign y = 0;
-	assign z = 0;
+	assign x = x_reg;//col_select;
+	assign y = y_reg;//(addr_counter == 9'd0) ? dim-1 : addr_counter-1;
+	assign z = out_vga_array[x_reg];
+	assign dim_out = dim;
+	assign done = done_array[0];
 	
 	assign seed[0] = 63'hff7fffcf;
 	assign seed[1] = 63'h8ffff1ffd;
 	assign seed[2] = 63'h4f6ffaf0f;
-	assign seed[3] = 63'headdeadbeef;
-	assign seed[4] = 63'heeeeeeeeeeeee;
+	//assign seed[3] = 63'headdeadbeef;
+	//assign seed[4] = 63'heeeeeeeeeeeee;
 
 
 	always@(posedge clk) begin
 		// Reset to initial conditions
 		if(reset) begin
+			col_select	 <= 9'd0;
+			addr_counter <= 9'd0;
+			vga_state    <= 4'd0;
+			x_reg        <= 10'b0;
+			y_reg        <= 10'b0;
+		end
+		else begin
+			if(done_array[0]) begin
+				if(vga_state == 4'd0) begin
+					vga_state <= 4'd1;
+				end
+				if(vga_state == 4'd1) begin
+					vga_state <= 4'd2;
+				end
+				if(vga_state == 4'd2) begin
+					addr_counter <= (addr_counter < (dim-9'd1)) ? addr_counter + 9'd1 : 9'd0;
+					
+					if((col_select == (dim-9'd1)) && (addr_counter == (dim-9'd1))) begin
+						addr_counter <= dim-1;
+						vga_state <= 4'd4;
+					end
+					//else if(addr_counter == (dim-9'd1)) vga_state <= 4'd3;
+					else if(addr_counter == (dim-9'd1)) begin 
+						vga_state <= 4'd0;
+						col_select <= col_select + 9'd1;
+					end
+					else vga_state <= 4'd0;
+					
+					x_reg <= col_select;
+					y_reg <= addr_counter;
+					
+				end
+				/* if(vga_state == 4'd3) begin
+					col_select <= col_select + 9'd1;
+					vga_state <= 4'd0;
+				end */
+				if(vga_state == 4'd4) begin
+				
+					vga_state <= 4'd4;
+				end
+			end
 		end
 		//Will need clocked logic block to send pixel values up to top level module after all have been calculated
 	end
@@ -151,7 +201,10 @@ module diamond_square_operator #(parameter dim_power = 3) (
 				.val_r_down			(out_down_array[((i>=(dim-half)) ? (half) : (i+half))]), //Undefined for diamond step, otherwise stepsize/2 columns to right
 				.out_up				(out_up_array[i]),
 				.out_down			(out_down_array[i]),
-				.r					(((i >>1) & 1) ? r[i >> 2][15:8] : r[i >> 2][7:0])
+				.r					(((i >>1) & 1) ? r[i >> 2][15:8] : r[i >> 2][7:0]),
+				.vga_r_addr         ((col_select == i) ? addr_counter : 9'd0),
+				.out_vga_read       (out_vga_array[i]),
+				.done_out           (done_array[i])
 			);
 		end
 	endgenerate

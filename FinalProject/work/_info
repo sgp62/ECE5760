@@ -9,13 +9,13 @@ z2
 cModel Technology
 dC:/altera/15.0
 vdiamond_square_col
-Z0 !s110 1650484761
+Z0 !s110 1650649421
 !i10b 1
-!s100 =0Y<Mf>Kjc@LJEXoonA3D2
-IkA;G[3FWA^f3^E5FXdhGT0
+!s100 GbNbaDR99>lZ?8H1iX_KL3
+I8X1LU6Qn4T;0kjAXBA?4Q2
 Z1 V`JN@9S9cnhjKRR_L]QIcM3
 Z2 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject
-Z3 w1650484753
+Z3 w1650649417
 Z4 F./ds_col.v
 Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
 Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
@@ -24,7 +24,7 @@ Z7 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z8 !s108 1650484761.201000
+Z8 !s108 1650649421.407000
 Z9 !s107 ./ds_col.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v|
 Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v|
 !i113 1
@@ -32,8 +32,8 @@ Z11 o-work work
 vdiamond_square_operator
 R0
 !i10b 1
-!s100 W2gGWRZj8FodKKXgRVk8^2
-Imb1=5WLSO?Ube=W2J1eB`1
+!s100 hWo^1E0=f6]Vg>bn>fl@a0
+I1:I]c^gXMiz3V8@nkKmT33
 R1
 R2
 R3
@@ -112,13 +112,13 @@ R10
 !i113 1
 R11
 vtestbench
-!s110 1650484760
+R0
 !i10b 1
-!s100 RbkaNWjRfe_bO`0oICSF_2
-ISVVOBGYe80_J1eei9cIO^2
+!s100 nh>[b6c=JmojgoBMcQ1PU0
+ID3@1SgmMMG0S?d?g:NF_z1
 R1
 R2
-w1650484757
+w1650647181
 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 L0 6
@@ -126,7 +126,7 @@ R7
 r1
 !s85 0
 31
-!s108 1650484760.860000
+!s108 1650649421.071000
 !s107 ./ds_col.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\\ds_operator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v|
 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v|
 !i113 1

@@ -24,11 +24,12 @@ module diamond_square_col (
 	input       	clk, reset,
 	input   [8:0] 	col_id,
 	input	[7:0]	r,
-	//input  [9:0] 	dim,
+	input   [8:0]   vga_r_addr,
 	input   [4:0] 	dim_power,
 	input   [7:0] 	val_l, val_r, val_l_down, val_r_down,
-	output  [8:0]    step_size_out,
-	output  [7:0] 	out_up, out_down
+	output  		done_out,
+	output  [8:0]   step_size_out, 
+	output  [7:0] 	out_up, out_down, out_vga_read
 );
 
 	wire	[7:0] 	m10k_r_data;
@@ -44,13 +45,14 @@ module diamond_square_col (
 	wire 	[8:0]	step_size;
 	reg     [3:0] 	step_power;
 	reg 	[9:0]	i;
-	reg		[3:0]	state;
+	reg		[3:0]	state, done_state;
 	reg				m10k_init;
 	reg             done;
 	
 	reg     [9:0]   sum; //Used to add all four values together, this is 10 bits instead of 8 for overflow
 	
 	reg		[8:0]	row_id;
+	reg     [7:0]   vga_r_data;
 
 	assign step_size_out = step_size;
 	assign out_up = r_data_up;
@@ -58,6 +60,8 @@ module diamond_square_col (
 	assign step_size = 9'b1 << step_power;
 	assign half = step_size >> 9'b1;
 	assign dim = (9'b1 << dim_power) + 9'b1; // so in our case ideally 257
+	assign out_vga_read = vga_r_data;
+	assign done_out = done;
 
 	assign test_idx = (col_id<half) ? (dim-9'b1-half) : (col_id-half);
 	
@@ -94,6 +98,23 @@ module diamond_square_col (
 				m10k_w_en <= 1'b0;
 				m10k_init <= 1'b0;
 				state <= 4'd0;
+				done_state <= 4'd0;
+			end
+		end
+		else if(done) begin
+			if(done_state <= 4'd0) begin
+				//Do m10k read for the input m10k position
+				m10k_r_addr <= vga_r_addr;
+				
+				done_state <= 4'd1;
+			end
+			else if(done_state <= 4'd1) begin
+				done_state <= 4'd2;
+			end
+			else if(done_state <= 4'd2) begin
+				vga_r_data <= m10k_r_data;
+				
+				done_state <= 4'd0;
 			end
 		end
 		else if (~done) begin
