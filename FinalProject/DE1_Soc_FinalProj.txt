@@ -1,4 +1,4 @@
-`include "C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\asdfa" //TODO:
+`include "C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\ds_operator.v" //TODO:
 
 module DE1_SoC_Computer (
 	////////////////////////////////////
@@ -478,14 +478,18 @@ reg signed [2:0]	prev_mouse_zoom;
 //assign reset_it = ~KEY[0] || zoom_updated || mouse_pos_updated;
 
 wire signed [31:0] cycles; // prob want this for report/ timing analysis
-
+wire [7:0] altitude;
+wire [8:0] dim;
+wire       done;
 // Instantiation of the DS operator
-module diamond_square_operator #(.dim_power(3))  finalproj_arbiter (
-	.clk	(CLOCK_50),
-	.reset	(reset_it),
-	.x		(vga_x_cood),
-	.y		(vga_y_cood),
-	.z		(),
+diamond_square_operator #(.dim_power(6))  finalproj_arbiter (
+	.clk		 (CLOCK_50),
+	.reset	 (~KEY[0]),
+	.x			 (vga_x_cood),
+	.y		    (vga_y_cood),
+	.z		    (altitude),
+	.dim_out  (dim),
+	.done     (done)
 );
 
 //=======================================================
@@ -504,11 +508,11 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		x2    = 10'd640; //We want to write the entire VGA screen
 		y2    = 10'd480;
 		//zoom_factor = 0;
-		num_steps_x   = 1;
-		num_steps_y   = 1;
+		//num_steps_x   = 1;
+		//num_steps_y   = 1;
 		//read_counter  = 8'b0;
 		//write_counter = 8'b0;
-		fifo_count    = 8'b1;
+		//fifo_count    = 8'b1;
 		//cr_center = -(27'sh1000_000 >> 2);
 		//ci_center = 0;
 		//prev_mouse_zoom = 32'b0;
@@ -565,55 +569,39 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 	// Now have all info, so:
 	// write to the VGA sram
 
-	if (state==8'd19 && fin_val) begin // && ((timer & 15)==0)
+	if (state==8'd19 && done) begin // && ((timer & 15)==0)
+		vga_sram_write <= 1'b1;
+		// compute address
+		vga_sram_address <= vga_out_base_address + {22'b0, vga_x_cood + 10'd20} + ({22'b0,vga_y_cood +10'd20}*640) ; 
+	
+		//num_iter_from_fifo = num_iter_fifo[read_counter];
+		//read_counter = read_counter + 8'b1;
+		/*Beginner color palette: white : 220+
+			gray: 200-220
+			brown: 170-200
+			green: 120-170
+			blue: 0-120
+		*/
 		
-		// data
-		if(fifo_count != 0) begin
-		
-			vga_sram_write <= 1'b1;
-			// compute address
-			vga_sram_address <= vga_out_base_address + {22'b0, vga_x_cood} + ({22'b0,vga_y_cood}*640) ; 
-		
-			//num_iter_from_fifo = num_iter_fifo[read_counter];
-			//read_counter = read_counter + 8'b1;
-			if (num_iter_from_fifo >= max_iter) begin
-				color_reg = 8'b_000_000_00 ; // black
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 1)) begin
-			  color_reg = 8'b_011_001_00 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 2)) begin
-			  color_reg = 8'b_011_001_00 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 3)) begin
-			  color_reg = 8'b_101_010_01 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 4)) begin
-			  color_reg = 8'b_011_001_01 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 5)) begin
-			  color_reg = 8'b_001_001_01 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 6)) begin
-			  color_reg = 8'b_011_010_10 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 7)) begin
-			  color_reg = 8'b_010_100_10 ;
-			end
-			else if (num_iter_from_fifo >= (max_iter >>> 8)) begin
-			  color_reg = 8'b_010_100_10 ;
-			end
-			else begin
-			  color_reg = 8'b_010_100_10 ;
-			end
-			
-			vga_sram_writedata <= color_reg;
-			if (vga_x_cood>=x2 && vga_y_cood>=y2) state <= 8'd22; // ending
-			else state  <= 8'd19;
+		if (altitude >= 8'd220) begin
+			color_reg = 8'b_111_111_11 ; // white
 		end
-		else begin //Nothing in fifo, go back to this state and check again
-			state  <= 8'd19;
+		else if (altitude >= 8'd200) begin
+		  color_reg = 8'b_110_110_10 ; //gray
 		end
+		else if (altitude >= 8'd170) begin
+		  color_reg = 8'b_100_011_01 ; //brown
+		end
+		else if (altitude >= 8'd120) begin
+		  color_reg = 8'b_101_110_00 ; //green
+		end
+		else begin
+		  color_reg = 8'b_001_001_11 ; //blue
+		end
+		
+		vga_sram_writedata <= color_reg;
+		if (vga_x_cood>=(dim-1) && vga_y_cood>=(dim-1)) state <= 8'd22; // ending
+		else state  <= 8'd19;
 		// write a point
 		//state <= 8'd20 ;
 	end
@@ -627,7 +615,7 @@ always @(posedge CLOCK_50) begin // CLOCK_50
 		sram_address <= 8'd0 ;
 		sram_writedata <= 32'b0 ;
 		sram_write <= 1'b1 ;
-		state <= 8'd19 ;
+		//state <= 8'd19 ;
 	end  
 	
 end // always @(posedge state_clock)
@@ -664,16 +652,16 @@ Computer_System The_System (
 	.onchip_vga_buffer_s1_readdata   (),   // never read from vga here
 	.onchip_vga_buffer_s1_writedata  (vga_sram_writedata),   
 	// PIO for mouse zoom data
-	.pio_mouse_zoom_external_connection_export(pio_mouse_zoom),
-	.pio_ci_incr_external_connection_export(ci_incr),
-	.pio_cr_incr_external_connection_export(cr_incr),
-	.pio_ci_bottom_external_connection_export({{5{ci_bottom_right[26]}},{ci_bottom_right}}),
-	.pio_ci_top_external_connection_export({{5{ci_top_left[26]}},{ci_top_left}}),
-	.pio_cr_left_external_connection_export({{5{cr_top_left[26]}},{cr_top_left}}),
-	.pio_cr_right_external_connection_export({{5{cr_bottom_right[26]}},{cr_bottom_right}}),
-	.pio_cycles_external_connection_export(cycles),
-	.pio_max_iter_external_connection_export(max_iter),
-	.pio_reset_external_connection_export({{7'b0},{~KEY[0]}}),
+	//.pio_mouse_zoom_external_connection_export(pio_mouse_zoom),
+	//.pio_ci_incr_external_connection_export(ci_incr),
+	//.pio_cr_incr_external_connection_export(cr_incr),
+	//.pio_ci_bottom_external_connection_export({{5{ci_bottom_right[26]}},{ci_bottom_right}}),
+	//.pio_ci_top_external_connection_export({{5{ci_top_left[26]}},{ci_top_left}}),
+	//.pio_cr_left_external_connection_export({{5{cr_top_left[26]}},{cr_top_left}}),
+	//.pio_cr_right_external_connection_export({{5{cr_bottom_right[26]}},{cr_bottom_right}}),
+	//.pio_cycles_external_connection_export(cycles),
+	//.pio_max_iter_external_connection_export(max_iter),
+	//.pio_reset_external_connection_export({{7'b0},{~KEY[0]}}),
 	//.pio_updated_external_connection_export(zoom_updated),
 	
 	// AV Config

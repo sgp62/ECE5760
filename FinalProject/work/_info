@@ -9,13 +9,13 @@ z2
 cModel Technology
 dC:/altera/15.0
 vdiamond_square_col
-Z0 !s110 1650649421
+Z0 !s110 1650919892
 !i10b 1
-!s100 GbNbaDR99>lZ?8H1iX_KL3
-I8X1LU6Qn4T;0kjAXBA?4Q2
+!s100 P=Vh0=7Y7EhN8O@<OF04V2
+IYShne0@P]6c`cc>NDc_;P2
 Z1 V`JN@9S9cnhjKRR_L]QIcM3
 Z2 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject
-Z3 w1650649417
+Z3 w1650919888
 Z4 F./ds_col.v
 Z5 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
 Z6 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
@@ -24,7 +24,7 @@ Z7 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z8 !s108 1650649421.407000
+Z8 !s108 1650919892.412000
 Z9 !s107 ./ds_col.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v|
 Z10 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v|
 !i113 1
@@ -32,11 +32,11 @@ Z11 o-work work
 vdiamond_square_operator
 R0
 !i10b 1
-!s100 hWo^1E0=f6]Vg>bn>fl@a0
-I1:I]c^gXMiz3V8@nkKmT33
+!s100 8>W6^aJWaVBEHC=2NBion2
+I_575n_;@Dn5@c^z8F1AfO1
 R1
 R2
-R3
+Z12 w1650916525
 R5
 R6
 L0 87
@@ -72,8 +72,8 @@ R11
 vM10K_512_20
 R0
 !i10b 1
-!s100 n5YJKHfM?VMMh7bgX[D532
-I6VHi?amGm]^kU[f^LGHPG1
+!s100 WazNG2g><3njJl<C]46EU2
+Id36caEMS]`2lbNFYHEfn30
 R1
 R2
 R3
@@ -98,7 +98,7 @@ R0
 IXHLA]KFL2kn[PK;@XeOLP3
 R1
 R2
-R3
+R12
 R5
 R6
 L0 15
@@ -114,11 +114,11 @@ R11
 vtestbench
 R0
 !i10b 1
-!s100 nh>[b6c=JmojgoBMcQ1PU0
-ID3@1SgmMMG0S?d?g:NF_z1
+!s100 6_kJ<:UncT6;NNQJ_5_AV3
+IiK?4^a6FPm]cC_K_fn>Kh0
 R1
 R2
-w1650647181
+w1650914377
 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 L0 6
@@ -126,7 +126,7 @@ R7
 r1
 !s85 0
 31
-!s108 1650649421.071000
+!s108 1650919892.090000
 !s107 ./ds_col.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\\ds_operator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v|
 !s90 -reportprogress|300|-work|work|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v|
 !i113 1

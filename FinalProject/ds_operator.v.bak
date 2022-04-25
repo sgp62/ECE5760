@@ -101,7 +101,7 @@ module diamond_square_operator #(parameter dim_power = 3) (
 	wire	[63:1]	seed [(1 << (dim_power-2)): 0];
 	wire	[15:0]	r [(1 << (dim_power-2)): 0];
 	wire    [7:0]   out_vga_array [(1 << dim_power) : 0];
-	wire			done_array [(1 << dim_power) : 0];
+	wire	[(1 << dim_power):0]  done_wire;
 	
 	reg     [8:0]   col_select, addr_counter;
 	reg     [3:0]   vga_state;
@@ -116,14 +116,26 @@ module diamond_square_operator #(parameter dim_power = 3) (
 	assign y = y_reg;//(addr_counter == 9'd0) ? dim-1 : addr_counter-1;
 	assign z = out_vga_array[x_reg];
 	assign dim_out = dim;
-	assign done = done_array[0];
-	assign done = done_array[0];
+	assign done = done_wire;
 	
 	assign seed[0] = 63'hff7fffcf;
 	assign seed[1] = 63'h8ffff1ffd;
 	assign seed[2] = 63'h4f6ffaf0f;
-	//assign seed[3] = 63'headdeadbeef;
-	//assign seed[4] = 63'heeeeeeeeeeeee;
+	assign seed[3] = 63'headdeadbeef;
+	assign seed[4] = 63'heeeeeeeeeeeee;
+	assign seed[5] = 63'haed409210291;
+	assign seed[6] = 63'h123456789;
+	assign seed[7] = 63'hfffffffffffffff;
+	assign seed[8] = 63'hba0000000000000;
+	assign seed[9] = 63'h1115555599988;
+	
+	assign seed[10] = 63'h666999666999;
+	assign seed[11] = 63'hbbbbbeeeee0000;
+	assign seed[12] = 63'h3;
+	assign seed[13] = 63'h78965422211140;
+	assign seed[14] = 63'h620200011011999;
+	assign seed[15] = 63'h72820000002827;
+	assign seed[16] = 63'h99999999;
 
 
 	always@(posedge clk) begin
@@ -136,7 +148,7 @@ module diamond_square_operator #(parameter dim_power = 3) (
 			y_reg        <= 10'b0;
 		end
 		else begin
-			if(done_array[0]) begin
+			if(done_wire) begin
 				if(vga_state == 4'd0) begin
 					vga_state <= 4'd1;
 				end
@@ -195,17 +207,17 @@ module diamond_square_operator #(parameter dim_power = 3) (
 				.reset        		(reset),
 				.col_id             (i),
 				.dim_power          (dim_power),
-				.step_size_out      (step_size_array[i]),
+				.step_size	        (step_size_array[i]),
 				.val_l				(out_up_array[((i<half) ? (dim-9'b1-half) : (i-half))]), //From step_size/2 columns to the left (Wrap around???)
 				.val_r				(out_up_array[((i>=(dim-half)) ? (half) : (i+half))]), //From step_size/2 columns to the right
 				.val_l_down			(out_down_array[((i<half) ? (dim-9'b1-half) : (i-half))]), //Undefined for diamond step, otherwise stepsize/2 columns to left
 				.val_r_down			(out_down_array[((i>=(dim-half)) ? (half) : (i+half))]), //Undefined for diamond step, otherwise stepsize/2 columns to right
-				.out_up				(out_up_array[i]),
-				.out_down			(out_down_array[i]),
+				.r_data_up			(out_up_array[i]),
+				.r_data_down		(out_down_array[i]),
 				.r					(((i >>1) & 1) ? r[i >> 2][15:8] : r[i >> 2][7:0]),
 				.vga_r_addr         ((col_select == i) ? addr_counter : 9'd0),
-				.out_vga_read       (out_vga_array[i]),
-				.done_out           (done_array[i])
+				.vga_r_data	        (out_vga_array[i]),
+				.done               (done_wire[i])
 			);
 		end
 	endgenerate

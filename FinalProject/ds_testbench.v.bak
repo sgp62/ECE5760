@@ -46,7 +46,7 @@ module testbench();
 	end
 	
 	
-	diamond_square_operator  #(.dim_power(4)) ds_operator (
+	diamond_square_operator  #(.dim_power(3)) ds_operator (
 		.clk             (clk_50),
 		.reset           (reset),
 		.x				 (x),
