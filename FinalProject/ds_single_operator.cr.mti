@@ -1,0 +1,13 @@
+C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v {1 {vlog -work work_single -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v
+Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
+-- Compiling module M10K_512_20
+-- Compiling module diamond_square_col
+-- Compiling module rand63
+-- Compiling module diamond_square_operator
+-- Compiling module testbench
+
+Top level modules:
+	diamond_square_operator
+	testbench
+
+} {} {}}

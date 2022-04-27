@@ -283,7 +283,7 @@ module diamond_square_col (
 					m10k_w_en <= 1'b0;
 				end
 				
-				default : state <= 4'd2;
+				default : state <= 4'd0;
 				
 			endcase
 			
