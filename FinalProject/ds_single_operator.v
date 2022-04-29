@@ -6,7 +6,7 @@ module M10K_512_8(
 	input 			[8:0] wraddress, rdaddress,
 	input 				  wren, clock
 );
-	reg 			[7:0] mem [511:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
+	reg 			[7:0] mem [128:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
 	
 	always @ (posedge clock)
 	begin
@@ -102,11 +102,10 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	wire	[63:1]	seed;
 	wire	[15:0]	r;
 	wire    [7:0]   out_vga_data, rand_term;
-	wire	done_wire;
 	reg 	done;
 	
-	reg     [7:0] 	val_l, val_r, val_l_down, val_r_down, val_up, val_down;
-	reg     [8:0]   col_select, addr_counter;
+	reg     [7:0] 	val_l, val_r, val_l_down, val_r_down, val_up, val_down, z_reg;
+	reg     [8:0]   col_select, done_row, done_col;
 	reg     [3:0]   vga_state;
 	
 	reg     [9:0]   x_reg, y_reg, n;
@@ -128,15 +127,16 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 
 	assign step_size = 9'b1 << step_power;
 	assign half = step_size >> 9'b1;
-	assign rand_term = (r[5:0] & ((1 << step_size) - 1));
+	assign rand_term = (r[7:0] & ((1 << step_size) - 1));
+	assign done_out = done;
 	//assign rand_term = 0;
 
 	wire [8:0] up_read_addr = row_id + step_size + half; //may overflow, checked in ternary below
 	
 	assign x = x_reg;//col_select;
 	assign y = y_reg;//(addr_counter == 9'd0) ? dim-1 : addr_counter-1;
-	assign z = 0;//out_vga_array[x_reg];
-	assign dim_out = dim;
+	assign z = z_reg;//out_vga_array[x_reg];
+	//assign dim_out = dim;
 	
 	assign seed = 63'hff7fffcf;
 
@@ -145,7 +145,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 		// Reset to initial conditions
 		if(reset) begin
 			col_select	 <= (dim-1)>>1;
-			addr_counter <= 9'd0;
+			done_row     <= 9'd0;
+			done_col     <= 9'd0;
 			vga_state    <= 4'd0;
 			x_reg        <= 10'b0;
 			y_reg        <= 10'b0;
@@ -164,45 +165,11 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 			done        <= 1'b0;
 		end
 		else begin
-/* 			if(done_wire) begin
-				if(vga_state == 4'd0) begin
-					vga_state <= 4'd1;
-				end
-				else if(vga_state == 4'd1) begin
-					vga_state <= 4'd2;
-				end
-				else if(vga_state == 4'd2) begin
-					addr_counter <= (addr_counter < (dim-9'd1)) ? addr_counter + 9'd1 : 9'd0;
-					
-					if((col_select == (dim-9'd1)) && (addr_counter == (dim-9'd1))) begin
-						addr_counter <= dim-1;
-						vga_state <= 4'd4;
-					end
-					//else if(addr_counter == (dim-9'd1)) vga_state <= 4'd3;
-					else if(addr_counter == (dim-9'd1)) begin 
-						vga_state <= 4'd0;
-						col_select <= col_select + 9'd1;
-					end
-					else vga_state <= 4'd0;
-					
-					x_reg <= col_select;
-					y_reg <= addr_counter;
-					
-				end
-				//if(vga_state == 4'd3) begin
-				//	col_select <= col_select + 9'd1;
-				//	vga_state <= 4'd0;
-				//end 
-				else if(vga_state == 4'd4) begin
-				
-					vga_state <= 4'd4;
-				end
-			end
-			else if(done) begin
+			if(done) begin
 				case (state)
 					4'd0 : begin
 						//Do m10k read for the input m10k position
-						m10k_r_addr <= vga_r_addr;
+						m10k_r_addr[done_col] <= done_row;
 					
 						state <= 4'd1;
 					end
@@ -210,13 +177,30 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						state <= 4'd2;
 					end
 					4'd2 : begin
-						vga_r_data <= m10k_r_data;
-					
-						state <= 4'd0;
+						z_reg <= m10k_r_data[done_col];
+						x_reg <= done_col;
+						y_reg <= done_row;
+						
+						if ((done_col == dim-9'd1) && (done_row == dim-9'd1)) begin
+							state <= 4'd3;
+						end
+						else if (done_row == dim-9'd1) begin
+							done_col <= done_col + 9'd1;
+							done_row <= 0;
+							state <= 4'd0;
+						end
+						else begin
+							done_row <= done_row + 9'd1;
+							state <= 4'd0;
+						end
+						
 					end
-					default : state <= 4'd0;
+					4'd3: begin //Idle state
+					
+					end
+					default : state <= 4'd3;
 				endcase
-			end */
+			end
 			if(m10k_init) begin
 				if(m10k_w_addr < (dim-1)) begin
 					m10k_w_addr <= m10k_w_addr + 9'b1;
@@ -232,18 +216,32 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 				case (state)
 					4'd0 : begin //Write top two corners
 						m10k_w_en[0] <= 1'd1;
-						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= 9'b0;
-						m10k_w_data <= 8'hee;
+						m10k_w_data <= 8'd200;
 						
 						state <= 4'd1;
 					end
 					
 					4'd1 : begin
 						m10k_w_en[0] <= 1'd1;
+						m10k_w_addr <= (dim-9'b1);
+						m10k_w_data <= 8'd160;
+						
+						state <= 4'd14;
+					end
+					
+					4'd14 : begin
+						m10k_w_en[dim-1] <= 1'd1;
+						m10k_w_addr <= 9'd0;
+						m10k_w_data <= 8'd20;
+						
+						state <= 4'd15;
+					end
+					
+					4'd15 : begin
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'hbb;
+						m10k_w_data <= 8'd80;
 						
 						state <= 4'd2;
 					end
@@ -292,7 +290,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						m10k_w_en[col_select] <= 1'b1;
 						m10k_w_addr <= row_id;
 						sum = val_l + val_r + val_l_down + val_r_down; 
-						m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term);
+						//m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term);
+						m10k_w_data <= ((sum >> 2) + rand_term);
 							
 						val_l_down <= val_l;
 						val_r_down <= val_r;
@@ -361,7 +360,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						
 						sum = val_l + val_r + val_up + val_down;
 						
-						m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term); // Maybe syntax error???
+						//m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term); // Maybe syntax error???
+						m10k_w_data <= ((sum >> 2) + rand_term);	
 							
 						val_down <= val_up;
 						
@@ -407,7 +407,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 								end
 								else begin
 									done <= 1'b1;
-									state <= 4'd13;
+									state <= 4'd0;
 								end
 							end
 						end
