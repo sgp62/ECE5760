@@ -201,7 +201,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					default : state <= 4'd3;
 				endcase
 			end
-			if(m10k_init) begin
+			else if(m10k_init) begin
 				if(m10k_w_addr < (dim-1)) begin
 					m10k_w_addr <= m10k_w_addr + 9'b1;
 				end
@@ -231,6 +231,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					end
 					
 					4'd14 : begin
+						m10k_w_en[0] <= 1'd0;
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= 9'd0;
 						m10k_w_data <= 8'd20;
@@ -408,6 +409,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 								else begin
 									done <= 1'b1;
 									state <= 4'd0;
+									m10k_w_en <= 0;
 								end
 							end
 						end

@@ -9,7 +9,7 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject
 vdiamond_square_col
-Z1 !s110 1651260978
+Z1 !s110 1651435550
 !i10b 1
 !s100 =Fd`M=:U9@DOH:TzYBlZ[0
 IMJh22Y?jgJe=CTodSdzAb3
@@ -25,7 +25,7 @@ Z8 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z9 !s108 1651260978.947000
+Z9 !s108 1651435550.759000
 Z10 !s107 ./ds_col.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\\ds_operator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v|
 Z11 !s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v|
 !i113 1
@@ -52,23 +52,23 @@ R11
 !i113 1
 R12
 vdiamond_square_single_operator
-Z13 !s110 1651260979
+R1
 !i10b 1
-!s100 a:k3`JK9^4iNYVi=S;ZSe2
-IPfFnH3;AKl3fJl14=EIYn0
+!s100 EIb^@lO2KTjf:=[T6McgH2
+IJdCaSWzOiElDBJZY^Uz[]1
 R2
 R0
-Z14 w1651257124
-Z15 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v
-Z16 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v
+Z13 w1651435546
+Z14 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v
+Z15 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v
 L0 92
 R8
 r1
 !s85 0
 31
-Z17 !s108 1651260979.119000
-Z18 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v|
-Z19 !s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v|
+Z16 !s108 1651435550.928000
+Z17 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v|
+Z18 !s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v|
 !i113 1
 R12
 vM10K_512_20
@@ -95,44 +95,44 @@ R11
 R12
 n@m10@k_512_20
 vM10K_512_8
-R13
+R1
 !i10b 1
 !s100 cX^0A1g;IAQW_l3nM;>HI1
 I8I[Sb@4zkMUSGCoiE@ZFT2
 R2
 R0
+R13
 R14
 R15
-R16
 L0 3
 R8
 r1
 !s85 0
 31
+R16
 R17
 R18
-R19
 !i113 1
 R12
 n@m10@k_512_8
 vrand63
-R13
+R1
 !i10b 1
 !s100 _<KjiOEYoJ<hV^1DY;Z]d3
 IkYiNP18TlJDDVd5n`FMYb2
 R2
 R0
+R13
 R14
 R15
-R16
 L0 21
 R8
 r1
 !s85 0
 31
+R16
 R17
 R18
-R19
 !i113 1
 R12
 vtestbench
