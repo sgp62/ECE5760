@@ -99,8 +99,11 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 
 	wire    [8:0]	step_size, half;
 
-	wire	[63:1]	seed;
-	wire	[15:0]	r;
+	//wire	[63:1]	seed;
+	//wire	[15:0]	r;
+	wire	[63:1]	seed [(dim >> 1): 0];
+	wire	[15:0]	r [(dim >> 1): 0];
+	
 	wire    [7:0]   out_vga_data, rand_term;
 	reg 	done;
 	
@@ -127,7 +130,31 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 
 	assign step_size = 9'b1 << step_power;
 	assign half = step_size >> 9'b1;
-	assign rand_term = (r[7:0] & ((1 << step_size) - 1));
+	//assign rand_term = (r[7:0] & ((1 << step_size) - 1));
+	
+	assign seed[0] = 63'hff7fffcf;
+	assign seed[1] = 63'h8ffff1ffd;
+	assign seed[2] = 63'h4f6ffaf0f;
+ 	assign seed[3] = 63'headdeadbeef;
+	assign seed[4] = 63'heeeeeeeeeeeee;
+    assign seed[5] = 63'haed409210291;
+	assign seed[6] = 63'h123456789;
+	assign seed[7] = 63'hfffffffffffffff;
+	assign seed[8] = 63'hba0000000000000;
+	assign seed[9] = 63'h1115555599988;
+	
+	assign seed[10] = 63'h666999666999;
+	assign seed[11] = 63'hbbbbbeeeee0000;
+	assign seed[12] = 63'h3;
+	assign seed[13] = 63'h78965422211140;
+	assign seed[14] = 63'h620200011011999;
+	assign seed[15] = 63'h72820000002827;
+	assign seed[16] = 63'h99999999;
+
+	
+	
+	
+	assign rand_term = ((1 << step_size) - 1) & ((col_select & 8'b1) ? r[col_select >> 1][15:8] : r[col_select >> 1][7:0]);     //number shift regs: (1 << (dim_power - 2)) + 1  ***NOT RIGHT******
 	assign done_out = done;
 	//assign rand_term = 0;
 
@@ -138,7 +165,9 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	assign z = z_reg;//out_vga_array[x_reg];
 	//assign dim_out = dim;
 	
-	assign seed = 63'hff7fffcf;
+	//assign seed = 63'hff7fffcf;
+	
+	
 
 
 	always@(posedge clk) begin
@@ -424,14 +453,20 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 		//Will need clocked logic block to send pixel values up to top level module after all have been calculated
 	end
 	
-	rand63 my_rand(
-		.clk          		(clk),
-		.reset        		(reset),
-		.rand_out           (r),
-		.state_in			(4'b0),
-		.seed_in			(seed)
-	);
-
+	
+	generate
+		genvar j;
+		for (j = 0; j < ((dim >> 1) + 1); j=j+1) begin: rand_gen
+			rand63 gen_rand(
+				.clk          		(clk),
+				.reset        		(reset),
+				.rand_out           (r[j]),
+				.state_in			(4'b0),
+				.seed_in			(seed[j])
+			);
+		end
+	endgenerate
+	
 	generate
 		genvar k;
 		for (k = 0; k < dim; k=k+1) begin: m10k_gen
