@@ -121,9 +121,9 @@ module diamond_square_operator #(parameter dim_power = 3) (
 	assign seed[0] = 63'hff7fffcf;
 	assign seed[1] = 63'h8ffff1ffd;
 	assign seed[2] = 63'h4f6ffaf0f;
-	assign seed[3] = 63'headdeadbeef;
+ 	assign seed[3] = 63'headdeadbeef;
 	assign seed[4] = 63'heeeeeeeeeeeee;
-	assign seed[5] = 63'haed409210291;
+/*	assign seed[5] = 63'haed409210291;
 	assign seed[6] = 63'h123456789;
 	assign seed[7] = 63'hfffffffffffffff;
 	assign seed[8] = 63'hba0000000000000;
@@ -135,7 +135,7 @@ module diamond_square_operator #(parameter dim_power = 3) (
 	assign seed[13] = 63'h78965422211140;
 	assign seed[14] = 63'h620200011011999;
 	assign seed[15] = 63'h72820000002827;
-	assign seed[16] = 63'h99999999;
+	assign seed[16] = 63'h99999999; */
 
 
 	always@(posedge clk) begin

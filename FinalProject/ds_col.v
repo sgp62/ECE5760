@@ -117,7 +117,7 @@ module diamond_square_col (
 					if((col_id == 9'd0) || (col_id == (dim-9'b1))) begin
 						m10k_w_en <= 1'd1;
 						m10k_w_addr <= 9'b0;
-						m10k_w_data <= 8'hee;
+						m10k_w_data <= (col_id == 0) ? 8'd200 : 8'd20;
 					end
 					state <= 4'd1;
 				end
@@ -126,7 +126,7 @@ module diamond_square_col (
 					if((col_id == 0) || (col_id == (dim-9'b1))) begin
 						m10k_w_en <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'hbb;
+						m10k_w_data <= (col_id == 0) ? 8'd160 : 8'd100;
 					end
 					state <= 4'd2;
 				end

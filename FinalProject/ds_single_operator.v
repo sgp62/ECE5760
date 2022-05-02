@@ -90,7 +90,7 @@ module rand63(rand_out, seed_in, state_in, clk, reset);
 endmodule
 
 module diamond_square_single_operator #(parameter dim_power = 3, parameter dim = 9) (
-	input 			clk, reset,
+	input 			clk, reset, bus_ack,
 	output 	[9:0]	x,y,
 	output	[7:0]	z,
 	output          done_out
@@ -127,7 +127,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 
 	assign step_size = 9'b1 << step_power;
 	assign half = step_size >> 9'b1;
-	assign rand_term = (r[7:0] & ((1 << step_size) - 1));
+	//assign rand_term = (r[7:0] & ((1 << step_size) - 1));
+	assign rand_term = 0;
 	assign done_out = done;
 	//assign rand_term = 0;
 
@@ -170,8 +171,9 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd0 : begin
 						//Do m10k read for the input m10k position
 						m10k_r_addr[done_col] <= done_row;
-					
-						state <= 4'd1;
+						
+						if(bus_ack) 
+							state <= 4'd1;
 					end
 					4'd1 : begin
 						state <= 4'd2;
@@ -242,7 +244,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd15 : begin
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'd80;
+						m10k_w_data <= 8'd100;
 						
 						state <= 4'd2;
 					end
