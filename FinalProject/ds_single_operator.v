@@ -176,6 +176,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 			done_row     <= 9'd0;
 			done_col     <= 9'd0;
 			vga_state    <= 4'd0;
+			state        <= 4'd0;
 			x_reg        <= 10'b0;
 			y_reg        <= 10'b0;
 			
@@ -281,6 +282,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						m10k_w_en[0] <= 0;
 						m10k_w_en[dim-1] <= 0;
 						
+						
 						//Queue up bottom left and bottom right read
 						m10k_r_addr[col_select - half] <= row_id - half;
 						m10k_r_addr[col_select + half] <= row_id - half;
@@ -327,6 +329,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						val_r_down <= val_r;
 						
 						if ((step_size + row_id) < dim) begin
+							//same column
 							m10k_r_addr[col_select - half] <= ((up_read_addr) >= dim) ? (up_read_addr - dim + 9'b1) : (up_read_addr);
 							m10k_r_addr[col_select + half] <= ((up_read_addr) >= dim) ? (up_read_addr - dim + 9'b1) : (up_read_addr);
 							
@@ -338,24 +341,39 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 							// Finished Diamond Step in this column, move to next column, or move to square
 							if ((col_select + step_size) < dim) begin
 								//Move to next diamond column
-								col_select <= col_select + step_size;
 								row_id <= half;
-								
-								state <= 4'd2;
+								state <= 4'd13;
 							end
 							else begin
 								//Move to square
 								row_id <= half;
-								col_select <= 0;
 								
 								m10k_r_addr[0] <= 0;
 								
+								col_select <= 1'b0;
 								state <= 4'd8;
 							end
 						end
 					end
 					
+					4'd13: begin 
+						
+						//disable current column, because doing new column now
+						m10k_w_en[col_select] <= 1'b0;
+						col_select <= col_select + step_size;
+						
+						state <= 4'd2;
+					end
+					
+					4'd16 : begin
+						//wait for write
+						col_select <= 1'b0;
+						state <= 4'd8;
+					end
+					
+					
 					4'd8 : begin
+						//wait stage
 						m10k_w_en <= 1'b0;
 						state <= 4'd9;
 					end
@@ -450,7 +468,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						end
 					end
 					
-					default : state <= 4'd13;
+					default : state <= 4'd0;
 					
 				endcase
 			end 

@@ -1,14 +1,4 @@
-C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v {1 {vlog -work work -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
-Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
--- Compiling module M10K_512_20
--- Compiling module diamond_square_col
--- Compiling module rand63
--- Compiling module diamond_square_operator
-
-Top level modules:
-	diamond_square_operator
-
-} {} {}} C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v {1 {vlog -work work -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
+C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v {1 {vlog -work work -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_testbench.v
 Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
 -- Compiling module M10K_512_20
 -- Compiling module diamond_square_col
@@ -18,6 +8,16 @@ Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
 
 Top level modules:
 	testbench
+
+} {} {}} C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v {1 {vlog -work work -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_operator.v
+Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
+-- Compiling module M10K_512_20
+-- Compiling module diamond_square_col
+-- Compiling module rand63
+-- Compiling module diamond_square_operator
+
+Top level modules:
+	diamond_square_operator
 
 } {} {}} C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_col.v {1 {vlog -work work -stats=none C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_col.v
 Model Technology ModelSim ALTERA vlog 10.3d Compiler 2014.10 Oct  7 2014
