@@ -320,8 +320,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						m10k_w_en[col_select] <= 1'b1;
 						m10k_w_addr <= row_id;
 						sum = val_l + val_r + val_l_down + val_r_down; 
-						m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term);
-						//m10k_w_data <= ((sum >> 2) + rand_term);
+						//m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term);
+						m10k_w_data <= ((sum >> 2) + rand_term);
 							
 						val_l_down <= val_l;
 						val_r_down <= val_r;
@@ -377,8 +377,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					end
 					
 					4'd11 : begin
-						val_l <= m10k_r_data[(col_select<half) ? (dim-9'b1-half) : (col_select-half)];
-						val_r <= m10k_r_data[((col_select>=(dim-half)) ? (half) : (col_select+half))];
+						val_l <= m10k_r_data[(col_select < half) ? (dim-9'b1-half) : (col_select-half)];
+						val_r <= m10k_r_data[((col_select >= (dim-half)) ? (half) : (col_select+half))];
 						val_up <= m10k_r_data[col_select];
 						
 						state <= 4'd12;
@@ -390,14 +390,19 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						
 						sum = val_l + val_r + val_up + val_down;
 						
-						m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term); // Maybe syntax error???
-						//m10k_w_data <= ((sum >> 2) + rand_term);	
+						//m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term); // Maybe syntax error???
+						m10k_w_data <= ((sum >> 2) + rand_term);	
 							
 						val_down <= val_up;
 						
 						// Queue up next read, for up reg if we have more squares to do (haven't reached the end)
 						if ((step_size + row_id) < dim) begin
 							m10k_r_addr[col_select] <= (up_read_addr >= dim) ? (up_read_addr - dim + 9'b1) : up_read_addr;
+							
+							//Queue up three read addresses
+							m10k_r_addr[((col_select>=(dim-half)) ? (half) : (col_select+half))] <= row_id + step_size;
+							m10k_r_addr[(col_select<half) ? (dim-9'b1-half) : (col_select-half)] <= row_id + step_size;
+							
 							row_id <= row_id + step_size;
 							
 							state <= 4'd10; 					
@@ -424,6 +429,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 									
 									state <= 4'd8;
 								end
+								
 							end
 							//If totally done
 							else begin
