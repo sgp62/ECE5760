@@ -6,7 +6,7 @@ module M10K_512_8(
 	input 			[8:0] wraddress, rdaddress,
 	input 				  wren, clock
 );
-	reg 			[7:0] mem [128:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
+	reg 			[7:0] mem [256:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
 	
 	always @ (posedge clock)
 	begin
@@ -101,8 +101,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 
 	//wire	[63:1]	seed;
 	//wire	[15:0]	r;
-	wire	[63:1]	seed [(dim >> 1): 0];
-	wire	[15:0]	r [(dim >> 1): 0];
+	wire	[63:1]	seed [15:0];//[(dim >> 1): 0];
+	wire	[15:0]	r [15:0];//[(dim >> 1): 0];
 	
 	wire    [7:0]   out_vga_data, rand_term;
 	reg 	done;
@@ -137,7 +137,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	assign seed[2] = 63'h4f6ffaf0f;
  	assign seed[3] = 63'headdeadbeef;
 	assign seed[4] = 63'heeeeeeeeeeeee;
-/*    assign seed[5] = 63'haed409210291;
+    assign seed[5] = 63'haed409210291;
 	assign seed[6] = 63'h123456789;
 	assign seed[7] = 63'hfffffffffffffff;
 	assign seed[8] = 63'hba0000000000000;
@@ -148,12 +148,9 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	assign seed[13] = 63'h78965422211140;
 	assign seed[14] = 63'h620200011011999;
 	assign seed[15] = 63'h72820000002827;
-	assign seed[16] = 63'h99999999; */
+	//assign seed[16] = 63'h99999999;
 
-	
-	
-	
-	assign rand_term = 0;//((1 << step_size) - 1) & ((col_select & 8'b1) ? r[col_select >> 1][15:8] : r[col_select >> 1][7:0]);     //number shift regs: (1 << (dim_power - 2)) + 1  ***NOT RIGHT******
+	assign rand_term = ((1 << step_size) - 1) & ((col_select & 8'b1) ? r[col_select & 9'd15][15:8] : r[col_select & 9'd15][7:0]);     //number shift regs: (1 << (dim_power - 2)) + 1  ***NOT RIGHT******
 	assign done_out = done;
 	//assign rand_term = 0;
 
@@ -247,7 +244,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd0 : begin //Write top two corners
 						m10k_w_en[0] <= 1'd1;
 						m10k_w_addr <= 9'b0;
-						m10k_w_data <= 8'd187;
+						m10k_w_data <= 8'd200;
 						
 						state <= 4'd1;
 					end
@@ -255,7 +252,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd1 : begin
 						m10k_w_en[0] <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'd238;
+						m10k_w_data <= 8'd160;
 						
 						state <= 4'd14;
 					end
@@ -264,7 +261,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						m10k_w_en[0] <= 1'd0;
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= 9'd0;
-						m10k_w_data <= 8'd187;
+						m10k_w_data <= 8'd20;
 						
 						state <= 4'd15;
 					end
@@ -272,7 +269,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd15 : begin
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'd238;
+						m10k_w_data <= 8'd100;
 						
 						state <= 4'd2;
 					end
@@ -322,8 +319,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						m10k_w_en[col_select] <= 1'b1;
 						m10k_w_addr <= row_id;
 						sum = val_l + val_r + val_l_down + val_r_down; 
-						//m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term);
-						m10k_w_data <= ((sum >> 2) + rand_term);
+						m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term);
+						//m10k_w_data <= ((sum >> 2) + rand_term);
 							
 						val_l_down <= val_l;
 						val_r_down <= val_r;
@@ -408,8 +405,8 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						
 						sum = val_l + val_r + val_up + val_down;
 						
-						//m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term); // Maybe syntax error???
-						m10k_w_data <= ((sum >> 2) + rand_term);	
+						m10k_w_data <= (((sum >> 2) + rand_term) > 10'd255) ? ((sum >> 2) - rand_term) : ((sum >> 2) + rand_term); // Maybe syntax error???
+						//m10k_w_data <= ((sum >> 2) + rand_term);	
 							
 						val_down <= val_up;
 						
@@ -479,7 +476,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	
 	generate
 		genvar j;
-		for (j = 0; j < ((dim >> 1) + 1); j=j+1) begin: rand_gen
+		for (j = 0; j < 16; j=j+1) begin: rand_gen
 			rand63 gen_rand(
 				.clk          		(clk),
 				.reset        		(reset),
