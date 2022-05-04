@@ -9,13 +9,13 @@ z2
 cModel Technology
 Z0 dC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject
 vdiamond_square_col
-Z1 !s110 1651614375
+Z1 !s110 1651694287
 !i10b 1
 !s100 X?RFg@_nncY?=9=Dglnn=3
 Id1N_2:mb?e@YZff;9`aaB0
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
 R0
-Z3 w1651526435
+Z3 w1651694178
 Z4 F./ds_col.v
 Z5 FC:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\\ds_operator.v
 Z6 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v
@@ -25,7 +25,7 @@ Z8 OV;L;10.3d;59
 r1
 !s85 0
 31
-Z9 !s108 1651614375.059000
+Z9 !s108 1651694287.673000
 Z10 !s107 ./ds_col.v|C:\Users\sgp62\Desktop\sgp62_hlg66_rbm244\ECE5760\FinalProject\\ds_operator.v|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v|
 Z11 !s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator_testbench.v|
 !i113 1
@@ -54,11 +54,11 @@ R12
 vdiamond_square_single_operator
 R1
 !i10b 1
-!s100 ^Ce^g0=jJldm>=MFL^lXQ2
-IU0Y;ziD=daGd2[YhB27LB0
+!s100 EC=^HdAdZ80zD_dJ2b_z01
+IKUaSW8iI6XVQKIGBHLWB[3
 R2
 R0
-Z13 w1651614372
+Z13 w1651694283
 Z14 8C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v
 Z15 FC:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v
 L0 92
@@ -66,7 +66,7 @@ R8
 r1
 !s85 0
 31
-Z16 !s108 1651614375.227000
+Z16 !s108 1651694287.842000
 Z17 !s107 C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v|
 Z18 !s90 -reportprogress|300|-work|work_single|-stats=none|C:/Users/sgp62/Desktop/sgp62_hlg66_rbm244/ECE5760/FinalProject/ds_single_operator.v|
 !i113 1
@@ -97,8 +97,8 @@ n@m10@k_512_20
 vM10K_512_8
 R1
 !i10b 1
-!s100 cX^0A1g;IAQW_l3nM;>HI1
-I8I[Sb@4zkMUSGCoiE@ZFT2
+!s100 z[hz3l=o3GzOjPG@f4[T73
+I_7T@F_Q<l=C=6:2aa<l[i1
 R2
 R0
 R13
@@ -138,8 +138,8 @@ R12
 vtestbench
 R1
 !i10b 1
-!s100 1RATGm8[3UzUgW?zhfchz0
-IkSF8Jb;Kbhdn?agQMmhOh0
+!s100 <R^Iee8ozUOSCeUMc0Xg_0
+IPVo`dk7=Gb<0oY7l9D@En3
 R2
 R0
 R3

@@ -6,7 +6,7 @@ module M10K_512_8(
 	input 			[8:0] wraddress, rdaddress,
 	input 				  wren, clock
 );
-	reg 			[7:0] mem [128:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
+	reg 			[7:0] mem [256:0] /* synthesis ramstyle = "no_rw_check, M10K" */;
 	
 	always @ (posedge clock)
 	begin
@@ -91,6 +91,7 @@ endmodule
 
 module diamond_square_single_operator #(parameter dim_power = 3, parameter dim = 9) (
 	input 			clk, reset, bus_ack,
+	input 	[31:0]	rand_seed, corners,
 	output 	[9:0]	x,y,
 	output	[7:0]	z,
 	output          done_out
@@ -131,8 +132,14 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	assign step_size = 9'b1 << step_power;
 	assign half = step_size >> 9'b1;
 	//assign rand_term = (r[7:0] & ((1 << step_size) - 1));
+	assign seed[0] = {rand_seed[30:0],rand_seed};
 	
-	assign seed[0] = 63'hff7fffcf;
+	genvar k;
+	for(k = 1; k < 16; k=k+1) begin
+		assign seed[k] = seed[0] << k;
+	end
+	
+/* 	assign seed[0] = 63'hff7fffcf;
 	assign seed[1] = 63'h8ffff1ffd;
 	assign seed[2] = 63'h4f6ffaf0f;
  	assign seed[3] = 63'headdeadbeef;
@@ -147,7 +154,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	assign seed[12] = 63'h3;
 	assign seed[13] = 63'h78965422211140;
 	assign seed[14] = 63'h620200011011999;
-	assign seed[15] = 63'h72820000002827;
+	assign seed[15] = 63'h72820000002827; */
 	//assign seed[16] = 63'h99999999;
 
 	assign rand_term = ((1 << step_size) - 1) & ((col_select & 8'b1) ? r[col_select & 9'd15][15:8] : r[col_select & 9'd15][7:0]);     //number shift regs: (1 << (dim_power - 2)) + 1  ***NOT RIGHT******
@@ -244,7 +251,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd0 : begin //Write top two corners
 						m10k_w_en[0] <= 1'd1;
 						m10k_w_addr <= 9'b0;
-						m10k_w_data <= 8'd200;
+						m10k_w_data <= corners[31:24];//8'd200;
 						
 						state <= 4'd1;
 					end
@@ -252,7 +259,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd1 : begin
 						m10k_w_en[0] <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'd160;
+						m10k_w_data <= corners[23:16];// 8'd160;
 						
 						state <= 4'd14;
 					end
@@ -261,7 +268,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						m10k_w_en[0] <= 1'd0;
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= 9'd0;
-						m10k_w_data <= 8'd20;
+						m10k_w_data <= corners[15:8];//8'd20;
 						
 						state <= 4'd15;
 					end
@@ -269,7 +276,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd15 : begin
 						m10k_w_en[dim-1] <= 1'd1;
 						m10k_w_addr <= (dim-9'b1);
-						m10k_w_data <= 8'd100;
+						m10k_w_data <= corners[7:0];//8'd100;
 						
 						state <= 4'd2;
 					end
