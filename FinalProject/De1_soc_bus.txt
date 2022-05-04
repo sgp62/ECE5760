@@ -368,36 +368,96 @@ wire			[15: 0]	hex3_hex0;
 assign HEX4 = 7'b1111111;
 assign HEX5 = 7'b1111111;
 
-HexDigit Digit0(HEX0, hex3_hex0[3:0]);
-HexDigit Digit1(HEX1, hex3_hex0[7:4]);
-HexDigit Digit2(HEX2, hex3_hex0[11:8]);
-HexDigit Digit3(HEX3, hex3_hex0[15:12]);
+// read out for debugging
+// x-coord of line and color index
+HexDigit Digit0(HEX0, SW[3:0]);
+HexDigit Digit1(HEX1, SW[7:4]);
+HexDigit Digit2(HEX2, SW[9:8]);
+HexDigit Digit3(HEX3, image_data);
+assign LEDR[0] = y_cood[SW];
 
-// MAY need to cycle this switch on power-up to get video
-assign TD_RESET_N = SW[1];
+////////////////////////////////////////////////////////////////////
+// Pixel generation state machine
+////////////////////////////////////////////////////////////////////
+// --- M10K memory block memory ---
+// See below for module definition.
+// Interface:
+//module true_dual_port_ram_single_clock
+//#(parameter DATA_WIDTH=2, parameter ADDR_WIDTH=19)
+//(
+//	input [(DATA_WIDTH-1):0] data_a, data_b,
+//	input [(ADDR_WIDTH-1):0] addr_a, addr_b,
+//	input we_a, we_b, clk,
+//	output reg [(DATA_WIDTH-1):0] q_a, q_b
+//);
+//reg [1:0] image_data ;
+//wire [1:0] mem_data ;
+//reg [18:0] image_addr ;
+//wire [18:0] mem_addr ;
+//reg image_we ;
+//reg [3:0] mem_state ;
+//reg [7:0] count = 255 ;
+//// M10K memory instantiation
+//true_dual_port_ram_single_clock image_ram(
+//.data_a (image_data),
+//.data_b (2'b00),
+//.addr_a (image_addr),
+//.addr_b (mem_addr),
+//.we_a (image_we),
+//.we_b (1'b0),
+//.clk (CLOCK2_50),
+//.q_a (),
+//.q_b (mem_data)
+//);
 
-// get some signals exposed
-// connect bus master signals to i/o for probes
-assign GPIO_0[0] = TD_HS ;
-assign GPIO_0[1] = TD_VS ;
-assign GPIO_0[2] = TD_DATA[6] ;
-assign GPIO_0[3] = TD_CLK27 ;
-assign GPIO_0[4] = TD_RESET_N ;
+//// pixel state clock
+//always @(posedge CLOCK2_50) begin
+//	// reset and choose
+//	// color and x-position of 
+//	// 100 pixel vertical line
+//	if (~KEY[0]) begin
+//		mem_state <= 0 ;
+//		image_we <= 0 ;
+//		image_addr <= SW + (100<<10) ;
+//		image_data <= KEY[2:1];
+//		count <= 0 ;
+//	end
+//	
+//	// state machine to draw the vertical 
+//	// line for 100 pixels. 
+//	// address = x + (y<<10)
+//	if (mem_state == 0) begin
+//		mem_state <= 1;
+//		if (count<100) begin
+//			image_addr <= image_addr + (1<<10) ;
+//			count <= count + 1 ;
+//			image_we <= 1;
+//		end
+//	end
+//	// end the write operation
+//	if (mem_state ==1) begin
+//		mem_state <= 0 ;
+//		image_we <= 0;
+//	end
+//
+//end //always @(posedge CLOCK2_50) begin
 
-//=======================================================
+////////////////////////////////////////////////////////////////////
+// image write state machine -- bus-master to VGA display memory
+////////////////////////////////////////////////////////////////////
+//======================================
 // Bus controller for AVALON bus-master
-//=======================================================
-wire [31:0] vga_bus_addr, video_in_bus_addr ; // Avalon addresses
-reg  [31:0] bus_addr ;
-wire [31:0] vga_out_base_address = 32'h0000_0000 ;  // Avalon address
-wire [31:0] video_in_base_address = 32'h0800_0000 ;  // Avalon address
-reg [3:0] bus_byte_enable ; // four bit byte read/write mask
+//======================================
+wire [31:0] bus_addr, vga_bus_addr ; // Avalon address
+wire [31:0] video_base_address = 32'h000_0000 ;  // Avalon address
+wire [3:0] bus_byte_enable ; // four bit byte read/write mask
+reg [3:0] bus_en;
 reg bus_read  ;       // high when requesting data
 reg bus_write ;      //  high when writing data
 reg [31:0] bus_write_data ; //  data to send to Avalog bus
 wire bus_ack  ;       //  Avalon bus raises this when done
 wire [31:0] bus_read_data ; // data from Avalon bus
-reg [31:0] timer ;
+reg [30:0] timer ;
 reg [3:0] state ;
 reg last_vs, wait_one;
 reg [19:0] vs_count ;
@@ -405,172 +465,178 @@ reg last_hs, wait_one_hs ;
 reg [19:0] hs_count ;
 
 // pixel address is
-reg [7:0] current_pixel_color1, current_pixel_color2 ;
-// compute address
-//assign vga_bus_addr = vga_out_base_address + {22'b0,video_in_x_cood + vga_x_cood} + ({22'b0,video_in_y_cood + vga_y_cood}<<10) ;
-//assign video_in_bus_addr = video_in_base_address + {22'b0,video_in_x_cood} + ({22'b0,video_in_y_cood}<<9) ;	 
+// from C: pixel_ptr = 0h0800_0000 + (y_cood<<10) + x_cood ;
+reg [9:0] x_cood, y_cood ;
+//assign bus_addr = video_base_address + {22'b0,x_cood} + ({22'b0,y_cood}<<10) ;
+// M10k block memory address
+// from the pixel state machine
+//assign mem_addr = x_cood + (y_cood<<10) ;
 
-//always @(posedge CLOCK2_50) begin //CLOCK_50
-//
-//	// reset state machine and read/write controls
-//	if (~KEY[0]) begin
-//		state <= 0 ;
-//		bus_read <= 0 ; // set to one if a read opeation from bus
-//		bus_write <= 0 ; // set to on if a write operation to bus
-//		// base address of upper-left corner of the screen
-//		vga_x_cood <= 10'd100 ;
-//		vga_y_cood <= 10'd50 ;
-//		video_in_x_cood <= 0 ;
-//		video_in_y_cood <= 0 ;
-//	   bus_byte_enable <= 4'b0001;
-//
-//		timer <= 0;
-//	end
-//	else begin
-//		timer <= timer + 1;
-//	end
-//	
-//	// write to the bus-master
-//	// and put in a small delay to aviod bus hogging
-//	// timer delay can be set to 2**n-1, so 3, 7, 15, 31
-//	// bigger numbers mean slower frame update to VGA
-//	if (state==0 && SW[0] && (timer & 3)==0 ) begin //
-//		state <= 1;	
-//		
-//		// read all the pixels in the video input
-//		video_in_x_cood <= video_in_x_cood + 10'd1 ;
-//		if (video_in_x_cood > 10'd319) begin
-//			video_in_x_cood <= 0 ;
-//			video_in_y_cood <= video_in_y_cood + 10'd1 ;
-//			if (video_in_y_cood > 10'd239) begin
-//				video_in_y_cood <= 10'd0 ;
-//			end
-//		end
-//		// one byte data
-//		bus_byte_enable <= 4'b0001;
-//		// read first pixel
-//		bus_addr <= video_in_bus_addr ;
-//		// signal the bus that a read is requested
-//		bus_read <= 1'b1 ;	
-//	end
-//	
-//	// finish the  read
-//	// You MUST do this check
-//	if (state==1 && bus_ack==1) begin
-//		state <= 8 ; //state <= 2 ;
-//		bus_read <= 1'b0;
-//		current_pixel_color1 <= bus_read_data ;
-//	end
-//	
-//	// write a pixel to VGA memory
-//	if (state==8) begin
-//		state <= 9 ;
-//		bus_write <= 1'b1;
-//		bus_addr <= vga_bus_addr ;
-//		bus_write_data <= current_pixel_color1  ;
-//		bus_byte_enable <= 4'b0001;
-//	end
-//	
-//	// and finish write
-//	if (state==9 && bus_ack==1) begin
-//		state <= 0 ;
-//		bus_write <= 1'b0;
-//	end
-//	
-//end // always @(posedge state_clock)
+// use byte-wide bus-master	 
+assign bus_byte_enable = bus_en;//4'b0001;
 
 wire signed [31:0] cycles; // prob want this for report/ timing analysis
 wire [7:0] altitude;
-wire [8:0] dim_wire = 65;
 wire       done;
 wire [9:0] vga_x_cood, vga_y_cood;
 
-assign vga_bus_addr = vga_out_base_address + {22'b0,vga_x_cood+10'd20} + ({22'b0,vga_y_cood}*640) ;
+assign vga_bus_addr = video_base_address + {22'b0,vga_x_cood+10'd100} + ({22'b0,vga_y_cood}<<10) ;
+assign bus_addr = vga_bus_addr;
 reg [7:0] color_reg ;
 
+wire [31:0] pio_corner_wire, pio_seed_wire;
 
-diamond_square_single_operator #(.dim_power(6), .dim(65))  finalproj_arbiter (
+//*************GOTTA CHANGE THIS OTHERWISE THINGS GET MESSED UP******************
+wire [8:0] dim_wire = 257; 
+diamond_square_single_operator #(.dim_power(8), .dim(257))  finalproj_arbiter (
 	.clk		 (CLOCK_50),
 	.reset	 (~KEY[0]),
+	.bus_ack  (bus_ack),
 	.x			 (vga_x_cood),
 	.y		    (vga_y_cood),
 	.z		    (altitude),
 	.done_out (done)
 );
 
-//=======================================================
-// do the work outlined above
-always @(posedge CLOCK_50) begin // CLOCK2_50
+// bus-master state machine
+always @(posedge CLOCK2_50) begin //CLOCK_50
 
-   // reset state machine and read/write controls
-		
+	// reset state machine and read/write controls
 	if (~KEY[0]) begin
-		state <= 8'd19;
-		timer <= 0;
+		state <= 0 ;
 		bus_read <= 0 ; // set to one if a read opeation from bus
 		bus_write <= 0 ; // set to on if a write operation to bus
-		bus_byte_enable <= 4'b0001;
-
+		// base address of upper-left corner of the screen
+		x_cood <= 0 ;
+		y_cood <= 0 ;
+		timer <= 0;
+		bus_en <= 0;
 	end
 	else begin
-		// general purpose tick counter
 		timer <= timer + 1;
-
 	end
-
-	// --------------------------------------
-	// Now have all info, so:
-	// write to the VGA sram
-
-	if (state==8'd19 && done) begin // && ((timer & 15)==0)
-		/*Beginner color palette: white : 220+
-			gray: 200-220
-			brown: 170-200
-			green: 120-170
-			blue: 0-120
-		*/
+	
+	// add time to Vsync
+	last_vs <= VGA_VS ;
+	if (VGA_VS && ~last_vs) begin
+		wait_one <= 1 ;
+		vs_count <= 0 ;
+	end
+	else if (vs_count<97000) begin // slightly smaller than duration of the vsync "backporch"
+		vs_count <= vs_count + 1 ;
+	end
+	else begin
+		wait_one <= 0 ;
+	end
+	// add time to Hsync
+	last_hs <= VGA_HS ;
+	if (VGA_HS && ~last_hs) begin
+		wait_one_hs <= 1 ;
+		hs_count <= 0 ;
+	end
+	else if (hs_count<90) begin // slightly smaller than duration of the hsync "backporch"
+		hs_count <= hs_count + 1 ;
+	end
+	else begin
+		wait_one_hs <= 0 ;
+	end
+	
+	// write to the bus-master
+	// but wait for when VGA is not reading
+	if (state==0 && (~VGA_VS | ~VGA_HS | wait_one | wait_one_hs) && done) begin // && timer==0 // && (~VGA_VS | ~VGA_HS) // && ~VGA_BLANK_N
 		
-		if (altitude >= 8'd220) begin
+		bus_en <= 4'b0001;
+		// write all the pixels
+//		x_cood <= x_cood + 10'd1 ;
+//		if (x_cood > 10'd639) begin
+//			x_cood <= 0 ;
+//			y_cood <= y_cood + 10'd1 ;
+//			if (y_cood > 10'd479) begin
+//				y_cood <= 0 ;
+//			end
+//		end
+	
+		// set up the write data = white_red_green_blue
+		// white = ff; red = e0; green = 1c; blue = 03;
+		// AND signal the write request to the Avalon bus
+		// mem_data is from the pixel state machine
+//		if (mem_data==2'b11) begin
+//			bus_write_data <= 8'hff ;
+//		end
+//		else if (mem_data==2'b10) begin
+//			bus_write_data <= 8'he0 ;
+//		end
+//		else if (mem_data==2'b01) begin
+//			bus_write_data <= 8'h1c ;
+//		end
+//		else bus_write_data <= 8'h00 ;
+		
+		if (altitude >= 8'd245) begin
 			color_reg = 8'b_111_111_11 ; // white
 		end
-		else if (altitude >= 8'd200) begin
-		  color_reg = 8'b_110_110_10 ; //gray
+		else if (altitude >= 8'd235) begin
+		  color_reg = 8'b_100_100_11 ; //gray
 		end
-		else if (altitude >= 8'd170) begin
+		else if (altitude >= 8'd220) begin
+		  color_reg = 8'b_110_100_01 ; //lighter brown
+		end
+		else if (altitude >= 8'd200) begin
 		  color_reg = 8'b_100_011_01 ; //brown
 		end
-		else if (altitude >= 8'd120) begin
-		  color_reg = 8'b_101_110_00 ; //green
+		else if (altitude >= 8'd180) begin
+		  color_reg = 8'b_010_010_01 ; //darker brown
 		end
-		else begin
+		else if (altitude >= 8'd160) begin
+		  color_reg = 8'b_010_011_01 ; //dark green
+		end
+		else if (altitude >= 8'd145) begin
+		  color_reg = 8'b_011_100_01 ; //medium green
+		end
+		else if (altitude >= 8'd130) begin
+		  color_reg = 8'b_101_110_01 ; //light green
+		end
+		else if (altitude >= 8'd70) begin
 		  color_reg = 8'b_001_001_11 ; //blue
 		end
+		else begin
+		  color_reg = 8'b_001_001_10 ; //dark blue 
+		end
 		
 		
-		bus_write <= 1'b1;
-		bus_addr <= vga_bus_addr;
+		
 		bus_write_data <= color_reg;
-		bus_byte_enable <= 4'b0001;
 		
-		if (vga_x_cood>=(dim_wire-1) && vga_y_cood>=(dim_wire-1)) state <= 8'd22; // ending
-		else state  <= 8'd20;
-		// write a point
-		//state <= 8'd20 ;
+		if (vga_x_cood>=(dim_wire-1) && vga_y_cood>=(dim_wire-1)) begin
+			state <= 8'd22; // ending
+			
+			bus_write <= 0;
+			
+			bus_en <= 4'b0;
+		
+		end
+		else state  <= 8'd2;	
+		
+		// signal the bus that a write is requested
+		bus_write <= 1'b1 ;	
 	end
-	if (state==8'd20 && bus_ack==1) begin
-		state <= 8'd19 ;
-		bus_write <= 1'b0;
+	
+	// detect bus-transaction-complete ACK
+	// You MUST do this check
+	if (state==2 && bus_ack==1) begin
+		state <= 0;
+		bus_write <= 0;
 	end
 	
+	//Done state
+	if (state==22) begin
+		bus_write <= 0;
+		bus_en <= 4'b0;
+		
+	end
 	
-	// -- finished: --
-	// -- set up done flag to Qsys sram 0 ---
-	if (state == 8'd22) begin
-		bus_write <= 1'b0 ;
-		//state <= 8'd19 ;
-	end  
-	
-end // always @(posedge state_clock)
+end // always @(posedge state_clock --> CLOCK2_50)
+////////////////////////////////////////////////////////////////////
+
 
 //=======================================================
 //  Structural coding
@@ -582,52 +648,25 @@ Computer_System The_System (
 	////////////////////////////////////
 
 	// Global signals
-	.system_pll_ref_clk_clk					(CLOCK_50),
+	.system_pll_ref_clk_clk					(CLOCK_50), //?
 	.system_pll_ref_reset_reset			(1'b0),
-
+	
 	// AV Config
 	.av_config_SCLK							(FPGA_I2C_SCLK),
 	.av_config_SDAT							(FPGA_I2C_SDAT),
-
-	// Audio Subsystem
-	.audio_pll_ref_clk_clk					(CLOCK3_50),
-	.audio_pll_ref_reset_reset				(1'b0),
-	.audio_clk_clk								(AUD_XCK),
-	.audio_ADCDAT								(AUD_ADCDAT),
-	.audio_ADCLRCK								(AUD_ADCLRCK),
-	.audio_BCLK									(AUD_BCLK),
-	.audio_DACDAT								(AUD_DACDAT),
-	.audio_DACLRCK								(AUD_DACLRCK),
-
-	// Slider Switches
-	.slider_switches_export					(SW),
-
-	// Pushbuttons (~KEY[3:0]),
-	.pushbuttons_export						(~KEY[3:0]),
-
-	// Expansion JP1
-	//.expansion_jp1_export					({GPIO_0[35:19], GPIO_0[17], GPIO_0[15:3], GPIO_0[1]}),
-
-	// Expansion JP2
-	//.expansion_jp2_export					({GPIO_1[35:19], GPIO_1[17], GPIO_1[15:3], GPIO_1[1]}),
-
-	// LEDs
-	.leds_export								(LEDR),
 	
-	// Seven Segs
-	.hex3_hex0_export							(hex3_hex0),
-	//.hex5_hex4_export							(hex5_hex4),
-	
-	// PS2 Ports
-	//.ps2_port_CLK								(PS2_CLK),
-	//.ps2_port_DAT								(PS2_DAT),
-	//.ps2_port_dual_CLK						(PS2_CLK2),
-	//.ps2_port_dual_DAT						(PS2_DAT2),
+	// bus master
+	.bus_master_video_external_interface_address     (bus_addr),     // .address
+	.bus_master_video_external_interface_byte_enable (bus_byte_enable), //  .byte_enable
+	.bus_master_video_external_interface_read        (bus_read),        //   .read
+	.bus_master_video_external_interface_write       (bus_write),       //   .write
+	.bus_master_video_external_interface_write_data  (bus_write_data),  //   .write_data
+	.bus_master_video_external_interface_acknowledge (bus_ack), //    .acknowledge
+	.bus_master_video_external_interface_read_data   (bus_read_data),    //   .read_data
 
-	// IrDA
-	//.irda_RXD									(IRDA_RXD),
-	//.irda_TXD									(IRDA_TXD),
-
+	//PIO Ports
+	.pio_rand_seed_external_connection_export			 (pio_seed_wire),
+	.pio_corners_external_connection_export        (pio_corner_wire),
 	// VGA Subsystem
 	.vga_pll_ref_clk_clk 					(CLOCK2_50),
 	.vga_pll_ref_reset_reset				(1'b0),
@@ -640,25 +679,6 @@ Computer_System The_System (
 	.vga_G										(VGA_G),
 	.vga_B										(VGA_B),
 	
-	// Video In Subsystem
-	.video_in_TD_CLK27 						(TD_CLK27),
-	.video_in_TD_DATA							(TD_DATA),
-	.video_in_TD_HS							(TD_HS),
-	.video_in_TD_VS							(TD_VS),
-	.video_in_clk27_reset					(),
-	.video_in_TD_RESET						(),
-	.video_in_overflow_flag					(),
-	
-	.ebab_video_in_external_interface_address     (bus_addr),     // 
-	.ebab_video_in_external_interface_byte_enable (bus_byte_enable), //  .byte_enable
-	.ebab_video_in_external_interface_read        (bus_read),        //  .read
-	.ebab_video_in_external_interface_write       (bus_write),       //  .write
-	.ebab_video_in_external_interface_write_data  (bus_write_data),  //.write_data
-	.ebab_video_in_external_interface_acknowledge (bus_ack), //  .acknowledge
-	.ebab_video_in_external_interface_read_data   (bus_read_data),   
-	// clock bridge for EBAb_video_in_external_interface_acknowledge
-	.clock_bridge_0_in_clk_clk                    (CLOCK_50),
-		
 	// SDRAM
 	.sdram_clk_clk								(DRAM_CLK),
    .sdram_addr									(DRAM_ADDR),
@@ -775,6 +795,53 @@ Computer_System The_System (
 	.hps_io_hps_io_usb1_inst_DIR		(HPS_USB_DIR),
 	.hps_io_hps_io_usb1_inst_NXT		(HPS_USB_NXT)
 );
+endmodule
 
+/////////////////////////////////////////////////////////////////////////////
+// Quartus II Verilog Template
+// True Dual Port RAM with single clock
+// -- FROM Edit > Insert Template > Verilog > Full Designs > RAMs and ROMs
+/////////////////////////////////////////////////////////////////////////////
+module true_dual_port_ram_single_clock
+// two bits, 640x480 resolution
+#(parameter DATA_WIDTH=2, parameter ADDR_WIDTH=19)
+(
+	input [(DATA_WIDTH-1):0] data_a, data_b,
+	input [(ADDR_WIDTH-1):0] addr_a, addr_b,
+	input we_a, we_b, clk,
+	output reg [(DATA_WIDTH-1):0] q_a, q_b
+);
+
+	// Declare the RAM variable
+	reg [DATA_WIDTH-1:0] ram[2**ADDR_WIDTH-1:0];
+
+	// Port A 
+	always @ (posedge clk)
+	begin
+		if (we_a) 
+		begin
+			ram[addr_a] <= data_a;
+			q_a <= data_a;
+		end
+		else 
+		begin
+			q_a <= ram[addr_a];
+		end 
+	end 
+
+	// Port B 
+	always @ (posedge clk)
+	begin
+		if (we_b) 
+		begin
+			ram[addr_b] <= data_b;
+			q_b <= data_b;
+		end
+		else 
+		begin
+			q_b <= ram[addr_b];
+		end 
+	end
 
 endmodule
+////////////////////////////////////////////////////
