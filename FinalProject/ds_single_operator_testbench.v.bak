@@ -53,6 +53,8 @@ module testbench();
 		.clk             (clk_50),
 		.reset           (reset),
 		.bus_ack		 (1'b1),
+		.rand_seed       (32'hdeadbeef),
+		.corners		 (32'hc8a01464),
 		.x				 (x),
 		.y				 (y),
 		.z				 (z),

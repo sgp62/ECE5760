@@ -134,10 +134,13 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	//assign rand_term = (r[7:0] & ((1 << step_size) - 1));
 	assign seed[0] = {rand_seed[30:0],rand_seed};
 	
-	genvar k;
-	for(k = 1; k < 16; k=k+1) begin
-		assign seed[k] = seed[0] << k;
-	end
+	
+	generate 
+		genvar s;
+		for(s = 1; s < 16; s=s+1) begin
+			assign seed[s] = seed[0] << s;
+		end
+	endgenerate
 	
 /* 	assign seed[0] = 63'hff7fffcf;
 	assign seed[1] = 63'h8ffff1ffd;

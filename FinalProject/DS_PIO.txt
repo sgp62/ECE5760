@@ -26,11 +26,21 @@
 #define SDRAM_SPAN 0x04000000
 #define SDRAM_FPGA_SPAN 0x06000000
 
-#define RAND_SEED 0x4000000
-#define CORNERS   0x4000010
+#define RAND_SEED   0x4000000
+#define CORNERS     0x4000010
+#define COLOR_HIGH  0x4000020
+#define COLOR_LOW   0x4000030
+#define ALT_HIGH    0x4000040
+#define ALT_LOW     0x4000050
+
+
 
 volatile int *pio_rand_seed_ptr = NULL; // positive
 volatile int *pio_corners_ptr = NULL;
+volatile int *pio_color_high_ptr = NULL;
+volatile int *pio_color_low_ptr = NULL;
+volatile int *pio_alt_high_ptr = NULL;
+volatile int *pio_alt_low_ptr = NULL;
 
 float fix_to_float(int);
 int float_to_fix(double f);
@@ -55,20 +65,56 @@ void VGA_Hline(int, int, int, short);
 void VGA_disc(int, int, int, short);
 void VGA_circle(int, int, int, int);
 // 16-bit primary colors
-#define red (0 + (0 << 5) + (31 << 11))
-#define dark_red (0 + (0 << 5) + (15 << 11))
-#define green (0 + (63 << 5) + (0 << 11))
-#define dark_green (0 + (31 << 5) + (0 << 11))
-#define blue (31 + (0 << 5) + (0 << 11))
-#define dark_blue (15 + (0 << 5) + (0 << 11))
-#define yellow (0 + (63 << 5) + (31 << 11))
-#define cyan (31 + (63 << 5) + (0 << 11))
-#define magenta (31 + (0 << 5) + (31 << 11))
-#define black (0x0000)
-#define gray (15 + (31 << 5) + (51 << 11))
-#define white (0xffff)
-int colors[] = {red, dark_red, green, dark_green, blue, dark_blue,
-								yellow, cyan, magenta, gray, black, white};
+//#define red (0 + (0 << 5) + (31 << 11))
+//#define dark_red (0 + (0 << 5) + (15 << 11))
+//#define green (0 + (63 << 5) + (0 << 11))
+//#define dark_green (0 + (31 << 5) + (0 << 11))
+//#define blue (31 + (0 << 5) + (0 << 11))
+//#define dark_blue (15 + (0 << 5) + (0 << 11))
+//#define yellow (0 + (63 << 5) + (31 << 11))
+//#define cyan (31 + (63 << 5) + (0 << 11))
+//#define magenta (31 + (0 << 5) + (31 << 11))
+//#define black (0x0000)
+//#define gray (15 + (31 << 5) + (51 << 11))
+//#define white (0xffff)
+//int colors[] = {red, dark_red, green, dark_green, blue, dark_blue,
+//								yellow, cyan, magenta, gray, black, white};
+
+
+// 8-bit primary colors - 3, 3, 2 - r, g, b
+#define white 0xff
+#define light_gray (3 + (6 << 2) + (6 << 5))
+#define gray (3 + (5 << 2) + (5 << 5))
+#define gray_violet (3 + (4 << 2) + (5 << 5))
+#define dark_gray (2 + (4 << 2) + (4 << 5))
+#define black 0x000
+#define yellow (0 + (7 << 2) + (7 << 5))
+#define light_sand (2 + (7 << 2) + (7 << 5))
+#define sand (1 + (6 << 2) + (7 << 5)) 
+#define dark_sand (1 + (5 << 2) + (7 << 5))
+#define dark_sand2 (0 + (5 << 2) + (7 << 5))
+#define light_brown2 (1 + (4 << 2) + (5 << 5))
+#define light_brown (1 + (4 << 2) + (6 << 5))
+#define brown (1 + (3 << 2) + (4 << 5))
+#define dark_brown (1 + (2 << 2) + (2 << 5))
+#define red_brown (1 + (2 << 2) + (3 << 5))
+#define red (0 + (0 << 2) + (7 << 5))
+#define dark_red (1 + (1 << 2) + (4 << 5))
+#define red_orange (0 + (5 << 2) + (7 << 5))
+#define orange (0 + (6 << 2) + (7 << 5))
+#define dark_orange (0 + (5 << 2) + (5 << 5))
+#define yellow (0 + (7 << 2) + (7 << 5))
+#define dark_green (1 + (3 << 2) + (2 << 5))
+#define green (1 + (4 << 2) + (3 << 5))
+#define light_green (1 + (6 << 2) + (5 << 5))
+#define teal (3 + (6 << 2) + (1 << 5))
+#define light_blue2 (3 + (5 << 2) + (4 << 5))
+#define light_blue (3 + (4 << 2) + (3 << 5))
+#define sky_blue (3 + (4 << 2) + (2 << 5))
+#define blue (3 + (1 << 2) + (1 << 5))
+#define ocean_blue (3 + (3 << 2) + (1 << 5))
+#define dark_blue (2 + (1 << 2) + (1 << 5))
+
 
 // pixel macro
 #define VGA_PIXEL(x, y, color)                                           \
@@ -177,29 +223,89 @@ int main(void)
 	// Get the address that maps to the PIO ports
 	pio_rand_seed_ptr = (unsigned int *)(vga_pixel_virtual_base + RAND_SEED);
 	pio_corners_ptr = (unsigned int *)(vga_pixel_virtual_base + CORNERS);
+	pio_color_high_ptr = (unsigned int *)(vga_pixel_virtual_base + COLOR_HIGH);
+	pio_color_low_ptr = (unsigned int *)(vga_pixel_virtual_base + COLOR_LOW);
+	pio_alt_high_ptr = (unsigned int *)(vga_pixel_virtual_base + ALT_HIGH);
+	pio_alt_low_ptr = (unsigned int *)(vga_pixel_virtual_base + ALT_LOW);
 
   *pio_rand_seed_ptr = 0xdeadbeef; //Initial Static Values
   *pio_corners_ptr = 0xc8a01464;// 200/160/20/100; Sequence of corners: (0,0), (0, dim-1), (dim-1,0), (dim-1,dim-1)
+  *pio_color_high_ptr = (light_brown << 24) + (brown << 16) + (dark_brown << 8) + (brown);
+  *pio_color_low_ptr = (dark_green << 24) + (green << 16) + (light_green << 8) + (blue);
+  *pio_alt_high_ptr = (245 << 24) + (235 << 16) + (225 << 8) + (210);
+  *pio_alt_low_ptr = (190 << 24) + (160 << 16) + (130 << 8);
   
-
-    while (1)
+  srand(time(NULL));
+  while (1)
 	{
 		// Wait for user command input
 		printf("Change Diamond Square settings? Y/N\n");
 		scanf("%s", input_buffer);
 		if (strcmp(input_buffer, "Y") == 0 )
 		{
-			printf("Insert a new 32 bit number for each\n");
-			printf("Random Seed:\n");
-
-			scanf("%x", &input_int);
-
-      if(input_int) *pio_rand_seed_ptr = input_int;
-
+			printf("Create New Random Seed? Y/N\n");
+      scanf("%s", input_buffer);
+      if (strcmp(input_buffer, "Y") == 0 )
+		  {
+        int r = rand(); 
+        *pio_rand_seed_ptr = r;
+        printf("New random seed: %x\n",r);
+			}
+      printf("Create New Corners? Y/N\n");
+      scanf("%s", input_buffer);
+      if (strcmp(input_buffer, "Y") == 0 )
+		  {
+        printf("Corner Values, 8 bits each, in sequence of: {(0,0),(0, dim-1),(dim-1,0),(dim-1,dim-1)} as one 32 bit int:\n");
+			  scanf("%x", &input_int);
+			  if(input_int) *pio_corners_ptr = (((input_int)));
+			}
+			printf("Change color settings? Y/N\n");
+      scanf("%s", input_buffer);
+      if (strcmp(input_buffer, "Y") == 0 ){
+        printf("Choose between swamp, desert, arctic, volcanic, islands\n");
+        scanf("%s", input_buffer);
+        if (strcmp(input_buffer, "swamp") == 0 ){
+          *pio_color_high_ptr = (light_brown << 24) + (brown << 16) + (dark_brown << 8) + (brown);
+          *pio_color_low_ptr = (dark_green << 24) + (green << 16) + (light_green << 8) + (blue);
+          *pio_alt_high_ptr = (245 << 24) + (235 << 16) + (225 << 8) + (210);
+          *pio_alt_low_ptr = (190 << 24) + (160 << 16) + (130 << 8);
+  		  }
+        if (strcmp(input_buffer, "desert") == 0 ){
+          *pio_color_high_ptr = (dark_brown << 24) + (brown << 16) + (dark_sand2 << 8) + (light_brown);
+          *pio_color_low_ptr = (light_brown2 << 24) + (dark_sand << 16) + (sand << 8) + (light_sand);
+          *pio_alt_high_ptr = (248 << 24) + (243 << 16) + (238 << 8) + (234);
+          *pio_alt_low_ptr = (230 << 24) + (220 << 16) + (205 << 8);
+  		  }
+        if (strcmp(input_buffer, "arctic") == 0 ){
+          *pio_color_high_ptr = (light_gray << 24) + (white << 16) + (gray << 8) + (gray_violet);
+          *pio_color_low_ptr = (light_gray << 24) + (gray << 16) + (light_blue << 8) + (dark_gray);
+          *pio_alt_high_ptr = (235 << 24) + (110 << 16) + (85 << 8) + (70);
+          *pio_alt_low_ptr = (60 << 24) + (50 << 16) + (40 << 8);
+          
+  		  }
+        if (strcmp(input_buffer, "grassland") == 0 ){
+          *pio_color_high_ptr = (light_brown2 << 24) + (light_brown << 16) + (brown << 8) + (dark_brown);
+          *pio_color_low_ptr = (dark_green << 24) + (dark_green << 16) + (green << 8) + (light_green);
+          *pio_alt_high_ptr = (245 << 24) + (235 << 16) + (225 << 8) + (215);
+          *pio_alt_low_ptr = (200 << 24) + (160 << 16) + (120 << 8);
+          
+  		  }
+        if (strcmp(input_buffer, "volcanic") == 0 ){
+          *pio_color_high_ptr = (yellow << 24) + (orange << 16) + (red_orange << 8) + (red);
+          *pio_color_low_ptr = (dark_red << 24) + (dark_brown << 16) + (dark_gray << 8) + (black);
+          *pio_alt_high_ptr = (250 << 24) + (240 << 16) + (230 << 8) + (205);
+          *pio_alt_low_ptr = (190 << 24) + (150 << 16) + (120 << 8);
+          
+  		  }
+        if (strcmp(input_buffer, "islands") == 0 ){
+          *pio_color_high_ptr = (dark_sand << 24) + (light_brown2 << 16) + (green << 8) + (brown);
+          *pio_color_low_ptr = (dark_brown << 24) + (sky_blue << 16) + (ocean_blue << 8) + (ocean_blue);
+          *pio_alt_high_ptr = (245 << 24) + (235 << 16) + (230 << 8) + (215);
+          *pio_alt_low_ptr = (200 << 24) + (190 << 16) + (170 << 8);
+          
+  		  }
+      }
       
-			printf("Corner Values, 8 bits each, in sequence of: {(0,0),(0, dim-1),(dim-1,0),(dim-1,dim-1)} as one 32 bit int:\n");
-			scanf("%x", &input_int);
-			if(input_int) *pio_corners_ptr = (((input_int)));
 			printf("All Done!\n\n");
 		}
 //		else if (strcmp(input_buffer, "C") == 0 )

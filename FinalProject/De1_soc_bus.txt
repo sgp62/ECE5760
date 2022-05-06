@@ -374,7 +374,7 @@ HexDigit Digit0(HEX0, SW[3:0]);
 HexDigit Digit1(HEX1, SW[7:4]);
 HexDigit Digit2(HEX2, SW[9:8]);
 HexDigit Digit3(HEX3, image_data);
-assign LEDR[0] = y_cood[SW];
+//assign LEDR[0] = y_cood[SW];
 
 ////////////////////////////////////////////////////////////////////
 // Pixel generation state machine
@@ -448,7 +448,8 @@ assign LEDR[0] = y_cood[SW];
 //======================================
 // Bus controller for AVALON bus-master
 //======================================
-wire [31:0] bus_addr, vga_bus_addr ; // Avalon address
+wire [31:0] vga_bus_addr ; // Avalon address
+reg  [31:0] bus_addr;
 wire [31:0] video_base_address = 32'h000_0000 ;  // Avalon address
 wire [3:0] bus_byte_enable ; // four bit byte read/write mask
 reg [3:0] bus_en;
@@ -466,7 +467,7 @@ reg [19:0] hs_count ;
 
 // pixel address is
 // from C: pixel_ptr = 0h0800_0000 + (y_cood<<10) + x_cood ;
-reg [9:0] x_cood, y_cood ;
+reg [9:0] reset_cood = 0;
 //assign bus_addr = video_base_address + {22'b0,x_cood} + ({22'b0,y_cood}<<10) ;
 // M10k block memory address
 // from the pixel state machine
@@ -480,11 +481,13 @@ wire [7:0] altitude;
 wire       done;
 wire [9:0] vga_x_cood, vga_y_cood;
 
-assign vga_bus_addr = video_base_address + {22'b0,vga_x_cood+10'd100} + ({22'b0,vga_y_cood}<<10) ;
-assign bus_addr = vga_bus_addr;
+assign vga_bus_addr = video_base_address + {22'b0,vga_x_cood+10'd220} + ({22'b0,vga_y_cood+100}<<10) ;
+
 reg [7:0] color_reg ;
 
-wire [31:0] pio_corner_wire, pio_seed_wire;
+wire [31:0] reset_bus_addr = video_base_address + {22'b0,reset_cood};
+
+wire [31:0] pio_corner_wire, pio_seed_wire, pio_alt_high, pio_alt_low, pio_color_high, pio_color_low;
 
 //*************GOTTA CHANGE THIS OTHERWISE THINGS GET MESSED UP******************
 wire [8:0] dim_wire = 257; 
@@ -492,6 +495,8 @@ diamond_square_single_operator #(.dim_power(8), .dim(257))  finalproj_arbiter (
 	.clk		 (CLOCK_50),
 	.reset	 (~KEY[0]),
 	.bus_ack  (bus_ack),
+	.rand_seed(pio_seed_wire),
+	.corners  (pio_corner_wire),
 	.x			 (vga_x_cood),
 	.y		    (vga_y_cood),
 	.z		    (altitude),
@@ -505,14 +510,19 @@ always @(posedge CLOCK2_50) begin //CLOCK_50
 	if (~KEY[0]) begin
 		state <= 0 ;
 		bus_read <= 0 ; // set to one if a read opeation from bus
-		bus_write <= 0 ; // set to on if a write operation to bus
+		 // set to on if a write operation to bus
 		// base address of upper-left corner of the screen
-		x_cood <= 0 ;
-		y_cood <= 0 ;
+		reset_cood <= reset_cood+1 ;
 		timer <= 0;
+		
+		bus_write <= 0 ;
 		bus_en <= 0;
+//		bus_write_data <= 0;
+//		bus_addr <= reset_bus_addr;
+		
 	end
 	else begin
+		bus_addr <= vga_bus_addr;
 		timer <= timer + 1;
 	end
 	
@@ -571,36 +581,33 @@ always @(posedge CLOCK2_50) begin //CLOCK_50
 //		end
 //		else bus_write_data <= 8'h00 ;
 		
-		if (altitude >= 8'd245) begin
-			color_reg = 8'b_111_111_11 ; // white
+		if (altitude >= pio_alt_high[31:24]) begin //8'd245
+			color_reg = pio_color_high[31:24];//8'b_111_111_11 ; // white
 		end
-		else if (altitude >= 8'd235) begin
-		  color_reg = 8'b_100_100_11 ; //gray
+		else if (altitude >= pio_alt_high[23:16]) begin //8'd235
+		  color_reg = pio_color_high[23:16];//8'b_101_101_11 ; //gray
 		end
-		else if (altitude >= 8'd220) begin
-		  color_reg = 8'b_110_100_01 ; //lighter brown
+		else if (altitude >= pio_alt_high[15:8]) begin //8'd225
+		  color_reg = pio_color_high[15:8];//8'b_110_100_01 ; //lighter brown
 		end
-		else if (altitude >= 8'd200) begin
-		  color_reg = 8'b_100_011_01 ; //brown
+		else if (altitude >= pio_alt_high[7:0]) begin //8'd210
+		  color_reg = pio_color_high[7:0];//8'b_100_011_01 ; //brown
 		end
-		else if (altitude >= 8'd180) begin
-		  color_reg = 8'b_010_010_01 ; //darker brown
+		else if (altitude >= pio_alt_low[31:24]) begin //8'd190
+		  color_reg = pio_color_low[31:24];//8'b_010_011_01 ; //dark green
 		end
-		else if (altitude >= 8'd160) begin
-		  color_reg = 8'b_010_011_01 ; //dark green
+		else if (altitude >= pio_alt_low[23:16]) begin //8'd160
+		  color_reg = pio_color_low[23:16];//8'b_011_100_01 ; //medium green
 		end
-		else if (altitude >= 8'd145) begin
-		  color_reg = 8'b_011_100_01 ; //medium green
-		end
-		else if (altitude >= 8'd130) begin
-		  color_reg = 8'b_101_110_01 ; //light green
-		end
-		else if (altitude >= 8'd70) begin
-		  color_reg = 8'b_001_001_11 ; //blue
+		else if (altitude >= pio_alt_low[15:8]) begin //8'd130
+		  color_reg = pio_color_low[15:8];//8'b_101_110_01 ; //light green
 		end
 		else begin
-		  color_reg = 8'b_001_001_10 ; //dark blue 
+		  color_reg = pio_color_low[7:0];//8'b_001_001_11 ; //blue
 		end
+//		else begin
+//		  color_reg = 8'b_001_001_10 ; //dark blue 
+//		end
 		
 		
 		
@@ -666,7 +673,12 @@ Computer_System The_System (
 
 	//PIO Ports
 	.pio_rand_seed_external_connection_export			 (pio_seed_wire),
-	.pio_corners_external_connection_export        (pio_corner_wire),
+	.pio_corners_external_connection_export        	 (pio_corner_wire),
+	.pio_alt_high_external_connection_export         (pio_alt_high), //    pio_alt_high_external_connection.export
+	.pio_alt_low_external_connection_export          (pio_alt_low),//     pio_alt_low_external_connection.export
+	.pio_color_high_external_connection_export       (pio_color_high), //  pio_color_high_external_connection.export
+	.pio_color_low_external_connection_export        (pio_color_low), //   pio_color_low_external_connection.export
+
 	// VGA Subsystem
 	.vga_pll_ref_clk_clk 					(CLOCK2_50),
 	.vga_pll_ref_reset_reset				(1'b0),
