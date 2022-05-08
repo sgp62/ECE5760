@@ -90,10 +90,11 @@ module rand63(rand_out, seed_in, state_in, clk, reset);
 endmodule
 
 module diamond_square_single_operator #(parameter dim_power = 3, parameter dim = 9) (
-	input 			clk, reset, bus_ack,
+	input 			clk, reset, ack,
 	input 	[31:0]	rand_seed, corners,
 	output 	[9:0]	x,y,
 	output	[7:0]	z,
+	output	reg 	new_value,
 	output          done_out
 	
 );
@@ -137,7 +138,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 	
 	generate 
 		genvar s;
-		for(s = 1; s < 16; s=s+1) begin
+		for(s = 1; s < 16; s=s+1) begin: seed_gen
 			assign seed[s] = seed[0] << s;
 		end
 	endgenerate
@@ -186,6 +187,7 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 			state        <= 4'd0;
 			x_reg        <= 10'b0;
 			y_reg        <= 10'b0;
+			new_value	 <= 1'b0;
 			
 			step_power  <= dim_power;
 			row_id      <= half;
@@ -206,9 +208,9 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 					4'd0 : begin
 						//Do m10k read for the input m10k position
 						m10k_r_addr[done_col] <= done_row;
+						new_value <= 1'b0;
 						
-						if(bus_ack) 
-							state <= 4'd1;
+						state <= 4'd1;
 					end
 					4'd1 : begin
 						state <= 4'd2;
@@ -217,20 +219,22 @@ module diamond_square_single_operator #(parameter dim_power = 3, parameter dim =
 						z_reg <= m10k_r_data[done_col];
 						x_reg <= done_col;
 						y_reg <= done_row;
-						
-						if ((done_col == dim-9'd1) && (done_row == dim-9'd1)) begin
-							state <= 4'd3;
+						new_value <= 1'b1;
+
+						if(ack)  begin
+							if ((done_col == dim-9'd1) && (done_row == dim-9'd1)) begin
+								state <= 4'd3;
+							end
+							else if (done_row == dim-9'd1) begin
+								done_col <= done_col + 9'd1;
+								done_row <= 0;
+								state <= 4'd0;
+							end
+							else begin
+								done_row <= done_row + 9'd1;
+								state <= 4'd0;
+							end
 						end
-						else if (done_row == dim-9'd1) begin
-							done_col <= done_col + 9'd1;
-							done_row <= 0;
-							state <= 4'd0;
-						end
-						else begin
-							done_row <= done_row + 9'd1;
-							state <= 4'd0;
-						end
-						
 					end
 					4'd3: begin //Idle state
 					
