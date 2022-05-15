@@ -107,6 +107,7 @@ module diamond_square_operator #(parameter dim_power = 3) (
 	reg     [3:0]   vga_state;
 	
 	reg     [9:0]   x_reg, y_reg;
+	reg 	[31:0] cycles;
 	
 	assign dim = (1 << dim_power) + 9'b1;
 	assign step_size = step_size_array[dim >> 1];
@@ -146,8 +147,10 @@ module diamond_square_operator #(parameter dim_power = 3) (
 			vga_state    <= 4'd0;
 			x_reg        <= 10'b0;
 			y_reg        <= 10'b0;
+			cycles		 <= 0;
 		end
 		else begin
+			cycles <= cycles+1;
 			if(done_wire) begin
 				if(vga_state == 4'd0) begin
 					vga_state <= 4'd1;

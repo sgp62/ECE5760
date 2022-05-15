@@ -1,5 +1,6 @@
 #Diamond-Square Algo Python example
 import random
+import time
 
 def diamond_square(w, h):
 
@@ -52,7 +53,7 @@ def diamond_square(w, h):
 def diamond_step(x, y, step_size, r):
     global arry
     avg = (arry[x-step_size//2][y+step_size//2] + arry[x+step_size//2][y+step_size//2] + arry[x+step_size//2][y-step_size//2] + arry[x-step_size//2][y-step_size//2]) // 4
-    # arry[x][y] = avg + r
+    arry[x][y] = avg + r
     arry[x][y] = avg 
     
 
@@ -91,17 +92,20 @@ def square_step(x, y, step_size, r):
         # count+=1
     else:
         avg += arry[x][(y+step_size//2)%width + 1]
+    avg += r
     arry[x][y] = avg // 4
     # print("AVEG:", avg // 4)
     # print()
    
    
 global arry
-size = 9
+size = 257
+start_time = time.time()
 diamond_square(size,size)
+print("--- %s seconds ---" % (time.time() - start_time))
 
-for i in range(size):
-    for j in range(size):
-        print('%.2f '% arry[height-1-i][j], end='')
-    print("")
+# for i in range(size):
+    # for j in range(size):
+        # print('%.2f '% arry[height-1-i][j], end='')
+    # print("")
     

@@ -52,13 +52,14 @@ module testbench();
 	diamond_square_single_operator  #(.dim_power(6), .dim(65)) ds_operator (
 		.clk             (clk_50),
 		.reset           (reset),
-		.bus_ack		 (1'b1),
+		.ack		 	 (1'b1),
 		.rand_seed       (32'hdeadbeef),
 		.corners		 (32'hc8a01464),
 		.x				 (x),
 		.y				 (y),
 		.z				 (z),
-		.done_out        ()
+		.done_out        (),
+		.new_value		 ()
 	);
 	
 	

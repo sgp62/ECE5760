@@ -1,0 +1,14 @@
+Python: 257x257
+90.0ms
+
+
+FPGA: 257x257
+New m10k write data every 3 cycles -> 66049 vals * 3 = 198147 cycles for 50MHz clock = 198147/50E6 = 0.00396s = 3.96ms
+
+
+FPGA: 33x33
+3 cycles * 1089 vals = 3267 cycles for 50MHz clock = 3267/50E6 = 65.34us
+
+
+FPGA parallel: 33x33
+228 cycles = 4.56us

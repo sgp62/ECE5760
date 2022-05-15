@@ -49,16 +49,17 @@ module testbench();
 	end
 	
 	
-	diamond_square_single_operator  #(.dim_power(7), .dim(129)) ds_operator (
+	diamond_square_single_operator  #(.dim_power(8), .dim(257)) ds_operator (
 		.clk             (clk_50),
 		.reset           (reset),
-		.bus_ack		 (1'b1),
+		.ack		 	 (1'b1),
 		.rand_seed       (32'hdeadbeef),
 		.corners		 (32'hc8a01464),
 		.x				 (x),
 		.y				 (y),
 		.z				 (z),
-		.done_out        ()
+		.done_out        (),
+		.new_value		 ()
 	);
 	
 	
